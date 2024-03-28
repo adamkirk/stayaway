@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
+         colors="true"
+         defaultTestSuite="all"
+>
+    <testsuites>
+        <testsuite name="unit">
+            <directory>app/Tests/Unit</directory>
+        </testsuite>
+        <testsuite name="integration">
+            <directory>infra/Tests/Integration</directory>
+        </testsuite>
+        <testsuite name="app">
+            <directory>app/Tests/Unit</directory>
+        </testsuite>
+        <testsuite name="infra">
+            <directory>infra/Tests/Integration</directory>
+        </testsuite>
+        <testsuite name="feature">
+            <directory>tests/Feature</directory>
+        </testsuite>
+        <testsuite name="app-errors">
+            <directory>app/Tests/Unit/Errors</directory>
+        </testsuite>
+        <testsuite name="app-http">
+            <directory>app/Tests/Unit/Http</directory>
+        </testsuite>
+        
+        <!-- 
+            We use this as the defaultTestSuite 
+            Some of the test directories are in multiple suites, so when phpunit
+            runs without the defaultTestSuite it will run the same multiple times
+            as it will run each suite separately. By setting it up like this, we 
+            can ensure the default is to run everything ONCE.
+
+            Bit annoying but this will allow us to create really focussed test 
+            suites as well as really broad ones for different use cases.
+        -->
+        <testsuite name="all">
+            <directory>tests/Feature</directory>
+            <directory>app/Tests/Unit</directory>
+            <directory>infra/Tests/Integration</directory>
+        </testsuite>
+        
+    </testsuites>
+    <source>
+        <include>
+            <directory>app</directory>
+            <directory>infra</directory>
+        </include>
+    </source>
+    <php>
+        <env name="APP_ENV" value="testing"/>
+        <env name="APP_MAINTENANCE_DRIVER" value="file"/>
+        <env name="BCRYPT_ROUNDS" value="4"/>
+        <env name="CACHE_STORE" value="array"/>
+        <!-- <env name="DB_CONNECTION" value="sqlite"/> -->
+        <!-- <env name="DB_DATABASE" value=":memory:"/> -->
+        <env name="MAIL_MAILER" value="array"/>
+        <env name="PULSE_ENABLED" value="false"/>
+        <env name="QUEUE_CONNECTION" value="sync"/>
+        <env name="SESSION_DRIVER" value="array"/>
+        <env name="TELESCOPE_ENABLED" value="false"/>
+    </php>
+</phpunit>

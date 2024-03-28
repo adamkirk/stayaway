@@ -1,11 +1,13 @@
 #!/bin/bash -e
 
 ROOTDIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+SVCDIR=$ROOTDIR/svc
 
 MINICA_CERTS_DIR=$ROOTDIR/etc/tls/certs
 TRAEFIK_CERTS_DIR=$ROOTDIR/etc/traefik/tls/certs
 
 DC="docker compose -p stayaway -f ./docker-compose.yml --env-file $ROOTDIR/.dockerenv"
+DC="$DC -f $SVCDIR/venues/docker-compose.yml"
 
 # See: https://www.shellhacks.com/bash-colors/
 RED='\033[0;31m'
@@ -181,6 +183,17 @@ function __hosts() {
 	echo "127.0.0.1 grafana.stayaway.test"
 	echo "127.0.0.1 loki.stayaway.test"
 	echo "127.0.0.1 prometheus.stayaway.test"
+	echo "127.0.0.1 venues.stayaway.test"
+	echo "127.0.0.1 pgadmin.stayaway.test"
+}
+
+function __is_svc_dir() {
+	PARENT_DIR=$(cd .. && pwd)
+	if [ "$PARENT_DIR" == "$SVCDIR" ]; then
+		return 0
+	fi
+
+	return 1
 }
 
 function __up() {

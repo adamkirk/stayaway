@@ -58,3 +58,19 @@ services:
       stayaway-dev:
         aliases:
           - ${STAYAWAY_MAILBOX_INTERNAL_HOST}
+
+  mkdocs:
+    <<: *network
+    image: squidfunk/mkdocs-material:latest
+    # Doesn't exist for arm
+    platform: linux/amd64
+    working_dir: /app
+    restart: always
+    labels:
+      - "traefik.http.routers.mkdocs.rule=Host(`${STAYAWAY_MKDOCS_HOST}`)"
+      - "traefik.enable=true"
+      - "traefik.http.routers.mkdocs.entrypoints=websecure"
+      - "traefik.http.services.mkdocs.loadbalancer.server.port=${STAYAWAY_MKDOCS_PORT}"
+      - "traefik.http.routers.mkdocs.tls=true"
+    volumes:
+      - .:/app

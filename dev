@@ -173,15 +173,31 @@ function __dc() {
   $DC "$@"
 }
 
+# TODO: find a way to pull all these hosts from traefik api
+# Very do-able but fiddly, especially with just bash
 function __hosts() {
 	echo "127.0.0.1 mailbox.stayaway.test"
+	echo "127.0.0.1 mkdocs.stayaway.test"
+}
+
+function __up() {
+	$DC up -d
+}
+
+function __down() {
+	$DC down --remove-orphans
+}
+
+function __restart() {
+	__down
+	__up
 }
 
 function main() {
 	COMMAND="$1"
 
 	case $COMMAND in
-	tls|hosts)
+	tls|hosts|up|down|restart)
 		TORUN="__$COMMAND"
 		;;
 	dc|exec)

@@ -1,6 +1,6 @@
-site_name: stayaway
-repo_url: https://github.com/adamkirk/stayaway
-repo_name: adamkirk/stayaway@github
+site_name: venues
+repo_url: https://github.com/adamkirk/stayaway/svc/venues
+repo_name: adamkirk/stayaway/svc/venues@github
 docs_dir: ./docs
 theme:
   name: material
@@ -46,10 +46,5 @@ markdown_extensions:
   - pymdownx.tabbed:
       alternate_style: true
 
-plugins:
-  - monorepo
-
 nav:
   - 'index.md'
-  - Venues: '!include ./svc/venues/mkdocs.yml'
-

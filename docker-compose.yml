@@ -32,6 +32,8 @@ services:
       - "${STAYAWAY_ETC_TRAEFIK_DIR}/tls/certs/:/certs/" # mount certs
       - "${STAYAWAY_ETC_TRAEFIK_DIR}/traefik.yaml:/etc/traefik/traefik.yaml" # mount config
       - "${STAYAWAY_ETC_TRAEFIK_DIR}/traefik-dynamic-config.yaml:/traefik-dynamic-config.yaml"
+    labels:
+      - "prometheus.port=8082"
 
   mailbox:
     <<: *network
@@ -74,3 +76,89 @@ services:
       - "traefik.http.routers.mkdocs.tls=true"
     volumes:
       - .:/app
+
+
+  grafana:
+    <<: *network
+    build:
+      context: ${STAYAWAY_ETC_GRAFANA_STACK}/grafana
+      args:
+        GRAFANA_VERSION: 10.0.12
+    environment:
+      GF_LOG_LEVEL: ${STAYAWAY_GRAFANA_LOG_LEVEL}
+      GF_ADMIN_USERNAME: ${STAYAWAY_GRAFANA_ADMIN_USERNAME}
+      GF_ADMIN_PASSWORD: ${STAYAWAY_GRAFANA_ADMIN_PASSWORD}
+      GF_HTTP_PORT: ${STAYAWAY_GRAFANA_HTTP_PORT}
+      GF_DOMAIN: ${STAYAWAY_GRAFANA_HOST}
+      GF_MAIL_HOST: ${STAYAWAY_MAILBOX_INTERNAL_HOST}
+      GF_MAIL_USER: ${STAYAWAY_MAILBOX_USERNAME}
+      GF_MAIL_PASSWORD: ${STAYAWAY_MAILBOX_PASSWORD}
+      GF_LOKI_HOST: ${STAYAWAY_LOKI_INTERNAL_HOST}
+      GF_LOKI_PORT: ${STAYAWAY_LOKI_HTTP_PORT}
+      GF_PROVISIONING_PATH: ${STAYAWAY_GRAFANA_PROVISIONING_PATH}
+      GF_PROMETHEUS_HOST: ${STAYAWAY_PROMETHEUS_INTERNAL_HOST}
+      GF_PROMETHEUS_HTTP_PORT: ${STAYAWAY_PROMETHEUS_HTTP_PORT}
+    volumes:
+      - '${STAYAWAY_STORAGE_DIR}/grafana:/var/lib/grafana'
+      - '${STAYAWAY_ETC_GRAFANA_STACK}/grafana/conf/defaults.ini:/usr/share/grafana/conf/defaults.ini'
+      - '${STAYAWAY_ETC_GRAFANA_STACK}/grafana/provisioning:${STAYAWAY_GRAFANA_PROVISIONING_PATH}'
+    labels:
+      - "traefik.http.routers.grafana.rule=Host(`${STAYAWAY_GRAFANA_HOST}`)"
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.entrypoints=websecure"
+      - "traefik.http.services.grafana.loadbalancer.server.port=${STAYAWAY_GRAFANA_HTTP_PORT}"
+      - "traefik.http.routers.grafana.tls=true"
+
+  loki:
+    <<: *network
+    image: grafana/loki:2.9.2
+    command: 
+      - -config.expand-env=true
+      - -config.file=${STAYAWAY_LOKI_CONFIG_PATH}
+    environment:
+      LOKI_HTTP_PORT: ${STAYAWAY_LOKI_HTTP_PORT}
+    volumes:
+      - '${STAYAWAY_ETC_GRAFANA_STACK}/loki/conf/config.yaml:${STAYAWAY_LOKI_CONFIG_PATH}'
+      # Think this is correct...
+      - '${STAYAWAY_STORAGE_DIR}/loki:/tmp/loki'
+    labels:
+      - "traefik.http.routers.loki.rule=Host(`${STAYAWAY_LOKI_HOST}`)"
+      - "traefik.enable=true"
+      - "traefik.http.routers.loki.entrypoints=websecure"
+      - "traefik.http.services.loki.loadbalancer.server.port=${STAYAWAY_LOKI_HTTP_PORT}"
+      - "traefik.http.routers.loki.tls=true"
+
+  promtail:
+    <<: *network
+    image: grafana/promtail:2.9.2
+    environment:
+      PROMTAIL_HTTP_PORT: ${STAYAWAY_PROMTAIL_HTTP_PORT}
+      PROMTAIL_LOKI_HOST: ${STAYAWAY_LOKI_INTERNAL_HOST}
+      PROMTAIL_LOKI_PORT: ${STAYAWAY_LOKI_HTTP_PORT}
+    volumes:
+      - '${STAYAWAY_ETC_GRAFANA_STACK}/promtail/conf/config.yaml:${STAYAWAY_PROMTAIL_CONFIG_PATH}'
+      - '${STAYAWAY_STORAGE_DIR}/promtail:/tmp/promtail'
+      # Allows us to pull logs from docker
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      # - /var/log:/var/log
+    command: 
+      - -config.expand-env=true
+      - -config.file=${STAYAWAY_PROMTAIL_CONFIG_PATH}
+
+  prometheus:
+    <<: *network
+    image: prom/prometheus:v2.50.1
+    # So it can access the docker socket...
+    # Not ideal, but this is only dev.
+    user: root
+    volumes:
+      - '${STAYAWAY_ETC_GRAFANA_STACK}/prometheus/conf/prometheus.yml:/etc/prometheus/prometheus.yml'
+      - '${STAYAWAY_STORAGE_DIR}/prometheus:/prometheus'
+      - "/var/run/docker.sock:/var/run/docker.sock:ro" # listen to docker events
+    labels:
+      - "traefik.http.routers.prometheus.rule=Host(`${STAYAWAY_PROMETHEUS_HOST}`)"
+      - "traefik.enable=true"
+      - "traefik.http.routers.prometheus.entrypoints=websecure"
+      - "traefik.http.services.prometheus.loadbalancer.server.port=${STAYAWAY_PROMETHEUS_HTTP_PORT}"
+      - "traefik.http.routers.prometheus.tls=true"

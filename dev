@@ -178,6 +178,9 @@ function __dc() {
 function __hosts() {
 	echo "127.0.0.1 mailbox.stayaway.test"
 	echo "127.0.0.1 mkdocs.stayaway.test"
+	echo "127.0.0.1 grafana.stayaway.test"
+	echo "127.0.0.1 loki.stayaway.test"
+	echo "127.0.0.1 prometheus.stayaway.test"
 }
 
 function __up() {

@@ -1,0 +1,9 @@
+tls:
+  domains:
+  certificates:
+
+    - certFile: /certs/stayaway.test.cert
+      keyFile: /certs/stayaway.test.key
+
+    - certFile: /certs/_.stayaway.test.cert
+      keyFile: /certs/_.stayaway.test.key

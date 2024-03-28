@@ -1,0 +1,201 @@
+#!/bin/bash -e
+
+ROOTDIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+MINICA_CERTS_DIR=$ROOTDIR/etc/tls/certs
+TRAEFIK_CERTS_DIR=$ROOTDIR/etc/traefik/tls/certs
+
+DC="docker compose -p stayaway -f ./docker-compose.yml --env-file $ROOTDIR/.dockerenv"
+
+# See: https://www.shellhacks.com/bash-colors/
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NO_COLOUR='\033[0;0m'
+
+BOLD='\033[0;1m'
+
+function __os_name() {
+  uname -s | tr '[:upper:]' '[:lower:]'
+}
+
+function __os_arch() {
+  uname -m | tr '[:upper:]' '[:lower:]'
+}
+
+function __newln() {
+	echo ""
+}
+
+function __sepln() {
+	WRAP_WIDTH=`tput cols`
+	SEP=""
+
+	for (( c=1; c<=$WRAP_WIDTH; c++ ))
+	do 
+		SEP="$SEP-"
+	done
+
+	echo $SEP
+}
+
+function __errlns() {
+	for var in "$@"
+	do
+		echo -e "$RED$var$NO_COLOUR"
+	done
+}
+
+function __infolns() {
+	for var in "$@"
+	do
+		echo -e "$NO_COLOUR$var$NO_COLOUR"
+	done
+}
+
+function __successlns() {
+	for var in "$@"
+	do
+		echo -e "$GREEN$var$NO_COLOUR"
+	done
+}
+
+function __show_help() {
+	__infolns "./dev" \
+		"" \
+		"Helper script for working with the stayaway app"
+	__sepln
+	__infolns "Commands"
+	__newln
+	__infolns "tls" \
+		"\ttrust" \
+		"\t\tTrusts the local CA used to generate the certificates for development." \
+		 "\t\tThis will require sudo access." \
+		"" \
+		"\t\tUsage: ./dev tls trust"
+	__sepln
+	__infolns "dc" \
+		"\tAn alias for running a docker compose command with all the right options."
+	
+}
+
+function __unknown_command() {
+	__errlns "Unknown command: $1"
+	__sepln
+	__show_help
+	exit 1
+}
+
+# I think this works, been a while since i've tested it on a linux machine.
+function __tls_trust_linux() {
+  # Chrome
+  __infolns "Checking SSL Tools..."
+
+  # Just in case they don't have it already.
+  sudo apt-get install -y libnss3-tools
+
+  __infolns "Installing Google Chrome Cert..."
+  mkdir -p $HOME/.pki/nssdb
+  certutil -d sql:$HOME/.pki/nssdb -A -t "P,," -n $MINICA_CERTS_DIR/minica.pem -i $MINICA_CERTS_DIR/minica.pem
+
+
+  # Everything Else (Except Firefox, Firefox is too strict for even this).
+  __infolns "Installing OS Cert..."
+  sudo cp $MINICA_CERTS_DIR/minica.pem /usr/local/share/ca-certificates/
+
+  __infolns "Refreshing Certificates..."
+  sudo update-ca-certificates
+  __successlns "Certificate installation complete!"
+}
+
+function __tls_trust_darwin() {
+  __infolns "Adding certificate to keychain..."
+  __infolns "You will need to enter your password, and may see a system prompt asking for an admin accounts credentials..."
+  sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain $MINICA_CERTS_DIR/minica.pem
+  __successlns "Certificate installation complete!";
+}
+
+function __tls_trust() {
+
+  OS=`__os_name`
+  case "$OS" in
+    linux)
+      __tls_trust_linux
+      ;;
+
+    darwin)
+      __tls_trust_darwin
+      ;;
+
+    *)
+      __errlns "Unsupported OS: $OS"
+      exit 1
+  esac
+}
+
+function __tls_setup() {
+	if [ ! -d $MINICA_CERTS_DIR ]; then
+		mkdir $MINICA_CERTS_DIR
+	fi
+
+	if [ ! -d "$MINICA_CERTS_DIR/stayaway.test" ]; then
+		$DC run minica minica --domains 'stayaway.test'
+	else
+		__infolns "Not generating stayaway.test as it's already present!"
+	fi
+
+	if [ ! -d $MINICA_CERTS_DIR/_.stayaway.test ]; then
+		$DC run minica minica --domains '*.stayaway.test'
+	else
+		__infolns "Not generating *.stayaway.test as it's already present!"
+	fi
+
+	rm -rf $TRAEFIK_CERTS_DIR/*
+	cp $MINICA_CERTS_DIR/_.stayaway.test/cert.pem $TRAEFIK_CERTS_DIR/_.stayaway.test.cert
+	cp $MINICA_CERTS_DIR/_.stayaway.test/key.pem $TRAEFIK_CERTS_DIR/_.stayaway.test.key
+	cp $MINICA_CERTS_DIR/stayaway.test/cert.pem $TRAEFIK_CERTS_DIR/stayaway.test.cert
+	cp $MINICA_CERTS_DIR/stayaway.test/key.pem $TRAEFIK_CERTS_DIR/stayaway.test.key
+}
+
+function __tls() {
+	COMMAND="$1"
+
+	case $COMMAND in
+		trust|setup)
+			__tls_$COMMAND "${@:2}"
+			;;
+		*)
+			__unknown_command "$COMMAND"
+			;;
+	esac
+}
+
+function __dc() {
+  $DC "$@"
+}
+
+function __hosts() {
+	echo "127.0.0.1 mailbox.stayaway.test"
+}
+
+function main() {
+	COMMAND="$1"
+
+	case $COMMAND in
+	tls|hosts)
+		TORUN="__$COMMAND"
+		;;
+	dc|exec)
+		__$COMMAND "${@:2}"
+		return "$?"
+		;;
+	*)
+		__unknown_command "$COMMAND"
+		;;
+	esac
+
+	$TORUN "${@:2}"
+
+	exit "$?"
+}
+
+main "$@"

@@ -1,0 +1,60 @@
+version: "3.4"
+
+networks:
+  stayaway-dev:
+
+x-network:
+  &network
+  networks:
+    - stayaway-dev
+
+services:
+  minica: 
+    <<: *network
+    profiles: 
+      - manual
+    build:
+      context: ./etc/tls/minica
+    working_dir: /srv
+    volumes:
+      - "${STAYAWAY_MINICA_CERTS_DIR}:/srv"
+
+  traefik:
+    <<: *network
+    image: "traefik:v2.9.1"
+    ports:
+      # The HTTP port
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro" # listen to docker events
+      - "${STAYAWAY_ETC_TRAEFIK_DIR}/tls/certs/:/certs/" # mount certs
+      - "${STAYAWAY_ETC_TRAEFIK_DIR}/traefik.yaml:/etc/traefik/traefik.yaml" # mount config
+      - "${STAYAWAY_ETC_TRAEFIK_DIR}/traefik-dynamic-config.yaml:/traefik-dynamic-config.yaml"
+
+  mailbox:
+    <<: *network
+    image: maildev/maildev:latest
+    restart: always
+    command:
+      - -w
+      - "${STAYAWAY_MAILBOX_HTTP_PORT}"
+      - -s
+      - ${STAYAWAY_MAILBOX_SMTP_PORT}
+      - --ip
+      - "0.0.0.0"
+      - --incoming-user
+      - ${STAYAWAY_MAILBOX_USERNAME}
+      - --incoming-pass
+      - ${STAYAWAY_MAILBOX_PASSWORD}
+    labels:
+      - "traefik.http.routers.mailbox.rule=Host(`${STAYAWAY_MAILBOX_PUBLIC_HOST}`)"
+      - "traefik.enable=true"
+      - "traefik.http.routers.mailbox.entrypoints=websecure"
+      - "traefik.http.services.mailbox.loadbalancer.server.port=${STAYAWAY_MAILBOX_HTTP_PORT}"
+      - "traefik.http.routers.mailbox.tls=true"
+    networks:
+      stayaway-dev:
+        aliases:
+          - ${STAYAWAY_MAILBOX_INTERNAL_HOST}

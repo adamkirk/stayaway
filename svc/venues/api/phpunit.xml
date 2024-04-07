@@ -21,11 +21,17 @@
         <testsuite name="feature">
             <directory>tests/Feature</directory>
         </testsuite>
-        <testsuite name="app-errors">
+        <testsuite name="app-unit-errors">
             <directory>app/Tests/Unit/Errors</directory>
         </testsuite>
-        <testsuite name="app-http">
+        <testsuite name="app-unit-http">
             <directory>app/Tests/Unit/Http</directory>
+        </testsuite>
+        <testsuite name="api">
+            <directory>app/Tests/Feature/Api</directory>
+        </testsuite>
+        <testsuite name="api-v1">
+            <directory>app/Tests/Feature/Api/V1</directory>
         </testsuite>
         
         <!-- 
@@ -40,8 +46,8 @@
         -->
         <testsuite name="all">
             <directory>tests/Feature</directory>
-            <directory>app/Tests/Unit</directory>
-            <directory>infra/Tests/Integration</directory>
+            <directory>app/Tests</directory>
+            <directory>infra/Tests</directory>
         </testsuite>
         
     </testsuites>

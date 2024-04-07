@@ -188,6 +188,7 @@ return [
         'bootstrap',
         'config',
         'database',
+        'infra',
         'public/**/*.php',
         'resources/**/*.php',
         'routes',

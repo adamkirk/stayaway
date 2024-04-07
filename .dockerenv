@@ -64,10 +64,16 @@ STAYAWAY_REDIS_PASS=redis-pass
 VENUES_DIR=./svc/venues
 VENUES_HOST=venues.stayaway.test
 VENUES_HTTP_PORT=8080
+
 VENUES_DB_USER=venues
 VENUES_DB_NAME=postgres
 VENUES_DB_SCHEMA=venues
 VENUES_DB_PASSWORD=venues-pass
+
+VENUES_TEST_DB_USER=venues_test
+VENUES_TEST_DB_NAME=postgres
+VENUES_TEST_DB_SCHEMA=venues_test
+VENUES_TEST_DB_PASSWORD=venues_test-pass
 
 VENUES_REDIS_PASS=venues-redis-pass
 VENUES_REDIS_DB=0

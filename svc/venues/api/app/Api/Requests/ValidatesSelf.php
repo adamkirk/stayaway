@@ -5,7 +5,9 @@ namespace App\Api\Requests;
 use App\Errors\ErrorType;
 use App\Errors\ValidationError;
 use App\Errors\ValidationErrorCollection;
+use App\Http\V1\Responses\ValidationErrors;
 use App\Api\Translation\TranslatesFieldNames;
+use Illuminate\Contracts\Support\Responsable;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 trait ValidatesSelf
@@ -32,5 +34,10 @@ trait ValidatesSelf
         }
 
         return null;
+    }
+
+    public function invalidResponse(ValidationErrorCollection $errors): Responsable
+    {
+        return ValidationErrors::new($errors);
     }
 }

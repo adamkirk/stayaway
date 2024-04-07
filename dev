@@ -171,6 +171,23 @@ function __tls() {
 	esac
 }
 
+function __db_init() {
+	__dc exec postgres /docker-entrypoint-initdb.d/init.sh
+}
+
+function __db() {
+	COMMAND="$1"
+
+	case $COMMAND in
+		init)
+			__db_$COMMAND "${@:2}"
+			;;
+		*)
+			__unknown_command "$COMMAND"
+			;;
+	esac
+}
+
 function __dc() {
   $DC "$@"
 }
@@ -213,7 +230,7 @@ function main() {
 	COMMAND="$1"
 
 	case $COMMAND in
-	tls|hosts|up|down|restart)
+	tls|hosts|up|down|restart|db)
 		TORUN="__$COMMAND"
 		;;
 	dc|exec)

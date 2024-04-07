@@ -2,9 +2,9 @@
 
 namespace App\Api\Controllers;
 
-use App\Api\Requests\PopulatableFromRequest;
 use App\Api\Requests\Validatable;
-use App\Http\V1\Responses\ValidationErrors;
+use App\Api\Requests\PopulatableFromRequest;
+use App\Api\Requests\ExposesPostValidationHook;
 
 abstract class BaseController
 {
@@ -19,7 +19,11 @@ abstract class BaseController
                 $errors = $arg->validate();
 
                 if ($errors !== null) {
-                    return ValidationErrors::new($errors);
+                    return $arg->invalidResponse($errors);
+                }
+
+                if ($arg instanceof ExposesPostValidationHook) {
+                    $arg->postValidationHook();
                 }
             }
         }

@@ -6,13 +6,10 @@ use App\ValueObjects\Uuid;
 use InvalidArgumentException;
 use App\Entities\Organisation;
 use Tests\IntegrationTestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Infra\Database\Models\Eloquent\Organisation as ElOrganisation;
 
 class OrganisationTest extends IntegrationTestCase
 {
-    use RefreshDatabase;
-
     public function test_model_is_inserted(): void
     {
         $id = Uuid::new()->toString();

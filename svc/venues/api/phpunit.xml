@@ -11,21 +11,41 @@
         </testsuite>
         <testsuite name="integration">
             <directory>infra/Tests/Integration</directory>
+            <directory>app/Tests/Integration</directory>
         </testsuite>
         <testsuite name="app">
-            <directory>app/Tests/Unit</directory>
+            <directory>app/Tests</directory>
         </testsuite>
         <testsuite name="infra">
-            <directory>infra/Tests/Integration</directory>
+            <directory>infra/Tests</directory>
+        </testsuite>
+        <testsuite name="infra-db">
+            <directory>infra/Tests/Integration/Database</directory>
+        </testsuite>
+        <testsuite name="infra-repos">
+            <directory>infra/Tests/Integration/Database/Repositories</directory>
+        </testsuite>
+        <testsuite name="infra-models">
+            <directory>infra/Tests/Integration/Database/Models</directory>
         </testsuite>
         <testsuite name="feature">
             <directory>tests/Feature</directory>
+            <directory>app/Tests/Feature</directory>
         </testsuite>
         <testsuite name="app-unit-errors">
             <directory>app/Tests/Unit/Errors</directory>
         </testsuite>
         <testsuite name="app-unit-http">
             <directory>app/Tests/Unit/Http</directory>
+        </testsuite>
+        <testsuite name="app-unit-collections">
+            <directory>app/Tests/Unit/Collections</directory>
+        </testsuite>
+        <testsuite name="app-unit-entities">
+            <directory>app/Tests/Unit/Entities</directory>
+        </testsuite>
+        <testsuite name="app-integration-commands">
+            <directory>app/Tests/Integration/Commands</directory>
         </testsuite>
         <testsuite name="api">
             <directory>app/Tests/Feature/Api</directory>

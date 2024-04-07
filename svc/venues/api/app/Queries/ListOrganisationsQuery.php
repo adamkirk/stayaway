@@ -7,23 +7,23 @@ use App\ValueObjects\Uuid;
 use Illuminate\Http\Request;
 use App\Queries\HasPagination;
 use App\Queries\PaginationInput;
-use App\Api\Requests\Validatable;
+use App\Validation\Validatable;
 use App\Api\Translation\HttpField;
-use App\Api\Requests\ValidatesSelf;
+use App\Validation\ValidatesByAttributes;
 use App\Http\V1\Responses\NotFound;
 use App\Api\Translation\FieldPlacement;
-use App\Errors\ValidationErrorCollection;
+use App\Collections\ValidationErrorCollection;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Api\Requests\PopulatableFromRequest;
 use Illuminate\Contracts\Support\Responsable;
-use App\Api\Requests\ExposesPostValidationHook;
+use App\Validation\ExposesPostValidationHook;
 use App\Http\V1\Responses\BadRequestWithErrors;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class ListOrganisationsQuery implements PopulatableFromRequest, Validatable, ExposesPostValidationHook
 {
-    use ValidatesSelf;
+    use ValidatesByAttributes;
     use Dispatchable;
     use HasPaginationAndOrdering;
 
@@ -44,6 +44,11 @@ class ListOrganisationsQuery implements PopulatableFromRequest, Validatable, Exp
     public function invalidResponse(ValidationErrorCollection $errors): Responsable
     {
         return BadRequestWithErrors::new($errors);
+    }
+
+    public function validate(): ?ValidationErrorCollection
+    {
+        return $this->validateSelf();
     }
 
     public function postValidationHook(): void

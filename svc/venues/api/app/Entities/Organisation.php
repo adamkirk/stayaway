@@ -10,10 +10,10 @@ class Organisation
 {
     const EXPECTED_UUID_VERSION=7;
     const NAME_MIN_LENGTH = 3;
-    const SLUG_MIN_LENGTH = 3;
+    const SLUG_MIN_LENGTH = 2;
     const NAME_MAX_LENGTH = 255;
     const SLUG_MAX_LENGTH = 255;
-    const SLUG_CHARACTER_SET = '/^[A-Za-z0-9\-]+$/';
+    const SLUG_CHARACTER_SET = '/^[a-z0-9]{1}([a-z0-9\-])*[a-z0-9]{1}$/';
 
     protected function __construct(
         protected readonly Uuid $id,

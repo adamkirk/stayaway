@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Api\Requests;
+namespace App\Validation;
 
-use App\Errors\ValidationErrorCollection;
+use App\Collections\ValidationErrorCollection;
 use Illuminate\Contracts\Support\Responsable;
 
 interface Validatable

@@ -2,9 +2,9 @@
 
 namespace App\Api\Controllers;
 
-use App\Api\Requests\Validatable;
+use App\Validation\Validatable;
 use App\Api\Requests\PopulatableFromRequest;
-use App\Api\Requests\ExposesPostValidationHook;
+use App\Validation\ExposesPostValidationHook;
 
 abstract class BaseController
 {

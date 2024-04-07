@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Entities;
+namespace App\Tests\Unit\Entities;
 
 use Tests\UnitTestCase;
 use App\ValueObjects\Uuid;

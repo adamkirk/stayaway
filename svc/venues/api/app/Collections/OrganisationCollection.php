@@ -2,13 +2,21 @@
 
 namespace App\Collections;
 
+use Countable;
+use ArrayAccess;
+use Traversable;
+use ArrayIterator;
+use IteratorAggregate;
 use App\Entities\Organisation;
+use App\Collections\Collection;
 
-class OrganisationCollection
+/**
+ * @method Organisation offsetGet()
+ * @method Organisation[] all()
+ * @property Organisation[] $items
+ */
+class OrganisationCollection extends Collection
 {
-    /** @var Organisation[] */
-    protected array $items;
-
     protected function __construct(
         Organisation ...$items
     ) {
@@ -23,16 +31,5 @@ class OrganisationCollection
     public function add(Organisation $item): void
     {
         $this->items[] = $item;
-    }
-
-    /** @return Organisation[] */
-    public function all(): array
-    {
-        return $this->items;
-    }
-
-    public static function fromArray(array $items): self
-    {
-        return new self(...$items);
     }
 }

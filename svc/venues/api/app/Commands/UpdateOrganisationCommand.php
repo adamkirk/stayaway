@@ -7,24 +7,22 @@ use App\ValueObjects\Uuid;
 use Illuminate\Http\Request;
 use App\Entities\Organisation;
 use App\Errors\ValidationError;
-use App\Api\Requests\Validatable;
+use App\Validation\Validatable;
 use App\Api\Translation\HttpField;
-use App\Api\Requests\ValidatesSelf;
 use App\Api\Translation\FieldPlacement;
-use App\Errors\ValidationErrorCollection;
+use App\Validation\ValidatesByAttributes;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Api\Requests\PopulatableFromRequest;
 use App\Api\Translation\TranslatesFieldNames;
-use App\Api\Requests\ExposesPostValidationHook;
+use App\Collections\ValidationErrorCollection;
+use App\Validation\ExposesPostValidationHook;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class UpdateOrganisationCommand implements PopulatableFromRequest, Validatable, ExposesPostValidationHook
 {
     use TranslatesFieldNames;
-    use ValidatesSelf {
-        validate as protected validateSelf;
-    }
+    use ValidatesByAttributes;
     use Dispatchable;
 
     #[Assert\NotBlank]
@@ -40,7 +38,10 @@ class UpdateOrganisationCommand implements PopulatableFromRequest, Validatable, 
     )]
     public readonly ?string $name;
     
-    #[Assert\Regex(Organisation::SLUG_CHARACTER_SET)]
+    #[Assert\Regex(
+        pattern: Organisation::SLUG_CHARACTER_SET,
+        message: "The slug must start and end with a number or letter, and may contain letters, numbers and hyphens",
+    )]
     #[Assert\Length(
         min: Organisation::SLUG_MIN_LENGTH,
         max: Organisation::SLUG_MAX_LENGTH,

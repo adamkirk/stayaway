@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Api\Requests;
+namespace App\Validation;
 
 interface ExposesPostValidationHook
 {

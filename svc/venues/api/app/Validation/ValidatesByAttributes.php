@@ -1,22 +1,22 @@
 <?php
 
-namespace App\Api\Requests;
+namespace App\Validation;
 
 use App\Errors\ErrorType;
 use App\Errors\ValidationError;
-use App\Errors\ValidationErrorCollection;
+use App\Collections\ValidationErrorCollection;
 use App\Http\V1\Responses\ValidationErrors;
 use App\Api\Translation\TranslatesFieldNames;
 use Illuminate\Contracts\Support\Responsable;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-trait ValidatesSelf
+trait ValidatesByAttributes
 {
     use TranslatesFieldNames;
 
     abstract protected function getValidator(): ValidatorInterface;
 
-    public function validate(): ?ValidationErrorCollection
+    public function validateSelf(): ?ValidationErrorCollection
     {
         $errors = ValidationErrorCollection::new();
         $list = $this->validator->validate($this);

@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Tests\Entities;
+namespace App\Tests\Unit\Entities;
 
 use Tests\UnitTestCase;
 use App\ValueObjects\Uuid;
 use App\Entities\Organisation;
 use App\Exceptions\InvalidPropertyException;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class OrganisationTest extends UnitTestCase
 {
@@ -15,9 +16,8 @@ class OrganisationTest extends UnitTestCase
             ->disableOriginalConstructor()
             ->getMock();
     }
-    /**
-     * @dataProvider constructionFailures
-     */
+
+    #[DataProvider('constructionFailures')]
     public function test_that_construction_only_allows_valid_properties(string $name, string $slug, string $expectedPropertyFailure, string $expectedFailureReason): void
     {
         $this->expectExceptionObject(new InvalidPropertyException(
@@ -32,21 +32,21 @@ class OrganisationTest extends UnitTestCase
     {
         return [
             'name_too_short' => [
-                'wd',
+                str_repeat("X", Organisation::NAME_MIN_LENGTH - 1),
                 '',
                 'name',
                 'too short',
             ],
             'slug_too_short' => [
                 'Valid Name',
-                'nd',
+                str_repeat("X", Organisation::SLUG_MIN_LENGTH - 1),
                 'slug',
                 'too short',
             ],
             'name_too_long' => [
                 // Purposely didn't use the constant here, tests should be dumb i think and not auto-fix when code changes
                 // The db will break if it gets bigger so we need to be sure.
-                str_repeat("X", 256),
+                str_repeat("X", Organisation::NAME_MAX_LENGTH + 1),
                 'valid-slug',
                 'name',
                 'too long',
@@ -55,7 +55,7 @@ class OrganisationTest extends UnitTestCase
                 'Valid Name',
                 // Purposely didn't use the constant here, tests should be dumb i think and not auto-fix when code changes
                 // The db will break if it gets bigger so we need to be sure.
-                str_repeat("X", 256),
+                str_repeat("X", Organisation::SLUG_MAX_LENGTH + 1),
                 'slug',
                 'too long',
             ],
@@ -129,9 +129,7 @@ class OrganisationTest extends UnitTestCase
         $this->assertEquals($newSlug, $org->slug());
     }
 
-    /**
-     * @dataProvider invalidNames
-     */
+    #[DataProvider('invalidNames')]
     public function test_name_setter_is_guarded(string $newName, string $expectedFailureReason): void
     {
         
@@ -154,19 +152,17 @@ class OrganisationTest extends UnitTestCase
                 'too short',
             ],
             'too_short' => [
-                'bh',
+                str_repeat("X", Organisation::NAME_MIN_LENGTH - 1),
                 'too short',
             ],
             'too_long' => [
-                str_repeat("X", 256),
+                str_repeat("X", Organisation::NAME_MAX_LENGTH + 1),
                 'too long',
             ],
         ];
     }
 
-        /**
-     * @dataProvider invalidSlugs
-     */
+    #[DataProvider('invalidSlugs')]
     public function test_slug_setter_is_guarded(string $newSlug, string $expectedFailureReason): void
     {
         
@@ -189,11 +185,11 @@ class OrganisationTest extends UnitTestCase
                 'too short',
             ],
             'too_short' => [
-                'bh',
+                str_repeat("x", Organisation::SLUG_MIN_LENGTH - 1),
                 'too short',
             ],
             'too_long' => [
-                str_repeat("X", 256),
+                str_repeat("x", Organisation::SLUG_MAX_LENGTH + 1),
                 'too long',
             ],
             'invalid_characters_underscore' => [

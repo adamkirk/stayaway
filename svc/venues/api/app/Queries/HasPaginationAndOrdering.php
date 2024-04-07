@@ -5,7 +5,7 @@ namespace App\Queries;
 use Illuminate\Http\Request;
 use App\Api\Translation\HttpField;
 use App\Api\Translation\FieldPlacement;
-use App\Api\Requests\ExposesPostValidationHook;
+use App\Validation\ExposesPostValidationHook;
 use Symfony\Component\Validator\Constraints as Assert;
 
 trait HasPaginationAndOrdering

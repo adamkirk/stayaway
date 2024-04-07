@@ -3,7 +3,7 @@
 namespace App\Http\V1\Responses;
 
 use App\Contracts\Arrayable;
-use App\Errors\ValidationErrorCollection;
+use App\Collections\ValidationErrorCollection;
 use App\Api\Responses\ConvertsToJsonResponse;
 use App\Api\Translation\TranslatesFieldNames;
 use Illuminate\Contracts\Support\Responsable;

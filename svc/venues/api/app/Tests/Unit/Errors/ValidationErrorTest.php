@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Errors;
+namespace App\Tests\Unit\Errors;
 
 use RuntimeException;
 use Tests\UnitTestCase;

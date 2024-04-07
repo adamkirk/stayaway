@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Tests\Errors;
+namespace App\Tests\Unit\Collections;
 
 use Tests\UnitTestCase;
 use App\Errors\ErrorType;
 use App\Errors\ValidationError;
-use App\Errors\ValidationErrorCollection;
+use App\Collections\ValidationErrorCollection;
 
 class ValidationErrorCollectionTest extends UnitTestCase
 {
@@ -71,12 +71,12 @@ class ValidationErrorCollectionTest extends UnitTestCase
             "sub error"
         );
 
-        $coll = ValidationErrorCollection::new([
+        $coll = ValidationErrorCollection::new(
             $error1,
             $error2,
             $error3,
             $error4,
-        ]);
+        );
 
         $this->assertEquals([
             'field_1' => [

@@ -23,7 +23,10 @@ class GetOrganisationQuery implements PopulatableFromRequest, Validatable, Expos
     use Dispatchable;
 
     #[Assert\NotBlank]
-    #[Assert\Uuid(versions: [Assert\Uuid::V7_MONOTONIC])]
+    #[Assert\Uuid(
+        versions: [Assert\Uuid::V7_MONOTONIC],
+        message:'This is not a valid UUID v7.',
+    )]
     #[HttpField(name: 'organisation_id', in: FieldPlacement::Uri)]
     public readonly string $rawId;
 

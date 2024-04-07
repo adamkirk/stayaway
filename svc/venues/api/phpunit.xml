@@ -47,6 +47,9 @@
         <testsuite name="app-integration-commands">
             <directory>app/Tests/Integration/Commands</directory>
         </testsuite>
+        <testsuite name="app-integration-queries">
+            <directory>app/Tests/Integration/Queries</directory>
+        </testsuite>
         <testsuite name="api">
             <directory>app/Tests/Feature/Api</directory>
         </testsuite>

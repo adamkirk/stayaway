@@ -15,11 +15,13 @@ use App\Api\Controllers\BaseController;
 use App\Queries\ListOrganisationsQuery;
 use App\Commands\CreateOrganisationCommand;
 use App\Commands\DeleteOrganisationCommand;
+use App\Commands\UpdateOrganisationCommand;
 use App\Http\V1\Responses\ValidationErrors;
 use App\Exceptions\InvalidPropertyException;
 use App\Http\V1\Responses\InternalServerError;
 use App\Http\V1\Responses\BadRequestWithErrors;
 use App\Http\V1\Responses\Organisations\Created;
+use App\Http\V1\Responses\Organisations\Updated;
 use App\Http\V1\Responses\Organisations\LoadedMany;
 use App\Http\V1\Responses\Organisations\LoadedSingle;
 
@@ -38,6 +40,8 @@ class OrganisationsController extends BaseController
             // Validation error needs translating
             // Shouldn't really be possible as validation should already happened
             // But it also happens later, belt & braces
+            // TODO: handle this
+            throw $e;
         } catch (Throwable $e) {
             Log::error($e);
 
@@ -47,6 +51,30 @@ class OrganisationsController extends BaseController
         $org = $repo->byId($cmd->generatedId);
 
         return Created::fromEntity($org);
+    }
+
+    protected function update(UpdateOrganisationCommand $cmd, Organisations $repo): Updated|NotFound|InternalServerError|ValidationErrors
+    {
+        try {
+            event($cmd);
+
+        } catch (InvalidPropertyException $e) {
+            // Validation error needs translating
+            // Shouldn't really be possible as validation should already happened
+            // But it also happens later, belt & braces
+            // TODO: handle this
+            throw $e;
+        } catch (NotFoundException $e) {
+            return NotFound::default();
+        } catch (Throwable $e) {
+            Log::error($e);
+
+            return InternalServerError::new();
+        }
+
+        $org = $repo->byId($cmd->id);
+
+        return Updated::fromEntity($org);
     }
 
     protected function get(GetOrganisationQuery $query, Organisations $repo): LoadedSingle|NotFound|InternalServerError

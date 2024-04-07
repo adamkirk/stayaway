@@ -34,6 +34,7 @@ class Organisation extends Model
         if ($entity->id()->toString() !== $this->id) {
             throw new InvalidArgumentException("Cannot update model from an entity that has a different id!");
         }
+
         $this->name = $entity->name();
         $this->slug = $entity->slug();
     }

@@ -6,4 +6,5 @@ use App\Http\V1\Controllers\OrganisationsController;
 Route::post('/v1/organisations', [OrganisationsController::class, 'create']);
 Route::get('/v1/organisations', [OrganisationsController::class, 'list']);
 Route::get('/v1/organisations/{organisation_id}', [OrganisationsController::class, 'get']);
+Route::patch('/v1/organisations/{organisation_id}', [OrganisationsController::class, 'update']);
 Route::delete('/v1/organisations/{organisation_id}', [OrganisationsController::class, 'delete']);

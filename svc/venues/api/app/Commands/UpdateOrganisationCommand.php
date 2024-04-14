@@ -55,10 +55,6 @@ class UpdateOrganisationCommand implements PopulatableFromRequest, Validatable, 
 
     protected readonly Uuid $id;
 
-    public function __construct(
-        protected ValidatorInterface $validator
-    ) {}
-
     public static function getHandler(): string
     {
         return UpdateOrganisationHandler::class;
@@ -71,9 +67,9 @@ class UpdateOrganisationCommand implements PopulatableFromRequest, Validatable, 
         $this->slug = $request->get($this->translate('slug'), null);
     }
 
-    public function validate(): ?ValidationErrorCollection
+    public function validate(ValidatorInterface $validator): ?ValidationErrorCollection
     {
-        $errors = $this->validateSelf();
+        $errors = $this->validateSelf($validator);
 
         if ($errors !== null && ! $errors->isEmpty()) {
             return $errors;
@@ -110,10 +106,5 @@ class UpdateOrganisationCommand implements PopulatableFromRequest, Validatable, 
     public function slug(): ?VO\Slug
     {
         return $this->slug !== null ? VO\Slug::new($this->slug) : null;
-    }
-
-    protected function getValidator(): ValidatorInterface
-    {
-        return $this->validator;
     }
 }

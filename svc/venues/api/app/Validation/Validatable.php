@@ -3,11 +3,9 @@
 namespace App\Validation;
 
 use App\Collections\ValidationErrorCollection;
-use Illuminate\Contracts\Support\Responsable;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 interface Validatable
 {
-    public function validate(): ?ValidationErrorCollection;
-
-    public function invalidResponse(ValidationErrorCollection $errors): Responsable;
+    public function validate(ValidatorInterface $validator): ?ValidationErrorCollection;
 }

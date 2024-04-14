@@ -66,7 +66,7 @@ class AppServiceProvider extends ServiceProvider
                 $bus = $bindAs != $class ? app($config['class']) : new $class;
 
                 $bus->setCommandBus(new CommandBus(
-                    $pre + [$commandHandlerMiddleware] + $post,
+                    array_merge($pre,[$commandHandlerMiddleware], $post),
                 ));
 
                 return $bus;

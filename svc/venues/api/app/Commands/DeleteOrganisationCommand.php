@@ -34,10 +34,6 @@ class DeleteOrganisationCommand implements PopulatableFromRequest, Validatable, 
     protected readonly string $rawId;
 
     protected readonly Uuid $id;
-    
-    public function __construct(
-        protected ValidatorInterface $validator
-    ) {}
 
     public static function getHandler(): string
     {
@@ -49,9 +45,9 @@ class DeleteOrganisationCommand implements PopulatableFromRequest, Validatable, 
         $this->rawId = $request->route()->parameter($this->translate('rawId'), '');
     }
 
-    public function validate(): ?ValidationErrorCollection
+    public function validate(ValidatorInterface $validator): ?ValidationErrorCollection
     {
-        return $this->validateSelf();
+        return $this->validateSelf($validator);
     }
 
     public function id(): Uuid
@@ -62,10 +58,5 @@ class DeleteOrganisationCommand implements PopulatableFromRequest, Validatable, 
     public function postValidationHook(): void
     {
         $this->id = Uuid::fromString($this->rawId);
-    }
-
-    protected function getValidator(): ValidatorInterface
-    {
-        return $this->validator;
     }
 }

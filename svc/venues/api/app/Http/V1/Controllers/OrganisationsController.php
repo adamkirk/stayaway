@@ -34,18 +34,8 @@ class OrganisationsController extends BaseController
 {
     protected function create(CreateOrganisationCommand $cmd, Organisations $repo): Created|InternalServerError|ValidationErrors
     {
-        try {
-            $this->bus->handle($cmd);
-        } catch (InvalidPropertyException $e) {
-            // Validation error needs translating
-            // Shouldn't really be possible as validation should already happened
-            // But it also happens later, belt & braces
-            // TODO: handle this
-            throw $e;
-        } catch (Throwable $e) {
-            Log::error($e);
-
-            return InternalServerError::new();
+        if (($resp = $this->dispatch($cmd)) !== null) {
+            return $resp;
         }
 
         $org = $repo->byId($cmd->id());
@@ -55,20 +45,8 @@ class OrganisationsController extends BaseController
 
     protected function update(UpdateOrganisationCommand $cmd, Organisations $repo): Updated|NotFound|InternalServerError|ValidationErrors
     {
-        try {
-            $this->bus->handle($cmd);
-        } catch (InvalidPropertyException $e) {
-            // Validation error needs translating
-            // Shouldn't really be possible as validation should already happened
-            // But it also happens later, belt & braces
-            // TODO: handle this
-            throw $e;
-        } catch (NotFoundException $e) {
-            return NotFound::default();
-        } catch (Throwable $e) {
-            Log::error($e);
-
-            return InternalServerError::new();
+        if (($resp = $this->dispatch($cmd)) !== null) {
+            return $resp;
         }
 
         $org = $repo->byId($cmd->id());
@@ -78,6 +56,14 @@ class OrganisationsController extends BaseController
 
     protected function get(GetOrganisationQuery $query, Organisations $repo): LoadedSingle|NotFound|InternalServerError
     {
+        $errors = $query->validate();
+
+        if ($errors !== null && ! $errors->isEmpty()) {
+            return ValidationErrors::new($errors);
+        }
+
+        $query->postValidationHook();
+
         $org = $repo->byId($query->id);
 
         if ($org === null) {
@@ -89,14 +75,8 @@ class OrganisationsController extends BaseController
 
     protected function delete(DeleteOrganisationCommand $cmd): NoContent|NotFound|InternalServerError
     {
-        try {
-            $this->bus->handle($cmd);
-        } catch (NotFoundException $e) {
-            return NotFound::default();
-        } catch (Throwable $e) {
-            Log::error($e);
-
-            return InternalServerError::new();
+        if (($resp = $this->dispatch($cmd)) !== null) {
+            return $resp;
         }
 
         return NoContent::new();
@@ -104,6 +84,14 @@ class OrganisationsController extends BaseController
 
     protected function list(ListOrganisationsQuery $query, Organisations $repo): LoadedMany|InternalServerError|BadRequestWithErrors
     {
+        $errors = $query->validate();
+
+        if ($errors !== null && ! $errors->isEmpty()) {
+            return ValidationErrors::new($errors);
+        }
+
+        $query->postValidationHook();
+
         $page = $repo->page($query->page, $query->pageSize, $query->orderBy, $query->orderDirection);
 
         return LoadedMany::fromPage($page);

@@ -46,9 +46,8 @@ class CreateOrganisationCommand implements PopulatableFromRequest, Validatable, 
     )]
     protected readonly ?string $slug;
     
-    public function __construct(
-        protected ValidatorInterface $validator
-    ) {
+    public function __construct()
+    {
         $this->generatedId = Uuid::new();
     }
 
@@ -57,9 +56,9 @@ class CreateOrganisationCommand implements PopulatableFromRequest, Validatable, 
         return CreateOrganisationHandler::class;
     }
 
-    public function validate(): ?ValidationErrorCollection
+    public function validate(ValidatorInterface $validator): ?ValidationErrorCollection
     {
-        return $this->validateSelf();
+        return $this->validateSelf($validator);
     }
 
     public function populate(Request $request)
@@ -81,10 +80,5 @@ class CreateOrganisationCommand implements PopulatableFromRequest, Validatable, 
     public function slug(): ?VO\Slug
     {
         return $this->slug !== null ? VO\Slug::new($this->slug) : null;
-    }
-
-    protected function getValidator(): ValidatorInterface
-    {
-        return $this->validator;
     }
 }

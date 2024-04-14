@@ -14,12 +14,10 @@ trait ValidatesByAttributes
 {
     use TranslatesFieldNames;
 
-    abstract protected function getValidator(): ValidatorInterface;
-
-    public function validateSelf(): ?ValidationErrorCollection
+    public function validateSelf(ValidatorInterface $validator): ?ValidationErrorCollection
     {
         $errors = ValidationErrorCollection::new();
-        $list = $this->validator->validate($this);
+        $list = $validator->validate($this);
 
         foreach ($list as $error) {
             $errors->add(new ValidationError(

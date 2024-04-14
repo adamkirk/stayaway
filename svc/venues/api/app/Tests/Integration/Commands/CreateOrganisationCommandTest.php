@@ -14,6 +14,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use App\Collections\ValidationErrorCollection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use App\ValueObjects\Organisation as VO;
 
 class CreateOrganisationCommandTest extends IntegrationTestCase
 {
@@ -57,9 +58,9 @@ class CreateOrganisationCommandTest extends IntegrationTestCase
         });
 
         $subj->populate($req);
-        $this->assertInstanceOf(Uuid::class, $subj->generatedId);
-        $this->assertEquals($subj->name, 'my name');
-        $this->assertEquals($subj->slug, 'some-slug');
+        $this->assertInstanceOf(Uuid::class, $subj->id());
+        $this->assertEquals($subj->name(), VO\Name::new('my name'));
+        $this->assertEquals($subj->slug(), VO\Slug::new('some-slug'));
     }
 
     public function test_validate_no_errors()
@@ -76,9 +77,9 @@ class CreateOrganisationCommandTest extends IntegrationTestCase
         });
 
         $subj->populate($req);
-        $this->assertInstanceOf(Uuid::class, $subj->generatedId);
-        $this->assertEquals($subj->name, 'my name');
-        $this->assertEquals($subj->slug, 'some-slug');
+        $this->assertInstanceOf(Uuid::class, $subj->id());
+        $this->assertEquals($subj->name(), VO\Name::new('my name'));
+        $this->assertEquals($subj->slug(), VO\Slug::new('some-slug'));
 
         $this->assertNull($subj->validate());
     }

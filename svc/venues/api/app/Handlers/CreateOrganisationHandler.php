@@ -17,7 +17,7 @@ class CreateOrganisationHandler
      */
     public function handle(CreateOrganisationCommand $cmd): void
     {
-        $org = Organisation::new($cmd->generatedId, $cmd->name, $cmd->slug);
+        $org = Organisation::new($cmd->id(), $cmd->name(), $cmd->slug());
 
         $this->repo->save($org);
     }

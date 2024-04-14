@@ -13,6 +13,7 @@ use App\Api\Translation\TranslatesFieldNames;
 use App\Collections\ValidationErrorCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use App\ValueObjects\Organisation as VO;
 
 class CreateOrganisationCommand implements PopulatableFromRequest, Validatable
 {
@@ -20,28 +21,28 @@ class CreateOrganisationCommand implements PopulatableFromRequest, Validatable
     use ValidatesByAttributes;
     use Dispatchable;
 
-    public readonly Uuid $generatedId;
+    protected readonly Uuid $generatedId;
 
     #[Assert\NotBlank]
     #[Assert\Length(
-        min: Organisation::NAME_MIN_LENGTH,
-        max: Organisation::NAME_MAX_LENGTH,
+        min: VO\Name::MIN_LENGTH,
+        max: VO\Name::MAX_LENGTH,
         minMessage: 'The name must be at least {{ limit }} characters long',
         maxMessage: 'The name cannot be longer than {{ limit }} characters',
     )]
-    public readonly string $name;
+    protected readonly string $name;
 
     #[Assert\Regex(
-        pattern: Organisation::SLUG_CHARACTER_SET,
+        pattern: VO\Slug::CHARACTER_SET,
         message: "The slug must start and end with a number or letter, and may contain letters, numbers and hyphens",
     )]
     #[Assert\Length(
-        min: Organisation::SLUG_MIN_LENGTH,
-        max: Organisation::SLUG_MAX_LENGTH,
+        min: VO\Slug::MIN_LENGTH,
+        max: VO\Slug::MAX_LENGTH,
         minMessage: 'The slug must be at least {{ limit }} characters long',
         maxMessage: 'The slug cannot be longer than {{ limit }} characters',
     )]
-    public readonly ?string $slug;
+    protected readonly ?string $slug;
     
     public function __construct(
         protected ValidatorInterface $validator
@@ -58,6 +59,21 @@ class CreateOrganisationCommand implements PopulatableFromRequest, Validatable
     {
         $this->name = $request->get($this->translate('name'), '');
         $this->slug = $request->get($this->translate('slug'), null);
+    }
+
+    public function id(): Uuid
+    {
+        return $this->generatedId;
+    }
+
+    public function name(): VO\Name
+    {
+        return VO\Name::new($this->name);
+    }
+
+    public function slug(): ?VO\Slug
+    {
+        return $this->slug !== null ? VO\Slug::new($this->slug) : null;
     }
 
     protected function getValidator(): ValidatorInterface

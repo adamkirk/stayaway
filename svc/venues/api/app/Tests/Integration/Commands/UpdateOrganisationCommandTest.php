@@ -15,6 +15,7 @@ use App\Collections\ValidationErrorCollection;
 use PHPUnit\Framework\Attributes\DataProviderExternal;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use App\Tests\Integration\Commands\CreateOrganisationCommandTest;
+use App\ValueObjects\Organisation as VO;
 
 class UpdateOrganisationCommandTest extends IntegrationTestCase
 {
@@ -62,11 +63,11 @@ class UpdateOrganisationCommandTest extends IntegrationTestCase
 
         $subj->populate($req);
         $subj->postValidationHook();
-        $this->assertEquals($uuid, $subj->rawId);
-        $this->assertInstanceOf(Uuid::class, $subj->id);
-        $this->assertEquals($uuid, $subj->id->toString());
-        $this->assertEquals($subj->name, 'my name');
-        $this->assertEquals($subj->slug, 'some-slug');
+        $this->assertEquals($uuid, $subj->id());
+        $this->assertInstanceOf(Uuid::class, $subj->id());
+        $this->assertEquals($uuid, $subj->id()->toString());
+        $this->assertEquals($subj->name(), VO\Name::new('my name'));
+        $this->assertEquals($subj->slug(), VO\Slug::new('some-slug'));
     }
 
     public function test_validate_no_errors()

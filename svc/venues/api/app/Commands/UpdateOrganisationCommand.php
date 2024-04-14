@@ -18,6 +18,7 @@ use App\Collections\ValidationErrorCollection;
 use App\Validation\ExposesPostValidationHook;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use App\ValueObjects\Organisation as VO;
 
 class UpdateOrganisationCommand implements PopulatableFromRequest, Validatable, ExposesPostValidationHook
 {
@@ -26,31 +27,31 @@ class UpdateOrganisationCommand implements PopulatableFromRequest, Validatable, 
     use Dispatchable;
 
     #[Assert\NotBlank]
-    #[Assert\Uuid(versions: [Assert\Uuid::V7_MONOTONIC])]
+    #[Assert\Uuid(versions: [Uuid::ASSERTION_TYPE])]
     #[HttpField(name: 'organisation_id', in: FieldPlacement::Uri)]
-    public readonly string $rawId;
+    protected readonly string $rawId;
 
     #[Assert\Length(
-        min: Organisation::NAME_MIN_LENGTH,
-        max: Organisation::NAME_MAX_LENGTH,
+        min: VO\Name::MIN_LENGTH,
+        max: VO\Name::MAX_LENGTH,
         minMessage: 'The name must be at least {{ limit }} characters long',
         maxMessage: 'The name cannot be longer than {{ limit }} characters',
     )]
-    public readonly ?string $name;
+    protected readonly ?string $name;
     
     #[Assert\Regex(
-        pattern: Organisation::SLUG_CHARACTER_SET,
+        pattern: VO\Slug::CHARACTER_SET,
         message: "The slug must start and end with a number or letter, and may contain letters, numbers and hyphens",
     )]
     #[Assert\Length(
-        min: Organisation::SLUG_MIN_LENGTH,
-        max: Organisation::SLUG_MAX_LENGTH,
+        min: VO\Slug::MIN_LENGTH,
+        max: VO\Slug::MAX_LENGTH,
         minMessage: 'The slug must be at least {{ limit }} characters long',
         maxMessage: 'The slug cannot be longer than {{ limit }} characters',
     )]
-    public readonly ?string $slug;
+    protected readonly ?string $slug;
 
-    public readonly Uuid $id;
+    protected readonly Uuid $id;
 
     public function __construct(
         protected ValidatorInterface $validator
@@ -86,6 +87,22 @@ class UpdateOrganisationCommand implements PopulatableFromRequest, Validatable, 
     public function postValidationHook(): void
     {
         $this->id = Uuid::fromString($this->rawId);
+    }
+
+    public function id(): Uuid
+    {
+        return $this->id;
+    }
+
+    public function name(): ?VO\Name
+    {
+        return $this->name !== null ? VO\Name::new($this->name) : null;
+    }
+
+
+    public function slug(): ?VO\Slug
+    {
+        return $this->slug !== null ? VO\Slug::new($this->slug) : null;
     }
 
     protected function getValidator(): ValidatorInterface

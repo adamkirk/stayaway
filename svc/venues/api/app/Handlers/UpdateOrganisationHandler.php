@@ -17,18 +17,18 @@ class UpdateOrganisationHandler
      */
     public function handle(UpdateOrganisationCommand $cmd): void
     {
-        $org = $this->repo->byId($cmd->id);
+        $org = $this->repo->byId($cmd->id());
 
         if ($org === null) {
             throw new NotFoundException;
         }
 
-        if ($cmd->name !== null) {
-            $org->setName($cmd->name);
+        if (($name = $cmd->name()) !== null) {
+            $org->setName($name);
         }
 
-        if ($cmd->slug !== null) {
-            $org->setSlug($cmd->slug);
+        if (($slug = $cmd->slug()) !== null) {
+            $org->setSlug($slug);
         }
 
         $this->repo->save($org);

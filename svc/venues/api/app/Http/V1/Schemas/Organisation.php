@@ -20,8 +20,8 @@ class Organisation implements Arrayable
     {
         return new self(
             id: $org->id()->toString(),
-            name: $org->name(),
-            slug: $org->slug(),
+            name: $org->name()->value(),
+            slug: $org->slug()->value(),
         );
     }
 

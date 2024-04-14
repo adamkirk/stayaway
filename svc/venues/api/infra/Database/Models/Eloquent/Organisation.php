@@ -4,6 +4,7 @@ namespace Infra\Database\Models\Eloquent;
 
 use App\ValueObjects\Uuid;
 use InvalidArgumentException;
+use App\ValueObjects\Organisation as VO;
 use Illuminate\Database\Eloquent\Model;
 use App\Entities\Organisation as EOrganisation;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -23,8 +24,8 @@ class Organisation extends Model
     {
         $model = new self;
         $model->id = $entity->id()->toString();
-        $model->name = $entity->name();
-        $model->slug = $entity->slug();
+        $model->name = $entity->name()->value();
+        $model->slug = $entity->slug()->value();
 
         return $model;
     }
@@ -35,16 +36,16 @@ class Organisation extends Model
             throw new InvalidArgumentException("Cannot update model from an entity that has a different id!");
         }
 
-        $this->name = $entity->name();
-        $this->slug = $entity->slug();
+        $this->name = $entity->name()->value();
+        $this->slug = $entity->slug()->value();
     }
 
     public function toEntity(): EOrganisation
     {
         return EOrganisation::new(
             Uuid::fromString($this->id),
-            $this->name,
-            $this->slug,
+            VO\Name::new($this->name),
+            VO\Slug::new($this->slug),
         );
     }
 }

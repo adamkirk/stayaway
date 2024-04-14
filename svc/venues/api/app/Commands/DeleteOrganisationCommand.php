@@ -27,11 +27,11 @@ class DeleteOrganisationCommand implements PopulatableFromRequest, Validatable, 
     use Dispatchable;
 
     #[Assert\NotBlank]
-    #[Assert\Uuid(versions: [Assert\Uuid::V7_MONOTONIC], message: 'This is not a valid UUID v7.')]
+    #[Assert\Uuid(versions: [Uuid::ASSERTION_TYPE], message: 'This is not a valid UUID v7.')]
     #[HttpField(name: 'organisation_id', in: FieldPlacement::Uri)]
-    public readonly string $rawId;
+    protected readonly string $rawId;
 
-    public readonly Uuid $id;
+    protected readonly Uuid $id;
     
     public function __construct(
         protected ValidatorInterface $validator
@@ -45,6 +45,11 @@ class DeleteOrganisationCommand implements PopulatableFromRequest, Validatable, 
     public function validate(): ?ValidationErrorCollection
     {
         return $this->validateSelf();
+    }
+
+    public function id(): Uuid
+    {
+        return $this->id;
     }
 
     public function postValidationHook(): void

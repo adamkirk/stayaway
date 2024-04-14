@@ -44,6 +44,9 @@
         <testsuite name="app-unit-entities">
             <directory>app/Tests/Unit/Entities</directory>
         </testsuite>
+        <testsuite name="app-unit-vo">
+            <directory>app/Tests/Unit/ValueObjects</directory>
+        </testsuite>
         <testsuite name="app-integration-commands">
             <directory>app/Tests/Integration/Commands</directory>
         </testsuite>

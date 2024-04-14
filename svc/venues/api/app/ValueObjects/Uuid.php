@@ -6,9 +6,12 @@ use InvalidArgumentException;
 use Ramsey\Uuid\UuidInterface;
 use Ramsey\Uuid\Rfc4122\Fields;
 use Ramsey\Uuid\Uuid as BaseUuid;
+use Symfony\Component\Validator\Constraints\Uuid as UuidConstraint;
 
 class Uuid
 {
+    const ASSERTION_TYPE = UuidConstraint::V7_MONOTONIC;
+
     protected function __construct(
         protected readonly UuidInterface $uuid,
     ) {}

@@ -20,7 +20,7 @@ class DeleteOrganisationHandler
      */
     public function handle(DeleteOrganisationCommand $cmd): void
     {
-        $result = $this->repo->delete($cmd->id);
+        $result = $this->repo->delete($cmd->id());
 
         if ($result == DeleteResult::NotFound) {
             throw new NotFoundException;

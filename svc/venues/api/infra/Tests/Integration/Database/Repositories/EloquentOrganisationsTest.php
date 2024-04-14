@@ -12,6 +12,7 @@ use App\Repositories\DeleteResult;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Infra\Database\Repositories\EloquentOrganisations;
 use Infra\Database\Models\Eloquent\Organisation as ElOrganisation;
+use App\ValueObjects\Organisation as VO;
 
 class EloquentOrganisationsTest extends IntegrationTestCase
 {
@@ -27,12 +28,20 @@ class EloquentOrganisationsTest extends IntegrationTestCase
         $repo = $this->getRepo();
         $id = Uuid::new();
 
-        $entity = Organisation::new($id, "Valid Name", "valid-slug");
+        $nameValue = "A Valid Name";
+        $name = VO\Name::new($nameValue);
+
+        $slugValue = "a-valid-slug";
+        $slug = VO\Slug::new($slugValue);
+
+        $entity = Organisation::new($id, $name, $slug);
         $result = $repo->save($entity);
 
         $this->assertEquals(SaveResult::Created, $result);
         $this->assertDatabaseHas('organisations', [
             'id' => $id->toString(),
+            'name' => $nameValue,
+            'slug' => $slugValue,
         ]);
     }
 
@@ -41,32 +50,51 @@ class EloquentOrganisationsTest extends IntegrationTestCase
         $repo = $this->getRepo();
         $id = Uuid::new();
 
-        $entity = Organisation::new($id, "Valid Name", "valid-slug");
+        $nameValue = "A Valid Name";
+        $name = VO\Name::new($nameValue);
+
+        $slugValue = "a-valid-slug";
+        $slug = VO\Slug::new($slugValue);
+
+        $entity = Organisation::new($id, $name, $slug);
         $result = $repo->save($entity);
 
         $this->assertEquals(SaveResult::Created, $result);
         $this->assertDatabaseHas('organisations', [
             'id' => $id->toString(),
-            'name' => 'Valid Name', 
+            'name' => $nameValue,
+            'slug' => $slugValue,
         ]);
 
-        $entity->setName("New Name");
+        $newNameValue = "New Name";
+        $newName = VO\Name::new($newNameValue);
+
+        $entity->setName($newName);
 
         $result = $repo->save($entity);
 
         $this->assertEquals(SaveResult::Updated, $result);
         $this->assertDatabaseHas('organisations', [
             'id' => $id->toString(),
-            'name' => 'New Name', 
+            'name' => $newNameValue,
+            'slug' => $slugValue, 
         ]);
     }
 
     public function test_finds_model_by_id()
     {
         $repo = $this->getRepo();
+
         $id = Uuid::new();
 
-        $entity = Organisation::new($id, "Valid Name", "valid-slug");
+        $nameValue = "A Valid Name";
+        $name = VO\Name::new($nameValue);
+
+        $slugValue = "a-valid-slug";
+        $slug = VO\Slug::new($slugValue);
+
+        $entity = Organisation::new($id, $name, $slug);
+
         $result = $repo->save($entity);
 
         $this->assertEquals(SaveResult::Created, $result);
@@ -88,7 +116,7 @@ class EloquentOrganisationsTest extends IntegrationTestCase
         $toCreate = 25;
         for ($i=1; $i <= $toCreate; $i++) {
             $id = Uuid::new();
-            $result = $repo->save(Organisation::new($id, "Valid Name $i", "valid-slug-$i"));
+            $result = $repo->save(Organisation::new($id, Vo\Name::new("Valid Name $i"), VO\Slug::new("valid-slug-$i")));
             $this->assertEquals(SaveResult::Created, $result);
         }
 
@@ -107,7 +135,8 @@ class EloquentOrganisationsTest extends IntegrationTestCase
         $this->assertEquals($toCreate, $page->pagination->totalResults);
         $this->assertEquals(3, $page->pagination->totalPages);
 
-        $slugs = array_map(fn(Organisation $org) => $org->slug(), $page->organisations->all());
+        $mapFunc = fn(Organisation $org) => $org->slug()->value();
+        $slugs = array_map($mapFunc, $page->organisations->all());
 
         /*
         Natural sorting in MySQL is a pain, so this will do for now. As long as 
@@ -136,7 +165,7 @@ class EloquentOrganisationsTest extends IntegrationTestCase
         $this->assertEquals($toCreate, $page->pagination->totalResults);
         $this->assertEquals(3, $page->pagination->totalPages);
 
-        $slugs = array_map(fn(Organisation $org) => $org->slug(), $page->organisations->all());
+        $slugs = array_map($mapFunc, $page->organisations->all());
 
         $this->assertEquals([
             'valid-slug-19',
@@ -160,7 +189,7 @@ class EloquentOrganisationsTest extends IntegrationTestCase
         $this->assertEquals($toCreate, $page->pagination->totalResults);
         $this->assertEquals(3, $page->pagination->totalPages);
 
-        $slugs = array_map(fn(Organisation $org) => $org->slug(), $page->organisations->all());
+        $slugs = array_map($mapFunc, $page->organisations->all());
 
         $this->assertEquals([
             'valid-slug-5',
@@ -192,7 +221,7 @@ class EloquentOrganisationsTest extends IntegrationTestCase
         $this->assertEquals($toCreate, $page->pagination->totalResults);
         $this->assertEquals(9, $page->pagination->totalPages);
 
-        $slugs = array_map(fn(Organisation $org) => $org->slug(), $page->organisations->all());
+        $slugs = array_map($mapFunc, $page->organisations->all());
 
         $this->assertEquals([
             'valid-slug-9',
@@ -211,7 +240,7 @@ class EloquentOrganisationsTest extends IntegrationTestCase
         $this->assertEquals($toCreate, $page->pagination->totalResults);
         $this->assertEquals(9, $page->pagination->totalPages);
 
-        $slugs = array_map(fn(Organisation $org) => $org->slug(), $page->organisations->all());
+        $slugs = array_map($mapFunc, $page->organisations->all());
 
         $this->assertEquals([
             'valid-slug-6',
@@ -225,7 +254,14 @@ class EloquentOrganisationsTest extends IntegrationTestCase
         $repo = $this->getRepo();
         $id = Uuid::new();
 
-        $entity = Organisation::new($id, "Valid Name", "valid-slug");
+        $nameValue = "A Valid Name";
+        $name = VO\Name::new($nameValue);
+
+        $slugValue = "a-valid-slug";
+        $slug = VO\Slug::new($slugValue);
+
+        $entity = Organisation::new($id, $name, $slug);
+
         $result = $repo->save($entity);
 
         $this->assertEquals(SaveResult::Created, $result);

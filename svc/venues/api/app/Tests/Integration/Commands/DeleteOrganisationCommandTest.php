@@ -51,9 +51,9 @@ class DeleteOrganisationCommandTest extends IntegrationTestCase
         // Sets the id property
         $subj->postValidationHook();
 
-        $this->assertEquals($uuid, $subj->rawId);
-        $this->assertInstanceOf(Uuid::class, $subj->id);
-        $this->assertEquals($uuid, $subj->id->toString());
+        $this->assertEquals($uuid, $subj->id());
+        $this->assertInstanceOf(Uuid::class, $subj->id());
+        $this->assertEquals($uuid, $subj->id()->toString());
     }
 
     /**

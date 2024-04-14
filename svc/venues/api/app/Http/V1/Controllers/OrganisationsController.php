@@ -48,7 +48,7 @@ class OrganisationsController extends BaseController
             return InternalServerError::new();
         }
 
-        $org = $repo->byId($cmd->generatedId);
+        $org = $repo->byId($cmd->id());
 
         return Created::fromEntity($org);
     }
@@ -72,7 +72,7 @@ class OrganisationsController extends BaseController
             return InternalServerError::new();
         }
 
-        $org = $repo->byId($cmd->id);
+        $org = $repo->byId($cmd->id());
 
         return Updated::fromEntity($org);
     }

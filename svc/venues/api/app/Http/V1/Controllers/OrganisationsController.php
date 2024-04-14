@@ -32,12 +32,10 @@ to intercept them and build the relevant request object.
 */
 class OrganisationsController extends BaseController
 {
-    protected function create(DefaultBus $bus, CreateOrganisationCommand $cmd, Organisations $repo): Created|InternalServerError|ValidationErrors
+    protected function create(CreateOrganisationCommand $cmd, Organisations $repo): Created|InternalServerError|ValidationErrors
     {
         try {
-            // $bus->handle($cmd);
-            event($cmd);
-
+            $this->bus->handle($cmd);
         } catch (InvalidPropertyException $e) {
             // Validation error needs translating
             // Shouldn't really be possible as validation should already happened
@@ -58,8 +56,7 @@ class OrganisationsController extends BaseController
     protected function update(UpdateOrganisationCommand $cmd, Organisations $repo): Updated|NotFound|InternalServerError|ValidationErrors
     {
         try {
-            event($cmd);
-
+            $this->bus->handle($cmd);
         } catch (InvalidPropertyException $e) {
             // Validation error needs translating
             // Shouldn't really be possible as validation should already happened
@@ -93,8 +90,7 @@ class OrganisationsController extends BaseController
     protected function delete(DeleteOrganisationCommand $cmd): NoContent|NotFound|InternalServerError
     {
         try {
-            event($cmd);
-
+            $this->bus->handle($cmd);
         } catch (NotFoundException $e) {
             return NotFound::default();
         } catch (Throwable $e) {

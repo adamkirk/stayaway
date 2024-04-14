@@ -2,12 +2,16 @@
 
 namespace App\Api\Controllers;
 
+use App\Buses\DefaultBus;
 use App\Validation\Validatable;
 use App\Api\Requests\PopulatableFromRequest;
 use App\Validation\ExposesPostValidationHook;
 
 abstract class BaseController
 {
+    public function __construct(
+        protected DefaultBus $bus
+    ) {}
     public function __call($methodName, $args)
     {
         foreach ($args as $arg) {

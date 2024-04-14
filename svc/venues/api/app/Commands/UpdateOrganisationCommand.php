@@ -5,22 +5,24 @@ namespace App\Commands;
 use App\Errors\ErrorType;
 use App\ValueObjects\Uuid;
 use Illuminate\Http\Request;
+use App\Buses\DefinesHandler;
 use App\Entities\Organisation;
 use App\Errors\ValidationError;
 use App\Validation\Validatable;
 use App\Api\Translation\HttpField;
 use App\Api\Translation\FieldPlacement;
+use App\ValueObjects\Organisation as VO;
 use App\Validation\ValidatesByAttributes;
+use App\Handlers\UpdateOrganisationHandler;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Api\Requests\PopulatableFromRequest;
 use App\Api\Translation\TranslatesFieldNames;
-use App\Collections\ValidationErrorCollection;
 use App\Validation\ExposesPostValidationHook;
+use App\Collections\ValidationErrorCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use App\ValueObjects\Organisation as VO;
 
-class UpdateOrganisationCommand implements PopulatableFromRequest, Validatable, ExposesPostValidationHook
+class UpdateOrganisationCommand implements PopulatableFromRequest, Validatable, ExposesPostValidationHook, DefinesHandler
 {
     use TranslatesFieldNames;
     use ValidatesByAttributes;
@@ -56,6 +58,11 @@ class UpdateOrganisationCommand implements PopulatableFromRequest, Validatable, 
     public function __construct(
         protected ValidatorInterface $validator
     ) {}
+
+    public static function getHandler(): string
+    {
+        return UpdateOrganisationHandler::class;
+    }
 
     public function populate(Request $request)
     {

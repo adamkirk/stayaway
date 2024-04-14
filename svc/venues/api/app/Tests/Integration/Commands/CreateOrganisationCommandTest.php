@@ -46,7 +46,7 @@ class CreateOrganisationCommandTest extends IntegrationTestCase
      */
     public function test_fields_are_populated_if_set()
     {
-        $subj = new CreateOrganisationCommand($this->getValidator());
+        $subj = new CreateOrganisationCommand();
 
         $route = $this->getMockRoute();
         $req = $this->getMockRequest($route);
@@ -65,7 +65,7 @@ class CreateOrganisationCommandTest extends IntegrationTestCase
 
     public function test_validate_no_errors()
     {
-        $subj = new CreateOrganisationCommand($this->getValidator());
+        $subj = new CreateOrganisationCommand();
 
         $route = $this->getMockRoute();
         $req = $this->getMockRequest($route);
@@ -81,12 +81,12 @@ class CreateOrganisationCommandTest extends IntegrationTestCase
         $this->assertEquals($subj->name(), VO\Name::new('my name'));
         $this->assertEquals($subj->slug(), VO\Slug::new('some-slug'));
 
-        $this->assertNull($subj->validate());
+        $this->assertNull($subj->validate($this->getValidator()));
     }
 
     public function test_validate_min_length()
     {
-        $subj = new CreateOrganisationCommand($this->getValidator());
+        $subj = new CreateOrganisationCommand();
 
         $route = $this->getMockRoute();
         $req = $this->getMockRequest($route);
@@ -98,7 +98,7 @@ class CreateOrganisationCommandTest extends IntegrationTestCase
         });
 
         $subj->populate($req);
-        $errors = $subj->validate();
+        $errors = $subj->validate($this->getValidator());
        
         $this->assertInstanceOf(ValidationErrorCollection::class, $errors);
         $this->assertCount(3, $errors);
@@ -133,7 +133,7 @@ class CreateOrganisationCommandTest extends IntegrationTestCase
 
     public function test_validate_max_length()
     {
-        $subj = new CreateOrganisationCommand($this->getValidator());
+        $subj = new CreateOrganisationCommand();
 
         $route = $this->getMockRoute();
         $req = $this->getMockRequest($route);
@@ -145,7 +145,7 @@ class CreateOrganisationCommandTest extends IntegrationTestCase
         });
 
         $subj->populate($req);
-        $errors = $subj->validate();
+        $errors = $subj->validate($this->getValidator());
        
         $this->assertInstanceOf(ValidationErrorCollection::class, $errors);
         $this->assertCount(2, $errors);
@@ -170,7 +170,7 @@ class CreateOrganisationCommandTest extends IntegrationTestCase
     #[DataProvider('invalidSlugPatterns')]
     public function test_invalid_slug_formats(string $slug)
     {
-        $subj = new CreateOrganisationCommand($this->getValidator());
+        $subj = new CreateOrganisationCommand();
 
         $route = $this->getMockRoute();
         $req = $this->getMockRequest($route);
@@ -182,7 +182,7 @@ class CreateOrganisationCommandTest extends IntegrationTestCase
         });
 
         $subj->populate($req);
-        $errors = $subj->validate();
+        $errors = $subj->validate($this->getValidator());
        
         $this->assertInstanceOf(ValidationErrorCollection::class, $errors);
         $this->assertEquals(
@@ -215,7 +215,7 @@ class CreateOrganisationCommandTest extends IntegrationTestCase
     #[DataProvider('validSlugPatterns')]
     public function test_valid_slug_formats(string $slug)
     {
-        $subj = new CreateOrganisationCommand($this->getValidator());
+        $subj = new CreateOrganisationCommand();
 
         $route = $this->getMockRoute();
         $req = $this->getMockRequest($route);
@@ -227,7 +227,7 @@ class CreateOrganisationCommandTest extends IntegrationTestCase
         });
 
         $subj->populate($req);
-        $errors = $subj->validate();
+        $errors = $subj->validate($this->getValidator());
        
         $this->assertNull($errors);
     }
@@ -242,7 +242,7 @@ class CreateOrganisationCommandTest extends IntegrationTestCase
 
     public function test_name_is_required_slug_is_not()
     {
-        $subj = new CreateOrganisationCommand($this->getValidator());
+        $subj = new CreateOrganisationCommand();
 
         $route = $this->getMockRoute();
         $req = $this->getMockRequest($route);
@@ -254,7 +254,7 @@ class CreateOrganisationCommandTest extends IntegrationTestCase
         });
 
         $subj->populate($req);
-        $errors = $subj->validate();
+        $errors = $subj->validate($this->getValidator());
        
         $this->assertInstanceOf(ValidationErrorCollection::class, $errors);
         $this->assertCount(2, $errors);

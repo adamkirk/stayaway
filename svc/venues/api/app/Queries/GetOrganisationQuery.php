@@ -32,23 +32,14 @@ class GetOrganisationQuery implements PopulatableFromRequest, Validatable, Expos
 
     public readonly ?Uuid $id;
 
-    public function __construct(
-        protected ValidatorInterface $validator
-    ) {}
-
     public function populate(Request $request)
     {
         $this->rawId = $request->route()->parameter('organisation_id', '');
     }
 
-    public function validate(): ?ValidationErrorCollection
+    public function validate(ValidatorInterface $validator): ?ValidationErrorCollection
     {
-        return $this->validateSelf();
-    }
-
-    protected function getValidator(): ValidatorInterface
-    {
-        return $this->validator;
+        return $this->validateSelf($validator);
     }
 
     public function postValidationHook(): void

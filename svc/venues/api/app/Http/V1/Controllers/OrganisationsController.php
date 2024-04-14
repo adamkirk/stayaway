@@ -25,6 +25,7 @@ use App\Http\V1\Responses\Organisations\Created;
 use App\Http\V1\Responses\Organisations\Updated;
 use App\Http\V1\Responses\Organisations\LoadedMany;
 use App\Http\V1\Responses\Organisations\LoadedSingle;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /*
 Document why actions are protected, essentially so we can use the __call function 
@@ -54,9 +55,9 @@ class OrganisationsController extends BaseController
         return Updated::fromEntity($org);
     }
 
-    protected function get(GetOrganisationQuery $query, Organisations $repo): LoadedSingle|NotFound|InternalServerError
+    protected function get(GetOrganisationQuery $query, ValidatorInterface $validator, Organisations $repo): LoadedSingle|NotFound|InternalServerError
     {
-        $errors = $query->validate();
+        $errors = $query->validate($validator);
 
         if ($errors !== null && ! $errors->isEmpty()) {
             return ValidationErrors::new($errors);
@@ -82,9 +83,9 @@ class OrganisationsController extends BaseController
         return NoContent::new();
     }
 
-    protected function list(ListOrganisationsQuery $query, Organisations $repo): LoadedMany|InternalServerError|BadRequestWithErrors
+    protected function list(ListOrganisationsQuery $query, ValidatorInterface $validator, Organisations $repo): LoadedMany|InternalServerError|BadRequestWithErrors
     {
-        $errors = $query->validate();
+        $errors = $query->validate($validator);
 
         if ($errors !== null && ! $errors->isEmpty()) {
             return ValidationErrors::new($errors);

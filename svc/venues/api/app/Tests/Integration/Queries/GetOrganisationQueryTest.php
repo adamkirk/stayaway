@@ -41,7 +41,7 @@ class GetOrganisationQueryTest extends IntegrationTestCase
 
     public function test_fields_are_populated_if_set()
     {
-        $subj = new GetOrganisationQuery($this->getValidator());
+        $subj = new GetOrganisationQuery();
 
         $uuid = '018eb897-4323-76b3-9c55-483ab7f55f43';
         $route = $this->getMockRoute();
@@ -60,14 +60,14 @@ class GetOrganisationQueryTest extends IntegrationTestCase
     #[DataProvider('invalidIdValues')]
     public function test_id_must_be_uuidv7(mixed $id)
     {
-        $subj = new GetOrganisationQuery($this->getValidator());
+        $subj = new GetOrganisationQuery();
 
         $route = $this->getMockRoute();
         $route->expects($this->exactly(1))->method('parameter')->with('organisation_id')->willReturn($id);
         $req = $this->getMockRequest($route);
 
         $subj->populate($req);
-        $errors = $subj->validate();
+        $errors = $subj->validate($this->getValidator());
         $this->assertInstanceOf(ValidationErrorCollection::class, $errors);
 
         $this->assertEquals(

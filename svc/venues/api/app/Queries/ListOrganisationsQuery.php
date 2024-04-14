@@ -27,18 +27,9 @@ class ListOrganisationsQuery implements PopulatableFromRequest, Validatable, Exp
     use Dispatchable;
     use HasPaginationAndOrdering;
 
-    public function __construct(
-        protected ValidatorInterface $validator
-    ) {}
-
     public function populate(Request $request)
     {
         $this->populatePaginationAndOrdering($request);
-    }
-
-    protected function getValidator(): ValidatorInterface
-    {
-        return $this->validator;
     }
 
     public function invalidResponse(ValidationErrorCollection $errors): Responsable
@@ -46,9 +37,9 @@ class ListOrganisationsQuery implements PopulatableFromRequest, Validatable, Exp
         return BadRequestWithErrors::new($errors);
     }
 
-    public function validate(): ?ValidationErrorCollection
+    public function validate(ValidatorInterface $validator): ?ValidationErrorCollection
     {
-        return $this->validateSelf();
+        return $this->validateSelf($validator);
     }
 
     public function postValidationHook(): void

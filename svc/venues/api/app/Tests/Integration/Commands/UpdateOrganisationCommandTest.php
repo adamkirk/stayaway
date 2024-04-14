@@ -48,7 +48,7 @@ class UpdateOrganisationCommandTest extends IntegrationTestCase
     public function test_fields_are_populated_if_set()
     {
         $uuid = '018eb897-4323-76b3-9c55-483ab7f55f43';
-        $subj = new UpdateOrganisationCommand($this->getValidator());
+        $subj = new UpdateOrganisationCommand();
 
         $route = $this->getMockRoute();
         $route->expects($this->exactly(1))->method('parameter')->with('organisation_id')->willReturn($uuid);
@@ -73,7 +73,7 @@ class UpdateOrganisationCommandTest extends IntegrationTestCase
     public function test_validate_no_errors()
     {
         $uuid = '018eb897-4323-76b3-9c55-483ab7f55f43';
-        $subj = new UpdateOrganisationCommand($this->getValidator());
+        $subj = new UpdateOrganisationCommand();
 
         $route = $this->getMockRoute();
         $route->expects($this->exactly(1))->method('parameter')->with('organisation_id')->willReturn($uuid);
@@ -87,13 +87,13 @@ class UpdateOrganisationCommandTest extends IntegrationTestCase
         });
 
         $subj->populate($req);
-        $this->assertNull($subj->validate());
+        $this->assertNull($subj->validate($this->getValidator()));
     }
 
     public function test_name_can_be_set_without_slug()
     {
         $uuid = '018eb897-4323-76b3-9c55-483ab7f55f43';
-        $subj = new UpdateOrganisationCommand($this->getValidator());
+        $subj = new UpdateOrganisationCommand();
 
         $route = $this->getMockRoute();
         $route->expects($this->exactly(1))->method('parameter')->with('organisation_id')->willReturn($uuid);
@@ -107,14 +107,14 @@ class UpdateOrganisationCommandTest extends IntegrationTestCase
         });
 
         $subj->populate($req);
-        $this->assertNull($subj->validate());
+        $this->assertNull($subj->validate($this->getValidator()));
     }
 
 
     public function test_slug_can_be_set_without_name()
     {
         $uuid = '018eb897-4323-76b3-9c55-483ab7f55f43';
-        $subj = new UpdateOrganisationCommand($this->getValidator());
+        $subj = new UpdateOrganisationCommand();
 
         $route = $this->getMockRoute();
         $route->expects($this->exactly(1))->method('parameter')->with('organisation_id')->willReturn($uuid);
@@ -128,13 +128,13 @@ class UpdateOrganisationCommandTest extends IntegrationTestCase
         });
 
         $subj->populate($req);
-        $this->assertNull($subj->validate());
+        $this->assertNull($subj->validate($this->getValidator()));
     }
 
     public function test_validate_at_least_one_field_must_be_set()
     {
         $uuid = '018eb897-4323-76b3-9c55-483ab7f55f43';
-        $subj = new UpdateOrganisationCommand($this->getValidator());
+        $subj = new UpdateOrganisationCommand();
 
         $route = $this->getMockRoute();
         $route->expects($this->exactly(1))->method('parameter')->with('organisation_id')->willReturn($uuid);
@@ -145,7 +145,7 @@ class UpdateOrganisationCommandTest extends IntegrationTestCase
         });
 
         $subj->populate($req);
-        $errors = $subj->validate();
+        $errors = $subj->validate($this->getValidator());
         $this->assertInstanceOf(ValidationErrorCollection::class, $errors);
 
         $this->assertEquals(
@@ -169,7 +169,7 @@ class UpdateOrganisationCommandTest extends IntegrationTestCase
     public function test_validate_min_length()
     {
         $uuid = '018eb897-4323-76b3-9c55-483ab7f55f43';
-        $subj = new UpdateOrganisationCommand($this->getValidator());
+        $subj = new UpdateOrganisationCommand();
 
         $route = $this->getMockRoute();
         $route->expects($this->exactly(1))->method('parameter')->with('organisation_id')->willReturn($uuid);
@@ -183,7 +183,7 @@ class UpdateOrganisationCommandTest extends IntegrationTestCase
         });
 
         $subj->populate($req);
-        $errors = $subj->validate();
+        $errors = $subj->validate($this->getValidator());
        
         $this->assertInstanceOf(ValidationErrorCollection::class, $errors);
         $this->assertCount(3, $errors);
@@ -219,7 +219,7 @@ class UpdateOrganisationCommandTest extends IntegrationTestCase
     public function test_validate_max_length()
     {
         $uuid = '018eb897-4323-76b3-9c55-483ab7f55f43';
-        $subj = new UpdateOrganisationCommand($this->getValidator());
+        $subj = new UpdateOrganisationCommand();
 
         $route = $this->getMockRoute();
         $route->expects($this->exactly(1))->method('parameter')->with('organisation_id')->willReturn($uuid);
@@ -233,7 +233,7 @@ class UpdateOrganisationCommandTest extends IntegrationTestCase
         });
 
         $subj->populate($req);
-        $errors = $subj->validate();
+        $errors = $subj->validate($this->getValidator());
        
         $this->assertInstanceOf(ValidationErrorCollection::class, $errors);
         $this->assertCount(2, $errors);
@@ -259,7 +259,7 @@ class UpdateOrganisationCommandTest extends IntegrationTestCase
     public function test_invalid_slug_formats(string $slug)
     {
         $uuid = '018eb897-4323-76b3-9c55-483ab7f55f43';
-        $subj = new UpdateOrganisationCommand($this->getValidator());
+        $subj = new UpdateOrganisationCommand();
 
         $route = $this->getMockRoute();
         $route->expects($this->exactly(1))->method('parameter')->with('organisation_id')->willReturn($uuid);
@@ -274,7 +274,7 @@ class UpdateOrganisationCommandTest extends IntegrationTestCase
         });
 
         $subj->populate($req);
-        $errors = $subj->validate();
+        $errors = $subj->validate($this->getValidator());
        
         $this->assertInstanceOf(ValidationErrorCollection::class, $errors);
         $this->assertEquals(
@@ -291,7 +291,7 @@ class UpdateOrganisationCommandTest extends IntegrationTestCase
     public function test_valid_slug_formats(string $slug)
     {
         $uuid = '018eb897-4323-76b3-9c55-483ab7f55f43';
-        $subj = new UpdateOrganisationCommand($this->getValidator());
+        $subj = new UpdateOrganisationCommand();
 
         $route = $this->getMockRoute();
         $route->expects($this->exactly(1))->method('parameter')->with('organisation_id')->willReturn($uuid);
@@ -306,7 +306,7 @@ class UpdateOrganisationCommandTest extends IntegrationTestCase
         });
 
         $subj->populate($req);
-        $errors = $subj->validate();
+        $errors = $subj->validate($this->getValidator());
        
         $this->assertNull($errors);
     }

@@ -3,6 +3,7 @@
 namespace App\Http\V1\Controllers;
 
 use Throwable;
+use App\Buses\DefaultBus;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\V1\Responses\NotFound;
@@ -31,9 +32,10 @@ to intercept them and build the relevant request object.
 */
 class OrganisationsController extends BaseController
 {
-    protected function create(CreateOrganisationCommand $cmd, Organisations $repo): Created|InternalServerError|ValidationErrors
+    protected function create(DefaultBus $bus, CreateOrganisationCommand $cmd, Organisations $repo): Created|InternalServerError|ValidationErrors
     {
         try {
+            // $bus->handle($cmd);
             event($cmd);
 
         } catch (InvalidPropertyException $e) {

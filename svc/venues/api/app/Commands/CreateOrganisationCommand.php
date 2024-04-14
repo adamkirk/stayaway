@@ -4,18 +4,20 @@ namespace App\Commands;
 
 use App\ValueObjects\Uuid;
 use Illuminate\Http\Request;
+use App\Buses\DefinesHandler;
 use App\Entities\Organisation;
 use App\Validation\Validatable;
+use App\ValueObjects\Organisation as VO;
 use App\Validation\ValidatesByAttributes;
+use App\Handlers\CreateOrganisationHandler;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Api\Requests\PopulatableFromRequest;
 use App\Api\Translation\TranslatesFieldNames;
 use App\Collections\ValidationErrorCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use App\ValueObjects\Organisation as VO;
 
-class CreateOrganisationCommand implements PopulatableFromRequest, Validatable
+class CreateOrganisationCommand implements PopulatableFromRequest, Validatable, DefinesHandler
 {
     use TranslatesFieldNames;
     use ValidatesByAttributes;
@@ -48,6 +50,11 @@ class CreateOrganisationCommand implements PopulatableFromRequest, Validatable
         protected ValidatorInterface $validator
     ) {
         $this->generatedId = Uuid::new();
+    }
+
+    public static function getHandler(): string
+    {
+        return CreateOrganisationHandler::class;
     }
 
     public function validate(): ?ValidationErrorCollection

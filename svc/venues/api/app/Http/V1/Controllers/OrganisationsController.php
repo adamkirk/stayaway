@@ -55,15 +55,11 @@ class OrganisationsController extends BaseController
         return Updated::fromEntity($org);
     }
 
-    protected function get(GetOrganisationQuery $query, ValidatorInterface $validator, Organisations $repo): LoadedSingle|NotFound|InternalServerError
+    protected function get(GetOrganisationQuery $query, Organisations $repo): LoadedSingle|NotFound|InternalServerError
     {
-        $errors = $query->validate($validator);
-
-        if ($errors !== null && ! $errors->isEmpty()) {
-            return ValidationErrors::new($errors);
+        if (($resp = $this->validate($query)) !== null) {
+            return $resp;
         }
-
-        $query->postValidationHook();
 
         $org = $repo->byId($query->id);
 
@@ -83,15 +79,11 @@ class OrganisationsController extends BaseController
         return NoContent::new();
     }
 
-    protected function list(ListOrganisationsQuery $query, ValidatorInterface $validator, Organisations $repo): LoadedMany|InternalServerError|BadRequestWithErrors
+    protected function list(ListOrganisationsQuery $query, Organisations $repo): LoadedMany|InternalServerError|ValidationErrors
     {
-        $errors = $query->validate($validator);
-
-        if ($errors !== null && ! $errors->isEmpty()) {
-            return ValidationErrors::new($errors);
+        if (($resp = $this->validate($query)) !== null) {
+            return $resp;
         }
-
-        $query->postValidationHook();
 
         $page = $repo->page($query->page, $query->pageSize, $query->orderBy, $query->orderDirection);
 

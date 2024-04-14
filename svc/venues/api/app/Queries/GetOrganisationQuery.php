@@ -2,18 +2,20 @@
 
 namespace App\Queries;
 
+use Exception;
 use App\ValueObjects\Uuid;
 use Illuminate\Http\Request;
 use App\Validation\Validatable;
 use App\Api\Translation\HttpField;
-use App\Validation\ValidatesByAttributes;
 use App\Http\V1\Responses\NotFound;
+use App\Exceptions\NotFoundException;
 use App\Api\Translation\FieldPlacement;
-use App\Collections\ValidationErrorCollection;
+use App\Validation\ValidatesByAttributes;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Api\Requests\PopulatableFromRequest;
-use Illuminate\Contracts\Support\Responsable;
 use App\Validation\ExposesPostValidationHook;
+use Illuminate\Contracts\Support\Responsable;
+use App\Collections\ValidationErrorCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -47,8 +49,8 @@ class GetOrganisationQuery implements PopulatableFromRequest, Validatable, Expos
         $this->id = Uuid::fromString($this->rawId);
     }
 
-    public function invalidResponse(ValidationErrorCollection $errors): Responsable
+    public function validationException(ValidationErrorCollection $errors): Exception
     {
-        return NotFound::default();
+        return new NotFoundException;
     }
 }

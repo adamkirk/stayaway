@@ -24,6 +24,9 @@ abstract class BaseController
         protected DefaultBus $bus
     ) {}
 
+    // This seems wasteful as will only be used occasionally but will add overhead 
+    // to all function calls...maybe we should just do this in the controller method
+    // directly, instead of trying to be clever...
     public function __call($methodName, $args)
     {
         foreach ($args as $arg) {

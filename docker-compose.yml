@@ -80,6 +80,8 @@ services:
 
   grafana:
     <<: *network
+    profiles:
+      - grafana-stack-enabled
     build:
       context: ${STAYAWAY_ETC_GRAFANA_STACK}/grafana
       args:
@@ -111,6 +113,8 @@ services:
 
   loki:
     <<: *network
+    profiles:
+      - grafana-stack-enabled
     image: grafana/loki:2.9.2
     command: 
       - -config.expand-env=true
@@ -129,6 +133,8 @@ services:
       - "traefik.http.routers.loki.tls=true"
 
   promtail:
+    profiles:
+      - grafana-stack-enabled
     <<: *network
     image: grafana/promtail:2.9.2
     environment:
@@ -147,6 +153,8 @@ services:
       - -config.file=${STAYAWAY_PROMTAIL_CONFIG_PATH}
 
   prometheus:
+    profiles:
+      - grafana-stack-enabled
     <<: *network
     image: prom/prometheus:v2.50.1
     # So it can access the docker socket...

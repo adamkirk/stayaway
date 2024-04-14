@@ -3,6 +3,8 @@
 ROOTDIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 SVCDIR=$ROOTDIR/svc
 
+DOCKER_PROFILES_FILE="$ROOTDIR/.dockerprofiles"
+
 MINICA_CERTS_DIR=$ROOTDIR/etc/tls/certs
 TRAEFIK_CERTS_DIR=$ROOTDIR/etc/traefik/tls/certs
 
@@ -226,7 +228,25 @@ function __restart() {
 	__up
 }
 
+function __set_docker_profiles()
+{
+	if [ ! -f "$DOCKER_PROFILES_FILE" ]; then
+		touch $DOCKER_PROFILES_FILE
+	fi
+
+	while IFS="" read -r PROFILE || [ -n "$PROFILE" ]
+	do
+		if [ -z "$PROFILE" ]; then
+			# Skip empty lines
+			continue
+		fi
+
+		DC="$DC --profile $PROFILE"
+	done < $DOCKER_PROFILES_FILE
+}
+
 function main() {
+	__set_docker_profiles
 	COMMAND="$1"
 
 	case $COMMAND in

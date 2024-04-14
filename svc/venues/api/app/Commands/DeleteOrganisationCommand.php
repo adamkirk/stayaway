@@ -2,11 +2,13 @@
 
 namespace App\Commands;
 
+use Exception;
 use App\ValueObjects\Uuid;
 use Illuminate\Http\Request;
 use App\Buses\DefinesHandler;
 use App\Validation\Validatable;
 use App\Api\Translation\HttpField;
+use App\Exceptions\NotFoundException;
 use App\Api\Translation\FieldPlacement;
 use App\Validation\ValidatesByAttributes;
 use App\Handlers\DeleteOrganisationHandler;
@@ -58,5 +60,11 @@ class DeleteOrganisationCommand implements PopulatableFromRequest, Validatable, 
     public function postValidationHook(): void
     {
         $this->id = Uuid::fromString($this->rawId);
+    }
+
+    // Only possible error should be not found, if it's not a valid uuid v7
+    public function validationException(ValidationErrorCollection $errors): Exception
+    {
+        return new NotFoundException;
     }
 }

@@ -31,7 +31,7 @@ class ValidateCommand implements Middleware
         $errors = $command->validate($validator);
 
         if ($errors !== null && ! $errors->isEmpty()) {
-            throw new ValidationFailedException($errors);
+            throw $command->validationException($errors);
         }
 
         if ($command instanceof ExposesPostValidationHook) {

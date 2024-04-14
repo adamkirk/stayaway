@@ -2,12 +2,14 @@
 
 namespace App\Validation;
 
+use Exception;
 use App\Errors\ErrorType;
 use App\Errors\ValidationError;
-use App\Collections\ValidationErrorCollection;
 use App\Http\V1\Responses\ValidationErrors;
 use App\Api\Translation\TranslatesFieldNames;
+use App\Exceptions\ValidationFailedException;
 use Illuminate\Contracts\Support\Responsable;
+use App\Collections\ValidationErrorCollection;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 trait ValidatesByAttributes
@@ -34,8 +36,8 @@ trait ValidatesByAttributes
         return null;
     }
 
-    public function invalidResponse(ValidationErrorCollection $errors): Responsable
+    public function validationException(ValidationErrorCollection $errors): Exception
     {
-        return ValidationErrors::new($errors);
+        return new ValidationFailedException($errors);
     }
 }

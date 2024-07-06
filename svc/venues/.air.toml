@@ -14,8 +14,11 @@ tmp_dir = ".local/air/tmp"
   follow_symlink = false
   full_bin = ""
   include_dir = []
-  include_ext = ["go", "tpl", "tmpl", "html"]
-  include_file = []
+  include_ext = ["go", "tpl", "tmpl", "html", "yaml", "mod", "toml"]
+  # This seems to be bugged annoyingly
+  # https://github.com/air-verse/air/issues/496
+  # Got it working by including these extensions in the above array as well
+  include_file = ["config.yaml", "go.mod", ".air.toml"]
   kill_delay = "0s"
   log = "build-errors.log"
   poll = false

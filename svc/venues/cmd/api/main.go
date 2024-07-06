@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"os"
 	"strings"
 
@@ -22,11 +23,24 @@ var rootCmd = &cobra.Command{
 	Long: `Blah`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fx.New(
-			fx.Provide(api.NewServer),
+			fx.Provide(
+				fx.Annotate(
+					api.NewServer,
+					fx.ParamTags(`group:"apiControllers"`),
+				),
+			),
 			fx.Provide(
 				fx.Annotate(
 					buildConfig,
 					fx.As(new(api.ApiServerConfig)),
+					fx.As(new(api.OrganisationsV1ControllerConfig)),
+				),
+			),
+			fx.Provide(
+				fx.Annotate(
+					api.NewOrganisationsV1Controller,
+					fx.As(new(api.Controller)),
+					fx.ResultTags(`group:"apiControllers"`),
 				),
 			),
 			fx.Invoke(startServer),
@@ -60,7 +74,7 @@ func buildConfig() *config.Config {
 }
 
 func init() {
-	cobra.OnInitialize(initConfig)
+	cobra.OnInitialize(bootstrap)
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is WORKING_DIRECTORY/config.yaml)")
 	rootCmd.PersistentFlags().String("log-level",  "info", "log level to use")
@@ -72,7 +86,7 @@ func init() {
 	viper.BindPFlag("api.server.port", rootCmd.PersistentFlags().Lookup("port"))
 }
 
-func initConfig() {
+func bootstrap() {
 	if cfgFile != "" {
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
@@ -96,6 +110,29 @@ func initConfig() {
 	err := viper.ReadInConfig()
 
 	cobra.CheckErr(err)
+
+	cfg := buildConfig()
+
+	l := slog.Level(slog.LevelInfo)
+	err = l.UnmarshalText([]byte(cfg.Logging.Level))
+
+	cobra.CheckErr(err)
+
+	opts := &slog.HandlerOptions{
+		AddSource: true,
+		Level: l,
+	}
+
+	var logger *slog.Logger
+
+	if (cfg.LogFormat() == "text") {
+		logger = slog.New(slog.NewTextHandler(os.Stdout, opts))
+	} else {
+		logger = slog.New(slog.NewJSONHandler(os.Stdout, opts))
+	}
+
+	logger = logger.With(slog.String("log_type", "app"))
+	slog.SetDefault(logger)
 	// fmt.Println("Using config file:", viper.ConfigFileUsed())
 }
 

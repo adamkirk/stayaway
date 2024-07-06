@@ -19,6 +19,7 @@ services:
       target: dev
     environment:
       APP_COMMAND: api
+      AIR_DEBUG: ${VENUES_AIR_DEBUG}
     working_dir: /app
     volumes:
       - "${VENUES_DIR}/:/app"

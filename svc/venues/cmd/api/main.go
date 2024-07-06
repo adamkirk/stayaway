@@ -14,6 +14,7 @@ import (
 )
 
 var cfgFile string
+var appCfg *config.Config
 
 var rootCmd = &cobra.Command{
 	Use:   "api",
@@ -46,11 +47,16 @@ func startServer(lc fx.Lifecycle, srv *api.Server) {
 }
 
 func buildConfig() *config.Config {
+	if appCfg != nil {
+		return appCfg
+	}
+
 	c := &config.Config{}
 	err := viper.Unmarshal(c)
 	cobra.CheckErr(err)
 
-	return c
+	appCfg = c
+	return appCfg
 }
 
 func init() {

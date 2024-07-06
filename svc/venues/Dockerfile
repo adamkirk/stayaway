@@ -1,24 +1,13 @@
-FROM php:8.2-cli AS base
+FROM golang:1.22 as dev
 
-RUN apt update
+RUN go install github.com/air-verse/air@latest
 
-# For composer
-RUN apt install -y zip unzip
+COPY ./.local/docker/watch.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
-RUN pecl install openswoole
-RUN docker-php-ext-enable openswoole
+ENV PATH="$PATH:/app/build"
 
-RUN docker-php-ext-configure pcntl --enable-pcntl && docker-php-ext-install pcntl
+# This is where you should mount your code
+VOLUME /app
 
-RUN pecl install redis && docker-php-ext-enable redis
-RUN apt install -y libpq-dev && docker-php-ext-install pdo pdo_pgsql
-
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-FROM base as dev
-
-RUN apt install -y nodejs npm
-
-FROM base as prod
-
-RUN apt clean
+ENTRYPOINT ["/entrypoint.sh"]

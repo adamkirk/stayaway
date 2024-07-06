@@ -4,6 +4,7 @@ ROOTDIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 SVCDIR=$ROOTDIR/svc
 
 DOCKER_PROFILES_FILE="$ROOTDIR/.dockerprofiles"
+DOCKER_PROFILES_EXAMPLE_FILE="$ROOTDIR/.dockerprofiles.example"
 
 MINICA_CERTS_DIR=$ROOTDIR/etc/tls/certs
 TRAEFIK_CERTS_DIR=$ROOTDIR/etc/traefik/tls/certs
@@ -19,11 +20,11 @@ NO_COLOUR='\033[0;0m'
 BOLD='\033[0;1m'
 
 function __os_name() {
-  uname -s | tr '[:upper:]' '[:lower:]'
+	uname -s | tr '[:upper:]' '[:lower:]'
 }
 
 function __os_arch() {
-  uname -m | tr '[:upper:]' '[:lower:]'
+	uname -m | tr '[:upper:]' '[:lower:]'
 }
 
 function __newln() {
@@ -203,7 +204,8 @@ function __hosts() {
 	echo "127.0.0.1 loki.stayaway.test"
 	echo "127.0.0.1 prometheus.stayaway.test"
 	echo "127.0.0.1 venues.stayaway.test"
-	echo "127.0.0.1 pgadmin.stayaway.test"
+	echo "127.0.0.1 mongo.stayaway.test"
+	echo "127.0.0.1 minio.stayaway.test minio-api.stayaway.test"
 }
 
 function __is_svc_dir() {
@@ -234,6 +236,10 @@ function __set_docker_profiles()
 		touch $DOCKER_PROFILES_FILE
 	fi
 
+	if [ ! -f "$DOCKER_PROFILES_FILE" ]; then
+		cp $DOCKER_PROFILES_EXAMPLE_FILE $DOCKER_PROFILES_FILE
+	fi
+
 	while IFS="" read -r PROFILE || [ -n "$PROFILE" ]
 	do
 		if [ -z "$PROFILE" ]; then
@@ -256,6 +262,9 @@ function main() {
 	dc|exec)
 		__$COMMAND "${@:2}"
 		return "$?"
+		;;
+	show-dc)
+		echo $DC
 		;;
 	*)
 		__unknown_command "$COMMAND"

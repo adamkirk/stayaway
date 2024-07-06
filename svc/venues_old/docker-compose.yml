@@ -1,0 +1,54 @@
+version: "3.4"
+
+networks:
+  stayaway-dev:
+
+x-network:
+  &network
+  networks:
+    - stayaway-dev
+
+services:
+  venues-api:
+    <<: *network
+    build:
+      context: ${VENUES_DIR}
+      target: dev
+    # Cause the watcher often crashes on syntax errors while you're writing code
+    restart: always
+    command:
+      - php
+      - artisan
+      - octane:start
+      - --host
+      - "0.0.0.0"
+      - --port
+      - ${VENUES_HTTP_PORT}
+      - --watch
+    environment:
+      DC_POSTGRES_DB_HOST: ${STAYAWAY_POSTGRES_HOST}
+      DC_POSTGRES_DB_PORT: 5432
+      DC_POSTGRES_DB_PASSWORD: ${VENUES_DB_PASSWORD}
+      DC_POSTGRES_DB_USER: ${VENUES_DB_USER}
+      DC_POSTGRES_DB_NAME: ${VENUES_DB_NAME}
+      DC_POSTGRES_DB_SCHEMA: ${VENUES_DB_SCHEMA}
+
+      DC_POSTGRES_TEST_DB_PASSWORD: ${VENUES_TEST_DB_PASSWORD}
+      DC_POSTGRES_TEST_DB_USER: ${VENUES_TEST_DB_USER}
+      DC_POSTGRES_TEST_DB_NAME: ${VENUES_TEST_DB_NAME}
+      DC_POSTGRES_TEST_DB_SCHEMA: ${VENUES_TEST_DB_SCHEMA}
+
+      DC_REDIS_HOST: ${STAYWAY_REDIS_HOST}
+      DC_REDIS_PASSWORD: ${STAYAWAY_REDIS_PASS}
+      DC_REDIS_DB: ${VENUES_REDIS_DB}
+      DC_REDIS_CACHE_DB: ${VENUES_REDIS_CACHE_DB}
+    working_dir: /app/api
+    volumes:
+      - "${VENUES_DIR}:/app"
+    labels:
+      - "traefik.http.routers.venues-api.rule=Host(`${VENUES_HOST}`)"
+      - "traefik.enable=true"
+      - "traefik.http.routers.venues-api.entrypoints=websecure"
+      - "traefik.http.services.venues-api.loadbalancer.server.port=${VENUES_HTTP_PORT}"
+      - "traefik.http.routers.venues-api.tls=true"
+

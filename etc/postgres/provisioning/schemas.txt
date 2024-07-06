@@ -1,2 +1,0 @@
-venues
-venues_test

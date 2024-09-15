@@ -8,6 +8,7 @@ Contains all the venues for the wider system.
 
 - id
 - name
+- slug
 
 ### Venue
 

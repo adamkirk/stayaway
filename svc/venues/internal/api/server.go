@@ -2,9 +2,11 @@ package api
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"os"
+	"reflect"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -29,6 +31,7 @@ type ApiServerConfig interface {
 	ApiServerPort() int
 	ApiServerAccessLogEnabled() bool
 	ApiServerAccessLogFormat() string
+	ApiServerDebugErrorsEnabled() bool
 }
 
 type Server struct {
@@ -111,6 +114,64 @@ func setupLoggingMiddleware(cfg ApiServerConfig, e *echo.Echo) {
 	}))
 }
 
+func setupErrorHandlingMiddleware(cfg ApiServerConfig, e *echo.Echo) {
+	e.Use(func (next echo.HandlerFunc) echo.HandlerFunc {
+		return func (ctx echo.Context) error {
+			err := next(ctx); 
+			if err == nil {
+				return nil
+			}
+
+			respBody := map[string]any{}
+
+			httpErr, ok := err.(HttpError);
+			if ok {
+				respBody["message"] = err.Error()
+
+				debuggableErr, ok := err.(HttpDebuggableError)
+
+				if ok && cfg.ApiServerDebugErrorsEnabled() {
+					respBody["debug"] = map[string]any{
+						"error": debuggableErr.DebugError(),
+					}
+				}
+
+				ctx.JSON(httpErr.HttpStatusCode(), respBody)
+
+				return nil
+			}
+
+			if cfg.ApiServerDebugErrorsEnabled() {
+				respBody["debug"] = map[string]any{
+					"error": err.Error(),
+				}
+			}
+
+			respBody["message"] = "internal server error"
+			ctx.JSON(500, respBody)
+
+			return nil
+		}
+	})
+}
+
+func bindRequest(req any, ctx echo.Context) error {
+	if reflect.ValueOf(req).Kind() != reflect.Ptr {
+		slog.Error("cannot bind to non pointer", "path", ctx.Path())
+
+		return errors.New("cannot bind request to non pointer value")
+	}
+
+	if err := ctx.Bind(req); err != nil {
+		return ErrBadRequest{
+			Message: "failed to parse request",
+			DebugMessage: err.Error(),
+		}
+	}
+
+	return nil
+}
+
 func NewServer(apiControllers []Controller, cfg ApiServerConfig) *Server {
 	e := echo.New()
 	e.HideBanner = true
@@ -125,6 +186,7 @@ func NewServer(apiControllers []Controller, cfg ApiServerConfig) *Server {
 	}
 
 	setupLoggingMiddleware(cfg, e)
+	setupErrorHandlingMiddleware(cfg, e)
 
 	srv := &Server{
 		cfg: cfg,

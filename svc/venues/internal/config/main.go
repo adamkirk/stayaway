@@ -14,6 +14,7 @@ type ConfigApiServerAccessLog struct {
 }
 
 type ConfigApiServer struct {
+	DebugErrorsEnabled bool `mapstructure:"debug_errors_enabled"`
 	Port int
 	AccessLog ConfigApiServerAccessLog `mapstructure:"access_log"`
 }
@@ -45,4 +46,8 @@ func (c *Config) ApiServerAccessLogEnabled() bool {
 
 func (c *Config) ApiServerAccessLogFormat() string {
 	return c.Api.Server.AccessLog.Format
+}
+
+func (c *Config) ApiServerDebugErrorsEnabled() bool {
+	return c.Api.Server.DebugErrorsEnabled
 }

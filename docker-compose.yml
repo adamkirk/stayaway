@@ -186,6 +186,8 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${STAYAWAY_MONGODB_INITDB_ROOT_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${STAYAWAY_MONGODB_INITDB_ROOT_PASSWORD}
+    volumes:
+      - mongo:/data/db
 
   mongo-express:
     <<: *network
@@ -233,3 +235,6 @@ services:
       - "traefik.http.routers.minio-api.tls=true"
       - "traefik.http.routers.minio-api.service=minio-api"
       - "traefik.http.services.minio-api.loadbalancer.server.port=${STAYAWAY_MINIO_API_PORT}"
+
+volumes:
+  mongo: 

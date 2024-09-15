@@ -74,6 +74,7 @@ func sharedOpts() []fx.Option {
 				fx.As(new(api.ApiServerConfig)),
 				fx.As(new(api.OrganisationsV1ControllerConfig)),
 				fx.As(new(db.MongoConfig)),
+				fx.As(new(db.MongoDbMigratorConfig)),
 			),
 		),
 		fx.Provide(
@@ -102,9 +103,16 @@ func sharedOpts() []fx.Option {
 		os.Exit(1)
 	}
 
+	// Register difference implementations based on configured driver
 	if appCfg.DbDriver().IsMongoDb() {
 		opts = append(opts, []fx.Option{
 			fx.Provide(db.NewMongoDbConnector),
+			fx.Provide(
+				fx.Annotate(
+					db.NewMongoDbConnector,
+					fx.As(new(repository.MongoDbConnector)),
+				),
+			),
 			fx.Provide(
 				fx.Annotate(
 					db.NewMongoDbPinger,

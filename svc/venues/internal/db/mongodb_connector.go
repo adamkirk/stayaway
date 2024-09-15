@@ -49,6 +49,10 @@ func (c *MongoDbConnector) connect() (*mongo.Client, error) {
 	return client, err
 }
 
+func (c *MongoDbConnector) GetClient() (*mongo.Client, error) {
+	return c.connect()
+}
+
 func (c *MongoDbConnector) GetOrganisationsDb() (*mongo.Database, error) {
 	if c.orgsDb != nil {
 		return c.orgsDb, nil

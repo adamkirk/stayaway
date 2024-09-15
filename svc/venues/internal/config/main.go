@@ -47,6 +47,7 @@ type ConfigDbMongoDb struct {
 	Uri string
 	Database string
 	ConnectionRetries int `mapstructure:"connection_retries"`
+	MigrationsDatabase string `mapstructure:"migrations_database"`
 }
 
 type ConfigDb struct {
@@ -96,6 +97,10 @@ func (c *Config) MongoDbDatabase() string {
 	return c.Db.MongoDb.Database
 }
 
+func (c *Config) MongoDbMigrationsDatabase() string {
+	return c.Db.MongoDb.MigrationsDatabase
+}
+
 func (c *Config) MongoDbConnectionRetries() int {
 	return c.Db.MongoDb.ConnectionRetries
 }
@@ -122,6 +127,7 @@ func NewDefault() *Config{
 				Uri: "",
 				Database: "organisations",
 				ConnectionRetries: 3,
+				MigrationsDatabase: "migrations",
 			},
 		},
 	}

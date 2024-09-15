@@ -5,7 +5,7 @@ import (
 	"errors"
 	"math"
 
-	"github.com/adamkirk-stayaway/venues/internal/db"
+	"github.com/adamkirk-stayaway/venues/internal/repository/mongodb"
 	"github.com/adamkirk-stayaway/venues/pkg/model"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -13,10 +13,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-const collectionName = "organisations"
-
 type MongoDbOrganisations struct {
-	connector *db.MongoDbConnector
+	connector MongoDbConnector
 }
 
 func (r *MongoDbOrganisations) getCollection() (*mongo.Collection, error) {
@@ -26,7 +24,7 @@ func (r *MongoDbOrganisations) getCollection() (*mongo.Collection, error) {
 		return nil, err
 	}
 
-	coll := db.Collection(collectionName)
+	coll := db.Collection(mongodb.Organisations)
 
 	return coll, nil
 }
@@ -110,7 +108,7 @@ func (r *MongoDbOrganisations) Save(org *model.Organisation) (*model.Organisatio
 
 }
 
-func NewMongoDbOrganisations(connector *db.MongoDbConnector ) *MongoDbOrganisations {
+func NewMongoDbOrganisations(connector MongoDbConnector ) *MongoDbOrganisations {
 	return &MongoDbOrganisations{
 		connector: connector,
 	}

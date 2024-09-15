@@ -3,7 +3,7 @@ testdata_dir = "testdata"
 tmp_dir = ".local/air/tmp"
 
 [build]
-  args_bin = []
+  args_bin = ["api"]
   # bin = "./build/api"
   # cmd = "go build -o ./build/api ."
   delay = 1000

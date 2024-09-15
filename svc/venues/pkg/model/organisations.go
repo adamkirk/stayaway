@@ -1,17 +1,16 @@
 package model
 
-type OrganisationOrderBy string
+type OrganisationSortBy string
 
 const (
-	OrganisationOrderBySlug OrganisationOrderBy = "slug"
-	OrganisationOrderByName OrganisationOrderBy = "name"
-	OrganisationOrderByID OrganisationOrderBy = "id"
+	OrganisationSortBySlug OrganisationSortBy = "slug"
+	OrganisationSortByName OrganisationSortBy = "name"
 )
 
 type Organisation struct {
-	ID ID `json:"id"`
-	Name string `json:"name"`
-	Slug string `json:"slug"`
+	ID string `json:"id" bson:"_id,omitempty"`
+	Name string `json:"name" bson:"name"`
+	Slug string `json:"slug" bson:"slug"`
 }
 
 type Organisations []*Organisation

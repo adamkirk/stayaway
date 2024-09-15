@@ -9,3 +9,11 @@ api:
     access_log:
       format: json
       enabled: true
+
+db:
+  driver: "mongodb"
+  mongodb:
+    # Comes from env in local, see docker-compose.yml
+    # Needs to be present in config though, some weird viper behaviour i think
+    uri: mongodb://user:pass@mongo:27017
+    database: "organisations"

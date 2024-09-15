@@ -10,7 +10,7 @@ type V1Organisation struct {
 
 func V1OrganisationFromModel(org *model.Organisation) V1Organisation {
 	return V1Organisation{
-		ID: org.ID.String(),
+		ID: org.ID,
 		Name: org.Name,
 		Slug: org.Slug,
 	}
@@ -28,15 +28,11 @@ func V1OrganisationsFromModels(orgs model.Organisations) V1Organisations {
 	return v1Orgs
 }
 
-type V1ListOrganisationsMeta struct {
-	OrderDirection string `json:"order_dir"`
-	OrderBy string `json:"order_by"`
-	Page int `json:"page"`
-	PerPage int `json:"per_page"`
-	TotalPages int 
-}
-
 type V1ListOrganisationsResponse struct {
 	Data V1Organisations `json:"data"`
-	Meta V1ListOrganisationsMeta `json:"meta"`
+	Meta V1ListResponseMeta `json:"meta"`
+}
+
+type V1PostOrganisationResponse struct {
+	Data V1Organisation `json:"data"`
 }

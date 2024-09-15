@@ -5,10 +5,17 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+
+type OrganisationsRepo interface {
+	Paginate(orderBy model.OrganisationSortBy, orderDir model.SortDirection, page int, perPage int) (model.Organisations, model.PaginationResult, error)
+	Save(org *model.Organisation) (*model.Organisation, error)
+}
+
 type OrganisationsV1ControllerConfig interface {}
 
 type OrganisationsV1Controller struct {
 	cfg OrganisationsV1ControllerConfig
+	repo OrganisationsRepo
 }
 
 func (c *OrganisationsV1Controller) RegisterRoutes(api *echo.Group) {
@@ -17,16 +24,17 @@ func (c *OrganisationsV1Controller) RegisterRoutes(api *echo.Group) {
 	g.GET("", c.List).Name = "v1.organisations.list"
 }
 
-func NewOrganisationsV1Controller(cfg OrganisationsV1ControllerConfig) *OrganisationsV1Controller {
+func NewOrganisationsV1Controller(cfg OrganisationsV1ControllerConfig, repo OrganisationsRepo) *OrganisationsV1Controller {
 	return &OrganisationsV1Controller{
 		cfg: cfg,
+		repo: repo,
 	}
 }
 
 func (c *OrganisationsV1Controller) List(ctx echo.Context) error {
 	req := V1ListOrganisationsRequest{
 		OrderDirection: model.SortAsc,
-		OrderBy: model.OrganisationOrderBySlug,
+		OrderBy: model.OrganisationSortBySlug,
 		Page: 1,
 		PerPage: 50,
 	}
@@ -35,32 +43,31 @@ func (c *OrganisationsV1Controller) List(ctx echo.Context) error {
 		return err
 	}
 
-	orgs := make(model.Organisations, 3)
-	orgs[0] = &model.Organisation{
-		ID: *model.NewID(),
-		Name: "Test 1",
-		Slug: "test-1",
-	}
-	orgs[1] = &model.Organisation{
-		ID: *model.NewID(),
-		Name: "Test 2",
-		Slug: "test-2",
-	}
-	orgs[2] = &model.Organisation{
-		ID: *model.NewID(),
-		Name: "Test 3",
-		Slug: "test-3",
+	results, pagination, err := c.repo.Paginate(
+		req.OrderBy,
+		req.OrderDirection,
+		req.Page,
+		req.PerPage,
+	)
+
+	if err != nil {
+		return err
 	}
 	
 	resp := V1ListOrganisationsResponse{
-		Meta: V1ListOrganisationsMeta{
-			OrderDirection: string(req.OrderDirection),
-			OrderBy: string(req.OrderBy),
-			Page: req.Page,
-			PerPage: req.PerPage,
-			TotalPages: 0,
+		Meta: V1ListResponseMeta{
+			V1SortOptionsResponseMeta: V1SortOptionsResponseMeta{
+				OrderDirection: string(req.OrderDirection),
+				OrderBy: string(req.OrderBy),
+			},
+			V1PaginationResponseMeta: V1PaginationResponseMeta{
+				Page: pagination.Page,
+				PerPage: pagination.PerPage,
+				TotalPages: pagination.TotalPages,
+				TotalResults: pagination.Total,
+			},
 		},
-		Data: V1OrganisationsFromModels(orgs),
+		Data: V1OrganisationsFromModels(results),
 	}
 
 	ctx.JSON(200, resp)
@@ -69,7 +76,29 @@ func (c *OrganisationsV1Controller) List(ctx echo.Context) error {
 }
 
 func (c *OrganisationsV1Controller) Create(ctx echo.Context) error {
-	ctx.String(200, "Create")
+	req := V1PostOrganisationRequest{}
+
+	// TODO validation...
+	if err := bindRequest(&req, ctx); err != nil {
+		return err
+	}
+
+	org := &model.Organisation{
+		Name: req.Name,
+		Slug: req.Slug,
+	}
+	
+	org, err := c.repo.Save(org)
+
+	if err != nil {
+		return err
+	}
+
+	resp := V1PostOrganisationResponse{
+		Data: V1OrganisationFromModel(org),
+	}
+
+	ctx.JSON(201, resp)
 
 	return nil
 }

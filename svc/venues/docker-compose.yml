@@ -18,8 +18,9 @@ services:
       context: ${VENUES_DIR}
       target: dev
     environment:
-      APP_COMMAND: api
+      APP_COMMAND: venues
       AIR_DEBUG: ${VENUES_AIR_DEBUG}
+      STAYAWAY_DB_MONGODB_URI: ${STAYAWAY_MONGODB_INTERNAL_URI}
     working_dir: /app
     volumes:
       - "${VENUES_DIR}/:/app"

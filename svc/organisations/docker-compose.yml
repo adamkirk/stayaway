@@ -1,0 +1,31 @@
+version: "3.4"
+
+networks:
+  stayaway-dev:
+
+x-network:
+  &network
+  networks:
+    - stayaway-dev
+
+services:
+  organisations-api:
+    profiles:
+      - organisations
+    <<: *network
+    build:
+      context: ${ORGANISATIONS_DIR}
+      target: dev
+    environment:
+      APP_COMMAND: organisations
+      AIR_DEBUG: ${ORGANISATIONS_AIR_DEBUG}
+      STAYAWAY_DB_MONGODB_URI: ${STAYAWAY_MONGODB_INTERNAL_URI}
+    working_dir: /app
+    volumes:
+      - "${ORGANISATIONS_DIR}/:/app"
+    labels:
+      - "traefik.http.routers.organisations-api.rule=Host(`${ORGANISATIONS_HOST}`)"
+      - "traefik.enable=true"
+      - "traefik.http.routers.organisations-api.entrypoints=websecure"
+      - "traefik.http.services.organisations-api.loadbalancer.server.port=${ORGANISATIONS_HTTP_PORT}"
+      - "traefik.http.routers.organisations-api.tls=true"

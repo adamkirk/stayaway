@@ -10,7 +10,7 @@ MINICA_CERTS_DIR=$ROOTDIR/etc/tls/certs
 TRAEFIK_CERTS_DIR=$ROOTDIR/etc/traefik/tls/certs
 
 DC="docker compose -p stayaway -f ./docker-compose.yml --env-file $ROOTDIR/.dockerenv"
-DC="$DC -f $SVCDIR/venues/docker-compose.yml"
+DC="$DC -f $SVCDIR/organisations/docker-compose.yml"
 
 # See: https://www.shellhacks.com/bash-colors/
 RED='\033[0;31m'
@@ -203,7 +203,7 @@ function __hosts() {
 	echo "127.0.0.1 grafana.stayaway.test"
 	echo "127.0.0.1 loki.stayaway.test"
 	echo "127.0.0.1 prometheus.stayaway.test"
-	echo "127.0.0.1 venues.stayaway.test"
+	echo "127.0.0.1 organisations.stayaway.test"
 	echo "127.0.0.1 mongo.stayaway.test"
 	echo "127.0.0.1 minio.stayaway.test minio-api.stayaway.test"
 }

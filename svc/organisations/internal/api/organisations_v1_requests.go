@@ -36,8 +36,8 @@ func (req V1ListOrganisationsRequest) ToCommand() organisations.ListCommand {
 }
 
 type V1PostOrganisationRequest struct {
-	Name string `json:"name"`
-	Slug string `json:"slug"`
+	Name *string `json:"name" validationmap:"Name"`
+	Slug *string `json:"slug" validationmap:"Slug"`
 }
 
 func (req V1PostOrganisationRequest) ToCommand() organisations.CreateCommand {

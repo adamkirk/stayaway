@@ -3,6 +3,7 @@ package api
 import (
 	"github.com/adamkirk-stayaway/organisations/pkg/model"
 	"github.com/adamkirk-stayaway/organisations/pkg/organisations"
+	"github.com/adamkirk-stayaway/organisations/pkg/validation"
 	"github.com/labstack/echo/v4"
 )
 
@@ -45,6 +46,7 @@ type OrganisationsV1Controller struct {
 	create OrganisationsCreateHandler
 	delete OrganisationsDeleteHandler
 	update OrganisationsUpdateHandler
+	validationMapper *ValidationMapper
 }
 
 func (c *OrganisationsV1Controller) RegisterRoutes(api *echo.Group) {
@@ -64,6 +66,7 @@ func NewOrganisationsV1Controller(
 	create OrganisationsCreateHandler,
 	delete OrganisationsDeleteHandler,
 	update OrganisationsUpdateHandler,
+	validationMapper *ValidationMapper,
 ) *OrganisationsV1Controller {
 	return &OrganisationsV1Controller{
 		cfg: cfg,
@@ -73,6 +76,7 @@ func NewOrganisationsV1Controller(
 		create: create,
 		delete: delete,
 		update: update,
+		validationMapper: validationMapper,
 	}
 }
 
@@ -122,6 +126,9 @@ func (c *OrganisationsV1Controller) Create(ctx echo.Context) error {
 	org, err := c.create.Handle(req.ToCommand())
 
 	if err != nil {
+		if err, ok := err.(validation.ValidationError); ok {
+			return c.validationMapper.Map(err, req)
+		}
 		return err
 	}
 

@@ -14,6 +14,7 @@ import (
 	"github.com/adamkirk-stayaway/organisations/internal/db"
 	"github.com/adamkirk-stayaway/organisations/internal/repository"
 	"github.com/adamkirk-stayaway/organisations/pkg/organisations"
+	"github.com/adamkirk-stayaway/organisations/pkg/validation"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"go.uber.org/fx"
@@ -132,6 +133,13 @@ func sharedOpts() []fx.Option {
 				fx.As(new(api.OrganisationsUpdateHandler)),
 			),
 		),
+		fx.Provide(
+			fx.Annotate(
+				validation.NewValidator,
+				fx.As(new(organisations.Validator)),
+			),
+		),
+		fx.Provide(api.NewValidationMapper),
 	}
 
 	if ! appCfg.DbDriver().IsKnown() {

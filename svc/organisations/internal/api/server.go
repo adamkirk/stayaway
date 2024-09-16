@@ -9,6 +9,7 @@ import (
 	"reflect"
 
 	"github.com/adamkirk-stayaway/organisations/pkg/model"
+	"github.com/adamkirk-stayaway/organisations/pkg/validation"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -126,11 +127,30 @@ func translateErrToHttpErr(err error) HttpError {
 	}
 }
 
+func handleValidationError(ctx echo.Context, errs validation.ValidationError) {
+	respErrors := map[string][]string{}
+
+	for _, err := range errs.Errs {
+		respErrors[err.Key] = err.Errors
+	}
+
+	respBody := map[string]any{
+		"errors": respErrors,
+	}
+
+	ctx.JSON(422, respBody)
+}
+
 func setupErrorHandlingMiddleware(cfg ApiServerConfig, e *echo.Echo) {
 	e.Use(func (next echo.HandlerFunc) echo.HandlerFunc {
 		return func (ctx echo.Context) error {
 			err := next(ctx); 
 			if err == nil {
+				return nil
+			}
+
+			if err, ok := err.(validation.ValidationError); ok {
+				handleValidationError(ctx, err)
 				return nil
 			}
 

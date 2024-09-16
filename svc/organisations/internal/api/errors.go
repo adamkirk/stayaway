@@ -10,6 +10,10 @@ type HttpDebuggableError interface {
 	DebugError() string
 }
 
+type HttpResponseBuilder interface {
+	BuildResponse() map[string]any
+}
+
 type ErrNotFound struct {
 	ResourceName string
 }

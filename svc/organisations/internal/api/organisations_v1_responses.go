@@ -36,3 +36,11 @@ type V1ListOrganisationsResponse struct {
 type V1PostOrganisationResponse struct {
 	Data V1Organisation `json:"data"`
 }
+
+type V1GetOrganisationResponse struct {
+	Data V1Organisation `json:"data"`
+}
+
+type V1PatchOrganisationResponse struct {
+	Data V1Organisation `json:"data"`
+}

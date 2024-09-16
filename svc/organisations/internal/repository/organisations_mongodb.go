@@ -30,7 +30,6 @@ func (r *MongoDbOrganisations) getCollection() (*mongo.Collection, error) {
 }
 
 func (r *MongoDbOrganisations) Paginate(orderBy model.OrganisationSortBy, orderDir model.SortDirection, page int, perPage int) (model.Organisations, model.PaginationResult, error) {
-	// No longer than one
 	coll, err := r.getCollection()
 
 	if err != nil {
@@ -59,6 +58,54 @@ func (r *MongoDbOrganisations) Paginate(orderBy model.OrganisationSortBy, orderD
 		Total: int(total),
 		TotalPages: totalPages,
 	}, nil
+}
+
+func (r *MongoDbOrganisations) Get(id string) (*model.Organisation, error) {
+	coll, err := r.getCollection()
+
+	if err != nil {
+		return nil, err
+	}
+
+	objID, err := primitive.ObjectIDFromHex(id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	org := &model.Organisation{}
+
+	res := coll.FindOne(context.TODO(), bson.D{{"_id", objID}})
+
+	if res.Err() != nil && res.Err() == mongo.ErrNoDocuments {
+		return nil, model.ErrNotFound{
+			ResourceName: "organisation",
+			ID: id,
+		}
+	}
+
+	err = res.Decode(org)
+
+	return org, err
+}
+
+
+func (r *MongoDbOrganisations) Delete(org *model.Organisation) (error) {
+	coll, err := r.getCollection()
+
+	if err != nil {
+		return err
+	}
+
+	objID, err := primitive.ObjectIDFromHex(org.ID)
+
+	if err != nil {
+		return err
+	}
+
+	_, err = coll.DeleteOne(context.TODO(), bson.D{{"_id", objID}})
+
+	return err
 }
 
 func (r *MongoDbOrganisations) doInsert(org *model.Organisation) (*model.Organisation, error) {
@@ -90,7 +137,22 @@ func (r *MongoDbOrganisations) doUpdate(org *model.Organisation) (*model.Organis
 		return nil, err
 	}
 
-	_, err = coll.UpdateOne(context.TODO(), bson.D{{"_id", org.ID}}, org)
+	objID, err := primitive.ObjectIDFromHex(org.ID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// copy the value, and strip its id
+	// Maybe i can do something with the bson conversion somewhere, but otherwise
+	// cause the ID is a string it needs to be cast to primitive.ObjectID, and i
+	// don't really wanna do that in the model itself, so that it can be agnostic
+	// to db driver
+	// This seems the simpler option.
+	update := *org
+	update.ID = ""
+
+	_, err = coll.ReplaceOne(context.TODO(), bson.D{{"_id", objID}}, update)
 
 	if err != nil {
 		return nil, err

@@ -13,6 +13,7 @@ import (
 	"github.com/adamkirk-stayaway/organisations/internal/config"
 	"github.com/adamkirk-stayaway/organisations/internal/db"
 	"github.com/adamkirk-stayaway/organisations/internal/repository"
+	"github.com/adamkirk-stayaway/organisations/pkg/organisations"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"go.uber.org/fx"
@@ -94,6 +95,41 @@ func sharedOpts() []fx.Option {
 			fx.Annotate(
 				repository.NewMongoDbOrganisations,
 				fx.As(new(api.OrganisationsRepo)),
+				fx.As(new(organisations.GetHandlerRepo)),
+				fx.As(new(organisations.ListHandlerRepo)),
+				fx.As(new(organisations.CreateHandlerRepo)),
+				fx.As(new(organisations.DeleteHandlerRepo)),
+				fx.As(new(organisations.UpdateHandlerRepo)),
+			),
+		),
+		fx.Provide(
+			fx.Annotate(
+				organisations.NewGetHandler,
+				fx.As(new(api.OrganisationsGetHandler)),
+			),
+		),
+		fx.Provide(
+			fx.Annotate(
+				organisations.NewListHandler,
+				fx.As(new(api.OrganisationsListHandler)),
+			),
+		),
+		fx.Provide(
+			fx.Annotate(
+				organisations.NewCreateHandler,
+				fx.As(new(api.OrganisationsCreateHandler)),
+			),
+		),
+		fx.Provide(
+			fx.Annotate(
+				organisations.NewDeleteHandler,
+				fx.As(new(api.OrganisationsDeleteHandler)),
+			),
+		),
+		fx.Provide(
+			fx.Annotate(
+				organisations.NewUpdateHandler,
+				fx.As(new(api.OrganisationsUpdateHandler)),
 			),
 		),
 	}

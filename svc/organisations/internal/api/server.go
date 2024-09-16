@@ -8,6 +8,7 @@ import (
 	"os"
 	"reflect"
 
+	"github.com/adamkirk-stayaway/organisations/pkg/model"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -114,6 +115,17 @@ func setupLoggingMiddleware(cfg ApiServerConfig, e *echo.Echo) {
 	}))
 }
 
+func translateErrToHttpErr(err error) HttpError {
+	switch t := err.(type) {
+		default:
+			return nil
+		case model.ErrNotFound:
+			return ErrNotFound{
+				ResourceName: t.ResourceName,
+			}
+	}
+}
+
 func setupErrorHandlingMiddleware(cfg ApiServerConfig, e *echo.Echo) {
 	e.Use(func (next echo.HandlerFunc) echo.HandlerFunc {
 		return func (ctx echo.Context) error {
@@ -124,8 +136,19 @@ func setupErrorHandlingMiddleware(cfg ApiServerConfig, e *echo.Echo) {
 
 			respBody := map[string]any{}
 
-			httpErr, ok := err.(HttpError);
-			if ok {
+			var httpErr HttpError
+
+			if translated := translateErrToHttpErr(err); translated != nil {
+				httpErr = translated
+			} else {
+				translated, ok := err.(HttpError);
+
+				if ok {
+					httpErr = translated
+				}
+			}
+
+			if httpErr != nil {
 				respBody["message"] = err.Error()
 
 				debuggableErr, ok := err.(HttpDebuggableError)

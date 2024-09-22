@@ -69,8 +69,8 @@ func (req V1GetOrganisationRequest) ToCommand() organisations.GetCommand {
 
 type V1PatchOrganisationRequest struct {
 	ID string `param:"id"`
-	Name *string `json:"name,omitempty"`
-	Slug *string `json:"slug,omitempty"`
+	Name *string `json:"name,omitempty" validationmap:"Name"`
+	Slug *string `json:"slug,omitempty" validationmap:"Slug"`
 }
 
 func (req V1PatchOrganisationRequest) ToCommand() organisations.UpdateCommand {

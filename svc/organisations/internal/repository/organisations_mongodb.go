@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"fmt"
 	"math"
 
 	"github.com/adamkirk-stayaway/organisations/internal/repository/mongodb"
@@ -89,6 +90,28 @@ func (r *MongoDbOrganisations) Get(id string) (*model.Organisation, error) {
 	return org, err
 }
 
+func (r *MongoDbOrganisations) BySlug(slug string) (*model.Organisation, error) {
+	coll, err := r.getCollection()
+
+	if err != nil {
+		return nil, err
+	}
+
+	org := &model.Organisation{}
+
+	res := coll.FindOne(context.TODO(), bson.D{{"slug", slug}})
+
+	if res.Err() != nil && res.Err() == mongo.ErrNoDocuments {
+		return nil, model.ErrNotFound{
+			ResourceName: "organisation",
+			ID: fmt.Sprintf("slug:%s", slug),
+		}
+	}
+
+	err = res.Decode(org)
+
+	return org, err
+}
 
 func (r *MongoDbOrganisations) Delete(org *model.Organisation) (error) {
 	coll, err := r.getCollection()

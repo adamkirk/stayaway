@@ -152,12 +152,6 @@ func (c *OrganisationsV1Controller) Get(ctx echo.Context) error {
 	org, err := c.get.Handle(req.ToCommand())
 
 	if err != nil {
-		if notFound, ok := err.(model.ErrNotFound); ok {
-			return ErrNotFound{
-				ResourceName: notFound.ResourceName,
-			}
-		}
-
 		return err
 	}
 
@@ -180,6 +174,10 @@ func (c *OrganisationsV1Controller) Patch(ctx echo.Context) error {
 	org, err := c.update.Handle(req.ToCommand())
 
 	if err != nil {
+		if err, ok := err.(validation.ValidationError); ok {
+			return c.validationMapper.Map(err, req)
+		}
+
 		return err
 	}
 

@@ -3,7 +3,9 @@ package validation
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"reflect"
+	"regexp"
 	"strings"
 
 	"github.com/go-playground/locales/en"
@@ -20,7 +22,7 @@ var errorTranslations = []struct{
 	{
 		rule: "required",
 		registerFunc: func(ut ut.Translator) error {
-			return ut.Add("required", "is required", true) // see universal-translator for details
+			return ut.Add("required", "is required", true)
 		},
 		translateFunc: func(ut ut.Translator, fe validator.FieldError) string {
 			t, _ := ut.T("required")
@@ -29,9 +31,20 @@ var errorTranslations = []struct{
 		},
 	},
 	{
+		rule: "slug",
+		registerFunc: func(ut ut.Translator) error {
+			return ut.Add("slug", "must contain only alphanumeric and hyphen characters; cannot start with a hyphen", true)
+		},
+		translateFunc: func(ut ut.Translator, fe validator.FieldError) string {
+			t, _ := ut.T("slug")
+			
+			return t
+		},
+	},
+	{
 		rule: "min",
 		registerFunc: func(ut ut.Translator) error {
-			return ut.Add("min", "{0}", true) // see universal-translator for details
+			return ut.Add("min", "{0}", true)
 		},
 		translateFunc: func(ut ut.Translator, fe validator.FieldError) string {
 
@@ -117,6 +130,7 @@ func (v *Validator) Validate(in any) error {
 			".",
 		)
 
+		slog.Info("value", "field", field, "value", validationErr.Value())
 		fieldErrors = append(fieldErrors, FieldError{
 			Key: field,
 			Errors: []string{validationErr.Translate(trans)},
@@ -132,6 +146,14 @@ func NewValidator() *Validator {
 	return &Validator{}
 }
 
+// TODO: add some tests for this, I think it's right
+// also see about moving it somewhere so we can keep the compiled regex in memory
+func slugValidator(fl validator.FieldLevel) bool {
+	r, _ := regexp.Compile("^[a-z0-9]{1}[a-z0-9\\-]*$")
+
+	return r.MatchString(fl.Field().String())
+}
+
 func init() {
 	en := en.New()
 	uni := ut.New(en, en)
@@ -140,6 +162,8 @@ func init() {
 	
 	validate = validator.New()
 	en_translations.RegisterDefaultTranslations(validate, trans)
+	
+	validate.RegisterValidation("slug", slugValidator)
 	
 
 	for _, errorTranslation := range errorTranslations {

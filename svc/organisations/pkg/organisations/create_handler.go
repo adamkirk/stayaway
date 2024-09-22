@@ -9,8 +9,8 @@ type CreateHandlerRepo interface {
 }
 
 type CreateCommand struct {
-	Name *string `validate:"nonnil"`
-	Slug *string `validate:"nonnil"`
+	Name *string `validate:"required"`
+	Slug *string `validate:"required"`
 }
 
 type CreateHandler struct {

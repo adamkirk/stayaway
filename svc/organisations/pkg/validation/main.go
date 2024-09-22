@@ -2,9 +2,79 @@ package validation
 
 import (
 	"errors"
+	"fmt"
+	"reflect"
+	"strings"
 
-	"gopkg.in/validator.v2"
+	"github.com/go-playground/locales/en"
+	ut "github.com/go-playground/universal-translator"
+	"github.com/go-playground/validator/v10"
+	en_translations "github.com/go-playground/validator/v10/translations/en"
 )
+
+var errorTranslations = []struct{
+	rule string
+	registerFunc func(ut ut.Translator) error
+	translateFunc func(ut ut.Translator, fe validator.FieldError) string
+}{
+	{
+		rule: "required",
+		registerFunc: func(ut ut.Translator) error {
+			return ut.Add("required", "is required", true) // see universal-translator for details
+		},
+		translateFunc: func(ut ut.Translator, fe validator.FieldError) string {
+			t, _ := ut.T("required")
+			
+			return t
+		},
+	},
+	{
+		rule: "min",
+		registerFunc: func(ut ut.Translator) error {
+			return ut.Add("min", "{0}", true) // see universal-translator for details
+		},
+		translateFunc: func(ut ut.Translator, fe validator.FieldError) string {
+
+			minValue := fe.Param()
+			var msg string
+	
+			k := fe.Type().Kind()
+	
+			if fe.Type().Kind() == reflect.Pointer {
+				k = fe.Type().Elem().Kind()
+			}
+	
+			switch k {
+			case reflect.Array, reflect.Slice:
+				msg = "must contain more than %s items"
+			case 
+				reflect.Float32,
+				reflect.Float64,
+				reflect.Int,
+				reflect.Int8,
+				reflect.Int16,
+				reflect.Int32,
+				reflect.Int64,
+				reflect.Uint,
+				reflect.Uint8,
+				reflect.Uint16,
+				reflect.Uint32,
+				reflect.Uint64:
+				msg = "must be larger than %s"
+			case reflect.String:
+				msg = "must be more than %s characters long"
+			}
+	
+	
+			t, _ := ut.T("min", fmt.Sprintf(msg, minValue))
+			
+			return t
+		},
+	},
+}
+
+var validate *validator.Validate
+var trans ut.Translator
 
 type FieldError struct {
 	Key string
@@ -22,29 +92,34 @@ func (err ValidationError) Error() string {
 type Validator struct {}
 
 func (v *Validator) Validate(in any) error {
-	err := validator.Validate(in)
+	
+	err := validate.Struct(in)
 
 	if err == nil {
 		return nil
 	}
 
-	errMap, ok := err.(validator.ErrorMap)
+	errs, ok := err.(validator.ValidationErrors)
 
 	if ! ok {
 		return errors.New("unable to handle validation")
 	}
 
+	// return err
 	fieldErrors := []FieldError{}
 
-	for key, errArray := range(errMap) {
-		messages := []string{}
-		for _, fieldError := range(errArray) {
-			messages = append(messages, fieldError.Error())
-		}
+	for _, validationErr := range errs {
+		// The StructNamespace includes the type of the struct we're validating
+		// we don't actually care about the top-level so we remove it
+		// e.g. MyStructType.MyField.SubField becomes MyField.SubField
+		field := strings.Join(
+			strings.Split(validationErr.StructNamespace(), ".")[1:],
+			".",
+		)
 
 		fieldErrors = append(fieldErrors, FieldError{
-			Key: key,
-			Errors: messages,
+			Key: field,
+			Errors: []string{validationErr.Translate(trans)},
 		})
 	}
 
@@ -57,3 +132,22 @@ func NewValidator() *Validator {
 	return &Validator{}
 }
 
+func init() {
+	en := en.New()
+	uni := ut.New(en, en)
+
+	trans, _ = uni.GetTranslator("en")
+	
+	validate = validator.New()
+	en_translations.RegisterDefaultTranslations(validate, trans)
+	
+
+	for _, errorTranslation := range errorTranslations {
+		validate.RegisterTranslation(
+			errorTranslation.rule,
+			trans,
+			errorTranslation.registerFunc,
+			errorTranslation.translateFunc,
+		)
+	}
+}

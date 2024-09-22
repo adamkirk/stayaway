@@ -11,35 +11,7 @@ import (
 
 type ValidationMapper struct {}
 
-// Seems rather inefficient to do it this way, but can tidy up later...
-// func findStructFieldForValidationField(t reflect.Type, fieldName string, carry string) (string, bool) {
-// 	parts := strings.Split(fieldName, ".")
-
-// 	search := parts[0]
-// 	var jsonField string
-// 	var f reflect.StructField
-
-// 	for i := 0; i < t.NumField(); i++ {
-// 		f = t.Field(i)
-
-// 		if f.Tag.Get("validationmap") == search {
-// 			if jsonTag := f.Tag.Get("json"); jsonTag != "" {
-// 				jsonField = strings.Split(jsonTag, ",")[0]
-// 				break
-// 			}
-
-// 		}
-// 	}
-
-// 	if len(parts) > 0 {
-// 		findStructFieldForValidationField()
-// 	}
-
-// 	return "", false
-// }
-
 func findStructFieldForValidationField(t reflect.Type, fieldName string, carry string, fieldNamePrefix string) (string, bool) {
-	fmt.Printf("searching for: %s\n", fieldName)
 	parts := strings.Split(fieldName, ".")
 
 	search := parts[0]

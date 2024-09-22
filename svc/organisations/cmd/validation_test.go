@@ -23,14 +23,14 @@ type CreatePersonRequest struct {
 }
 
 type Address struct {
-	Street   *string `validate:"nonnil"`
-	Postcode *string `validate:"nonnil"`
+	Street   *string `validate:"required,min=4,alphanum"`
+	Postcode *string `validate:"required,min=6,alphanum"`
 }
 
 type Person struct {
-	FullName     *string  `validate:"nonnil"`
-	EmailAddress *string  `validate:"nonnil"`
-	Address      *Address `validate:"nonnil"`
+	FullName     *string  `validate:"required"`
+	EmailAddress *string  `validate:"required"`
+	Address      *Address `validate:"required"`
 }
 
 func ptr[T any](value T) *T {
@@ -52,19 +52,19 @@ func TestValidationMapper(t *testing.T) {
 				Errs: []validation.FieldError{
 					{
 						Key: "address.line_1", 
-						Errors: []string{"zero value"},
+						Errors: []string{"is required"},
 					}, 
 					{
 						Key: "address.post_code",
-						Errors: []string{"zero value"},
+						Errors: []string{"is required"},
 					}, 
 					{
 						Key: "email", 
-						Errors: []string{"zero value"},
+						Errors: []string{"is required"},
 					}, 
 					{
 						Key: "name",
-						Errors: []string{"zero value"},
+						Errors: []string{"is required"},
 					},
 				},
 			},
@@ -76,15 +76,15 @@ func TestValidationMapper(t *testing.T) {
 				Errs: []validation.FieldError{
 					{
 						Key: "address",
-						Errors: []string{"zero value"},
+						Errors: []string{"is required"},
 					}, 
 					{
 						Key: "email", 
-						Errors: []string{"zero value"},
+						Errors: []string{"is required"},
 					}, 
 					{
 						Key: "name",
-						Errors: []string{"zero value"},
+						Errors: []string{"is required"},
 					},
 				},
 			},
@@ -99,7 +99,33 @@ func TestValidationMapper(t *testing.T) {
 				Errs: []validation.FieldError{
 					{
 						Key: "address",
-						Errors: []string{"zero value"},
+						Errors: []string{"is required"},
+					}, 
+				},
+			},
+		},
+		{
+			// Really this just highlights how the underlying library works. It 
+			// will only generate one error at a time even if there are multiple
+			// violations. Annoying from a user perspective, but it'll do for now.
+			name: "multiple rule violations for single field",
+			p: Person{
+				FullName: ptr("some name"),
+				EmailAddress: ptr("someone@example.com"),
+				Address: &Address{
+					Postcode: ptr("!fh"), // not long enough and only alphanum
+					Street: ptr("!fh"), // not long enough and only alphanum
+				},
+			},
+			expect: validation.ValidationError{
+				Errs: []validation.FieldError{
+					{
+						Key: "address.line_1",
+						Errors: []string{"must be more than 4 characters long"},
+					}, 
+					{
+						Key: "address.post_code",
+						Errors: []string{"must be more than 6 characters long"},
 					}, 
 				},
 			},

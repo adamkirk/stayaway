@@ -7,14 +7,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-
-type OrganisationsRepo interface {
-	Paginate(orderBy model.OrganisationSortBy, orderDir model.SortDirection, page int, perPage int) (model.Organisations, model.PaginationResult, error)
-	Save(org *model.Organisation) (*model.Organisation, error)
-	Get(id string) (*model.Organisation, error)
-	Delete(org *model.Organisation) (error)
-}
-
 type OrganisationsGetHandler interface {
 	Handle(organisations.GetCommand) (*model.Organisation, error)
 }
@@ -40,7 +32,6 @@ type OrganisationsV1ControllerConfig interface {}
 
 type OrganisationsV1Controller struct {
 	cfg OrganisationsV1ControllerConfig
-	repo OrganisationsRepo
 	get OrganisationsGetHandler
 	list OrganisationsListHandler
 	create OrganisationsCreateHandler
@@ -60,7 +51,6 @@ func (c *OrganisationsV1Controller) RegisterRoutes(api *echo.Group) {
 
 func NewOrganisationsV1Controller(
 	cfg OrganisationsV1ControllerConfig,
-	repo OrganisationsRepo,
 	get OrganisationsGetHandler,
 	list OrganisationsListHandler,
 	create OrganisationsCreateHandler,
@@ -70,7 +60,6 @@ func NewOrganisationsV1Controller(
 ) *OrganisationsV1Controller {
 	return &OrganisationsV1Controller{
 		cfg: cfg,
-		repo: repo,
 		get: get,
 		list: list,
 		create: create,

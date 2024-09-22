@@ -1,7 +1,9 @@
 package api
 
 import (
+	"errors"
 	"fmt"
+	"log/slog"
 	"reflect"
 	"sort"
 	"strings"
@@ -22,7 +24,7 @@ func findStructFieldForValidationField(t reflect.Type, fieldName string, carry s
 
 	for i := 0; i < t.NumField(); i++ {
 		f := t.Field(i)
-
+		
 		if f.Tag.Get("validationmap") != search {
 			continue
 		}
@@ -44,21 +46,66 @@ func findStructFieldForValidationField(t reflect.Type, fieldName string, carry s
 	return carry, true
 }
 
+func getJsonNameForField(f reflect.StructField) string {
+	jsonTag := f.Tag.Get("json")
+	return strings.Split(jsonTag, ",")[0]
+}
+
+var errFieldNotFound = errors.New("field not found")
+
+type StructMapMeta map[string]string
+
+func (meta StructMapMeta) ByFieldPath(search string) (string, bool) {
+	for k, v := range meta {
+		if v == search {
+			return k, true
+		}
+	}
+
+	return search, false
+}
+
+func mapJsonFieldsToMapTags(t reflect.Type) (StructMapMeta) {
+	props := StructMapMeta{}
+
+	for i := 0; i < t.NumField(); i++ {
+		f := t.Field(i)
+		
+		validationMap := f.Tag.Get("validationmap")
+		jsonName := getJsonNameForField(f)
+
+		if f.Type.Kind() == reflect.Struct {
+			sub := mapJsonFieldsToMapTags(f.Type)
+			for k, v := range sub {
+				props[fmt.Sprintf("%s.%s", jsonName, k)] = v
+			}
+		} 
+
+		props[jsonName] = validationMap
+
+	}
+
+	return props
+}
+
 func (vm *ValidationMapper) Map(err validation.ValidationError, req any) validation.ValidationError {
 
 	fldErrors := []validation.FieldError{}
 
 	t := reflect.TypeOf(req)
 
+	// TODO cache these results
+	meta := mapJsonFieldsToMapTags(t)
+
 	for _, err := range err.Errs {
-		fld, found := findStructFieldForValidationField(t, err.Key, "", "")
+		k, found := meta.ByFieldPath(err.Key)
 
 		if ! found {
-			continue
+			slog.Warn("did not find validationmap field error", "field", err.Key, "type", t.Name())
 		}
 
 		fldErrors = append(fldErrors, validation.FieldError{
-			Key: fld,
+			Key: k,
 			Errors: err.Errors,
 		})
 	}

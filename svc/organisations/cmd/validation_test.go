@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type CreatePersonsRequestAddress struct {
+type CreatePersonRequestAddress struct {
 	Line1    *string `json:"line_1" validationmap:"Address.Street"`
 	Postcode *string `json:"post_code" validationmap:"Address.Postcode"`
 }
@@ -19,7 +19,7 @@ type CreatePersonsRequestAddress struct {
 type CreatePersonRequest struct {
 	Name    *string                     `json:"name" validationmap:"FullName"`
 	Email   *string                     `json:"email" validationmap:"EmailAddress"`
-	Address CreatePersonsRequestAddress `json:"address" validationmap:"Address"`
+	Address CreatePersonRequestAddress `json:"address" validationmap:"Address"`
 }
 
 type Address struct {
@@ -33,6 +33,24 @@ type Person struct {
 	Address      *Address `validate:"required"`
 }
 
+type FlattenedPersonRequestAddress struct {
+	Line1    *string `json:"line_1" validationmap:"Street"`
+	Postcode *string `json:"post_code" validationmap:"Postcode"`
+}
+
+type FlattenedPersonRequest struct {
+	Name    *string                     `json:"name" validationmap:"FullName"`
+	Email   *string                     `json:"email" validationmap:"EmailAddress"`
+	Address FlattenedPersonRequestAddress `json:"address"`
+}
+
+type FlattenedPersonDTO struct {
+	FullName     *string  `validate:"required"`
+	EmailAddress *string  `validate:"required"`
+	Street   *string `validate:"required"`
+	Postcode *string `validate:"required"`
+}
+
 func ptr[T any](value T) *T {
 	return &value
 }
@@ -40,7 +58,8 @@ func ptr[T any](value T) *T {
 func TestValidationMapper(t *testing.T) {
 	tests := []struct{
 		name string
-		p Person
+		p any
+		req any
 		expect validation.ValidationError
 	}{
 		{
@@ -48,6 +67,7 @@ func TestValidationMapper(t *testing.T) {
 			p: Person{
 				Address: &Address{},
 			},
+			req: CreatePersonRequest{},
 			expect: validation.ValidationError{
 				Errs: []validation.FieldError{
 					{
@@ -72,6 +92,7 @@ func TestValidationMapper(t *testing.T) {
 		{
 			name: "all empty (address not included)",
 			p: Person{},
+			req: CreatePersonRequest{},
 			expect: validation.ValidationError{
 				Errs: []validation.FieldError{
 					{
@@ -90,11 +111,12 @@ func TestValidationMapper(t *testing.T) {
 			},
 		},
 		{
-			name: "all empty (address not included)",
+			name: "address not included",
 			p: Person{
 				FullName: ptr("some name"),
 				EmailAddress: ptr("someone@example.com"),
 			},
+			req: CreatePersonRequest{},
 			expect: validation.ValidationError{
 				Errs: []validation.FieldError{
 					{
@@ -117,6 +139,7 @@ func TestValidationMapper(t *testing.T) {
 					Street: ptr("!fh"), // not long enough and only alphanum
 				},
 			},
+			req: CreatePersonRequest{},
 			expect: validation.ValidationError{
 				Errs: []validation.FieldError{
 					{
@@ -130,18 +153,35 @@ func TestValidationMapper(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "flattened_dto_to_nested_request",
+			p: FlattenedPersonDTO{
+				FullName: ptr("some name"),
+				EmailAddress: ptr("someone@example.com"),
+				Postcode: ptr("!fh"), // not long enough and only alphanum
+			},
+			req: FlattenedPersonRequest{},
+			expect: validation.ValidationError{
+				Errs: []validation.FieldError{
+					{
+						Key: "address.line_1",
+						Errors: []string{"is required"},
+					}, 
+				},
+			},
+		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func (tt *testing.T) {
 			vm := api.NewValidationMapper()
-			v := validation.NewValidator()
+			v := validation.NewValidator([]validation.Extension{})
 		
 			err := v.Validate(test.p)
 		
 			vErr, _ := err.(validation.ValidationError)
 		
-			mapped := vm.Map(vErr, CreatePersonRequest{})
+			mapped := vm.Map(vErr, test.req)
 		
 			assert.Equal(t,
 				test.expect,

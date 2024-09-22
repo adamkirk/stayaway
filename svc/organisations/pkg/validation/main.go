@@ -3,7 +3,6 @@ package validation
 import (
 	"errors"
 	"fmt"
-	"log/slog"
 	"reflect"
 	"regexp"
 	"strings"
@@ -14,39 +13,47 @@ import (
 	en_translations "github.com/go-playground/validator/v10/translations/en"
 )
 
-var errorTranslations = []struct{
-	rule string
-	registerFunc func(ut ut.Translator) error
-	translateFunc func(ut ut.Translator, fe validator.FieldError) string
-}{
+var errorTranslations = []Translation{
 	{
-		rule: "required",
-		registerFunc: func(ut ut.Translator) error {
+		Rule: "required",
+		RegisterFunc: func(ut ut.Translator) error {
 			return ut.Add("required", "is required", true)
 		},
-		translateFunc: func(ut ut.Translator, fe validator.FieldError) string {
+		TranslateFunc: func(ut ut.Translator, fe validator.FieldError) string {
 			t, _ := ut.T("required")
 			
 			return t
 		},
 	},
 	{
-		rule: "slug",
-		registerFunc: func(ut ut.Translator) error {
+		Rule: "slug",
+		RegisterFunc: func(ut ut.Translator) error {
 			return ut.Add("slug", "must contain only alphanumeric and hyphen characters; cannot start with a hyphen", true)
 		},
-		translateFunc: func(ut ut.Translator, fe validator.FieldError) string {
+		TranslateFunc: func(ut ut.Translator, fe validator.FieldError) string {
 			t, _ := ut.T("slug")
 			
 			return t
 		},
 	},
 	{
-		rule: "min",
-		registerFunc: func(ut ut.Translator) error {
+		Rule: "postcode",
+		RegisterFunc: func(ut ut.Translator) error {
+			// TODO give a better message here, need to account for different options
+			return ut.Add("postcode", "must be a valid postcode", true)
+		},
+		TranslateFunc: func(ut ut.Translator, fe validator.FieldError) string {
+			t, _ := ut.T("postcode")
+			
+			return t
+		},
+	},
+	{
+		Rule: "min",
+		RegisterFunc: func(ut ut.Translator) error {
 			return ut.Add("min", "{0}", true)
 		},
-		translateFunc: func(ut ut.Translator, fe validator.FieldError) string {
+		TranslateFunc: func(ut ut.Translator, fe validator.FieldError) string {
 
 			minValue := fe.Param()
 			var msg string
@@ -86,6 +93,28 @@ var errorTranslations = []struct{
 	},
 }
 
+var customRules = []CustomRule{
+	{
+		Rule: "slug",
+		// TODO: add some tests for this, I think it's right
+		// also see about moving it somewhere so we can keep the compiled regex in memory
+		Handler: func(fl validator.FieldLevel) bool {
+			r, _ := regexp.Compile("^[a-z0-9]{1}[a-z0-9\\-]*$")
+
+			return r.MatchString(fl.Field().String())
+		},
+	},
+	{
+		Rule: "postcode",
+		// Pretty absic but covers the standard format of a postcode
+		Handler: func(fl validator.FieldLevel) bool {
+			r, _ := regexp.Compile("(?i)^[a-z]{1,2}\\d[a-z\\d]?\\s*\\d[a-z]{2}$")
+
+			return r.MatchString(fl.Field().String())
+		},
+	},
+}
+
 var validate *validator.Validate
 var trans ut.Translator
 
@@ -102,7 +131,26 @@ func (err ValidationError) Error() string {
 	return "invalid data"
 }
 
-type Validator struct {}
+type Validator struct {
+	validate *validator.Validate
+	trans ut.Translator
+}
+
+type Translation struct  {
+	Rule string
+	RegisterFunc func(ut ut.Translator) error
+	TranslateFunc func(ut ut.Translator, fe validator.FieldError) string
+}
+
+type CustomRule struct {
+	Rule string
+	Handler func (fl validator.FieldLevel) bool
+}
+
+type Extension interface {
+	Translations() []Translation
+	Rules() []CustomRule
+}
 
 func (v *Validator) Validate(in any) error {
 	
@@ -130,7 +178,6 @@ func (v *Validator) Validate(in any) error {
 			".",
 		)
 
-		slog.Info("value", "field", field, "value", validationErr.Value())
 		fieldErrors = append(fieldErrors, FieldError{
 			Key: field,
 			Errors: []string{validationErr.Translate(trans)},
@@ -142,19 +189,7 @@ func (v *Validator) Validate(in any) error {
 	}
 }
 
-func NewValidator() *Validator {
-	return &Validator{}
-}
-
-// TODO: add some tests for this, I think it's right
-// also see about moving it somewhere so we can keep the compiled regex in memory
-func slugValidator(fl validator.FieldLevel) bool {
-	r, _ := regexp.Compile("^[a-z0-9]{1}[a-z0-9\\-]*$")
-
-	return r.MatchString(fl.Field().String())
-}
-
-func init() {
+func NewValidator(extensions []Extension) *Validator {
 	en := en.New()
 	uni := ut.New(en, en)
 
@@ -163,15 +198,38 @@ func init() {
 	validate = validator.New()
 	en_translations.RegisterDefaultTranslations(validate, trans)
 	
-	validate.RegisterValidation("slug", slugValidator)
-	
+	for _, rule := range customRules {
+		validate.RegisterValidation(rule.Rule, rule.Handler)
+	}
 
 	for _, errorTranslation := range errorTranslations {
 		validate.RegisterTranslation(
-			errorTranslation.rule,
+			errorTranslation.Rule,
 			trans,
-			errorTranslation.registerFunc,
-			errorTranslation.translateFunc,
+			errorTranslation.RegisterFunc,
+			errorTranslation.TranslateFunc,
 		)
 	}
+
+	for _, ext := range extensions {
+		for _, rule := range ext.Rules() {
+			validate.RegisterValidation(rule.Rule, rule.Handler)
+		}
+
+		for _, translation := range ext.Translations() {
+			validate.RegisterTranslation(
+				translation.Rule,
+				trans,
+				translation.RegisterFunc,
+				translation.TranslateFunc,
+			)
+		}
+	}
+
+	return &Validator{
+		validate: validate,
+		trans: trans,
+	}
 }
+
+

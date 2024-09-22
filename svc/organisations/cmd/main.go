@@ -15,6 +15,7 @@ import (
 	"github.com/adamkirk-stayaway/organisations/internal/repository"
 	"github.com/adamkirk-stayaway/organisations/pkg/organisations"
 	"github.com/adamkirk-stayaway/organisations/pkg/validation"
+	"github.com/adamkirk-stayaway/organisations/pkg/venues"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"go.uber.org/fx"
@@ -75,6 +76,7 @@ func sharedOpts() []fx.Option {
 				buildConfig,
 				fx.As(new(api.ApiServerConfig)),
 				fx.As(new(api.OrganisationsV1ControllerConfig)),
+				fx.As(new(api.VenuesV1ControllerConfig)),
 				fx.As(new(db.MongoConfig)),
 				fx.As(new(db.MongoDbMigratorConfig)),
 			),
@@ -94,13 +96,9 @@ func sharedOpts() []fx.Option {
 		),
 		fx.Provide(
 			fx.Annotate(
-				repository.NewMongoDbOrganisations,
-				fx.As(new(api.OrganisationsRepo)),
-				fx.As(new(organisations.GetHandlerRepo)),
-				fx.As(new(organisations.ListHandlerRepo)),
-				fx.As(new(organisations.CreateHandlerRepo)),
-				fx.As(new(organisations.DeleteHandlerRepo)),
-				fx.As(new(organisations.UpdateHandlerRepo)),
+				api.NewVenuesV1Controller,
+				fx.As(new(api.Controller)),
+				fx.ResultTags(`group:"apiControllers"`),
 			),
 		),
 		fx.Provide(
@@ -137,6 +135,39 @@ func sharedOpts() []fx.Option {
 			fx.Annotate(
 				validation.NewValidator,
 				fx.As(new(organisations.Validator)),
+				fx.As(new(venues.Validator)),
+				fx.ParamTags(`group:"validationExtensions"`),
+			),
+		),
+		fx.Provide(
+			fx.Annotate(
+				venues.NewValidationExtension,
+				fx.As(new(validation.Extension)),
+				fx.ResultTags(`group:"validationExtensions"`),
+			),
+		),
+		fx.Provide(
+			fx.Annotate(
+				venues.NewCreateHandler,
+				fx.As(new(api.VenuesCreateHandler)),
+			),
+		),
+		fx.Provide(
+			fx.Annotate(
+				venues.NewListHandler,
+				fx.As(new(api.VenuesListHandler)),
+			),
+		),
+		fx.Provide(
+			fx.Annotate(
+				venues.NewGetHandler,
+				fx.As(new(api.VenuesGetHandler)),
+			),
+		),
+		fx.Provide(
+			fx.Annotate(
+				venues.NewDeleteHandler,
+				fx.As(new(api.VenuesDeleteHandler)),
 			),
 		),
 		fx.Provide(api.NewValidationMapper),
@@ -167,6 +198,25 @@ func sharedOpts() []fx.Option {
 				fx.Annotate(
 					db.NewMongoDbMigrator,
 					fx.As(new(db.Migrator)),
+				),
+			),
+			fx.Provide(
+				fx.Annotate(
+					repository.NewMongoDbOrganisations,
+					fx.As(new(organisations.GetHandlerRepo)),
+					fx.As(new(organisations.ListHandlerRepo)),
+					fx.As(new(organisations.CreateHandlerRepo)),
+					fx.As(new(organisations.DeleteHandlerRepo)),
+					fx.As(new(organisations.UpdateHandlerRepo)),
+				),
+			),
+			fx.Provide(
+				fx.Annotate(
+					repository.NewMongoDbVenues,
+					fx.As(new(venues.CreateHandlerRepo)),
+					fx.As(new(venues.ListHandlerRepo)),
+					fx.As(new(venues.GetHandlerRepo)),
+					fx.As(new(venues.DeleteHandlerRepo)),
 				),
 			),
 		}...)

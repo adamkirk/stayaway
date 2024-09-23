@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/adamkirk-stayaway/organisations/pkg/model"
+	"github.com/adamkirk-stayaway/organisations/pkg/util"
 	"github.com/adamkirk-stayaway/organisations/pkg/venues"
 )
 
@@ -93,16 +94,38 @@ func (req V1GetVenueRequest) ToCommand() venues.GetCommand {
 	}
 }
 
-// type V1PatchOrganisationRequest struct {
-// 	ID string `param:"id"`
-// 	Name *string `json:"name,omitempty" validationmap:"Name"`
-// 	Slug *string `json:"slug,omitempty" validationmap:"Slug"`
-// }
+type V1PatchVenueRequest struct {
+	raw map[string]any
 
-// func (req V1PatchOrganisationRequest) ToCommand() organisations.UpdateCommand {
-// 	return organisations.UpdateCommand{
-// 		ID: req.ID,
-// 		Name: req.Name,
-// 		Slug: req.Slug,
-// 	}
-// }
+	ID string `param:"id"`
+	OrganisationID string `param:"organisationId"`
+	Name *string `json:"name" validationmap:"Name"`
+	Slug *string `json:"slug" validationmap:"Slug"`
+	Type *string `json:"type" validationmap:"Type"`
+	Address V1PostVenueAddress `json:"address"`
+}
+
+func (req *V1PatchVenueRequest) IncludeRawBody(raw map[string]any) {
+	req.raw = raw
+}
+
+func (req *V1PatchVenueRequest) FieldWasPresent(fld string) bool {
+	return util.KeyExistsInMap(req.raw, fld)
+}
+
+func (req V1PatchVenueRequest) ToCommand() venues.UpdateCommand {
+	return venues.UpdateCommand{
+		ID: &req.ID,
+		OrganisationID: &req.OrganisationID,
+		Name: req.Name,
+		Slug: req.Slug,
+		Type: req.Slug,
+		AddressLine1: req.Address.Line1,
+		AddressLine2: req.Address.Line2,
+		NullifyAddressLine2: req.FieldWasPresent("address.line_2") && req.Address.Line2 == nil,
+		Municipality: req.Address.Municipality,
+		PostCode: req.Address.PostCode,
+		Lat: req.Address.Lat,
+		Long: req.Address.Long,
+	}
+}

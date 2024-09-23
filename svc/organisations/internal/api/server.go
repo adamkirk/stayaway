@@ -1,9 +1,12 @@
 package api
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"log/slog"
 	"os"
 	"reflect"
@@ -13,6 +16,14 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
+
+// RequestWithRawBody allows us to check whether fields were defined at all in
+// the json body. Realy just a way to define the different between setting
+// something to null, and something not being present
+type RequestWithRawBody interface {
+	IncludeRawBody(raw map[string]any)
+	FieldWasPresent(fld string) bool
+}
 
 type RouteHandler func(e echo.Context) error
 
@@ -205,11 +216,25 @@ func bindRequest(req any, ctx echo.Context) error {
 		return errors.New("cannot bind request to non pointer value")
 	}
 
-	if err := ctx.Bind(req); err != nil {
-		return ErrBadRequest{
-			Message: "failed to parse request",
-			DebugMessage: err.Error(),
+	if reqWithRaw, ok := req.(RequestWithRawBody); ok {
+		b, err := io.ReadAll(ctx.Request().Body)
+
+		if err != nil {
+			return err
 		}
+		
+		raw := map[string]any{}
+		if err := json.Unmarshal(b, &raw); err != nil {
+			return err
+		}
+
+		reqWithRaw.IncludeRawBody(raw)
+
+		ctx.Request().Body = io.NopCloser(bytes.NewBuffer(b))
+	}
+
+	if err := ctx.Bind(req); err != nil {
+		return err
 	}
 
 	return nil

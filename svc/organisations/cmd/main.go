@@ -170,6 +170,12 @@ func sharedOpts() []fx.Option {
 				fx.As(new(api.VenuesDeleteHandler)),
 			),
 		),
+		fx.Provide(
+			fx.Annotate(
+				venues.NewUpdateHandler,
+				fx.As(new(api.VenuesUpdateHandler)),
+			),
+		),
 		fx.Provide(api.NewValidationMapper),
 	}
 
@@ -217,6 +223,7 @@ func sharedOpts() []fx.Option {
 					fx.As(new(venues.ListHandlerRepo)),
 					fx.As(new(venues.GetHandlerRepo)),
 					fx.As(new(venues.DeleteHandlerRepo)),
+					fx.As(new(venues.UpdateHandlerRepo)),
 				),
 			),
 		}...)

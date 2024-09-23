@@ -63,6 +63,6 @@ type V1GetVenueResponse struct {
 	Data V1Venue `json:"data"`
 }
 
-// type V1PatchOrganisationResponse struct {
-// 	Data V1Organisation `json:"data"`
-// }
+type V1PatchVenueResponse struct {
+	Data V1Venue `json:"data"`
+}

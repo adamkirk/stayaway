@@ -24,9 +24,9 @@ type VenuesDeleteHandler interface {
 }
 
 
-// type VenuesUpdateHandler interface {
-// 	Handle(cmd organisations.UpdateCommand) (*model.Organisation, error)
-// }
+type VenuesUpdateHandler interface {
+	Handle(cmd venues.UpdateCommand) (*model.Venue, error)
+}
 
 type VenuesV1ControllerConfig interface {}
 
@@ -37,7 +37,7 @@ type VenuesV1Controller struct {
 	list VenuesListHandler
 	create VenuesCreateHandler
 	delete VenuesDeleteHandler
-	// update VenuesUpdateHandler
+	update VenuesUpdateHandler
 	validationMapper *ValidationMapper
 }
 
@@ -46,7 +46,7 @@ func (c *VenuesV1Controller) RegisterRoutes(api *echo.Group) {
 	g.POST("", c.Create).Name = "v1.organisations.venues.create"
 	g.DELETE("/:id", c.Delete).Name = "v1.organisations.venues.delete"
 	g.GET("/:id", c.Get).Name = "v1.organisations.venues.get"
-	// g.PATCH("/:id", c.Patch).Name = "v1.organisations.patch"
+	g.PATCH("/:id", c.Patch).Name = "v1.organisations.venues.patch"
 	g.GET("", c.List).Name = "v1.organisations.venues.list"
 }
 
@@ -54,20 +54,18 @@ func NewVenuesV1Controller(
 	cfg VenuesV1ControllerConfig,
 	create VenuesCreateHandler,
 	validationMapper *ValidationMapper,
-	// repo VenuesRepo,
 	get VenuesGetHandler,
 	list VenuesListHandler,
 	delete VenuesDeleteHandler,
-	// update VenuesUpdateHandler,
+	update VenuesUpdateHandler,
 ) *VenuesV1Controller {
 	return &VenuesV1Controller{
 		cfg: cfg,
-		// repo: repo,
 		get: get,
 		list: list,
 		create: create,
 		delete: delete,
-		// update: update,
+		update: update,
 		validationMapper: validationMapper,
 	}
 }
@@ -156,31 +154,26 @@ func (c *VenuesV1Controller) Get(ctx echo.Context) error {
 	return nil
 }
 
-// func (c *VenuesV1Controller) Patch(ctx echo.Context) error {
-// 	req := V1PatchOrganisationRequest{}
+func (c *VenuesV1Controller) Patch(ctx echo.Context) error {
+	req := V1PatchVenueRequest{}
+	if err := bindRequest(&req, ctx); err != nil {
+		return err
+	}
 
-// 	if err := bindRequest(&req, ctx); err != nil {
-// 		return err
-// 	}
+	venue, err := c.update.Handle(req.ToCommand())
 
-// 	org, err := c.update.Handle(req.ToCommand())
+	if err != nil {
+		return err
+	}
 
-// 	if err != nil {
-// 		if err, ok := err.(validation.ValidationError); ok {
-// 			return c.validationMapper.Map(err, req)
-// 		}
+	resp := V1PatchVenueResponse{
+		Data: V1VenueFromModel(venue),
+	}
 
-// 		return err
-// 	}
+	ctx.JSON(200, resp)
 
-// 	resp := V1PatchOrganisationResponse{
-// 		Data: V1OrganisationFromModel(org),
-// 	}
-
-// 	ctx.JSON(200, resp)
-
-// 	return nil
-// }
+	return nil
+}
 
 func (c *VenuesV1Controller) Delete(ctx echo.Context) error {
 	req := V1DeleteVenueRequest{}

@@ -27,3 +27,15 @@ type  ErrInvalidSortDir struct {
 func (e ErrInvalidSortDir) Error() string {
 	return fmt.Sprintf("invalid sorting direction chosen: %s", e.Chosen)
 }
+
+type ErrGroup struct {
+	Errors []error
+}
+
+func (e ErrGroup) Error() string {
+	return fmt.Sprintf("%d errors occurred", len(e.Errors))
+}
+
+func (e ErrGroup) All() []error {
+	return e.Errors
+}

@@ -91,6 +91,49 @@ var errorTranslations = []Translation{
 			return t
 		},
 	},
+	{
+		Rule: "max",
+		RegisterFunc: func(ut ut.Translator) error {
+			return ut.Add("max", "{0}", true)
+		},
+		TranslateFunc: func(ut ut.Translator, fe validator.FieldError) string {
+
+			minValue := fe.Param()
+			var msg string
+	
+			k := fe.Type().Kind()
+	
+			if fe.Type().Kind() == reflect.Pointer {
+				k = fe.Type().Elem().Kind()
+			}
+	
+			switch k {
+			case reflect.Array, reflect.Slice:
+				msg = "cannot contain more than %s items"
+			case 
+				reflect.Float32,
+				reflect.Float64,
+				reflect.Int,
+				reflect.Int8,
+				reflect.Int16,
+				reflect.Int32,
+				reflect.Int64,
+				reflect.Uint,
+				reflect.Uint8,
+				reflect.Uint16,
+				reflect.Uint32,
+				reflect.Uint64:
+				msg = "must be smaller than %s"
+			case reflect.String:
+				msg = "cannot be more than %s characters long"
+			}
+	
+	
+			t, _ := ut.T("min", fmt.Sprintf(msg, minValue))
+			
+			return t
+		},
+	},
 }
 
 var customRules = []CustomRule{

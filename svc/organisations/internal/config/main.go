@@ -55,10 +55,21 @@ type ConfigDb struct {
 	MongoDb ConfigDbMongoDb
 }
 
+type ConfigMunicipalitiesSync struct {
+	MaxProcesses int `mapstructure:"max_processes"`
+	BatchSize int `mapstructure:"batch_size"`
+	Countries []string
+}
+
+type ConfigMunicipalities struct {
+	Sync ConfigMunicipalitiesSync
+}
+
 type Config struct {
 	Logging ConfigLogging
 	Api ConfigApi
 	Db ConfigDb
+	Municipalities ConfigMunicipalities
 }
 
 func (c *Config) LogLevel() string {
@@ -105,6 +116,19 @@ func (c *Config) MongoDbConnectionRetries() int {
 	return c.Db.MongoDb.ConnectionRetries
 }
 
+func (c *Config) MunicipalitiesSyncBatchSize() int {
+	return c.Municipalities.Sync.BatchSize
+}
+
+func (c *Config) MunicipalitiesSyncMaxProcesses() int {
+	return c.Municipalities.Sync.MaxProcesses
+}
+
+func (c *Config) MunicipalitiesSyncCountries() []string {
+	return c.Municipalities.Sync.Countries
+}
+
+
 func NewDefault() *Config{
 	return &Config{
 		Logging: ConfigLogging{
@@ -128,6 +152,13 @@ func NewDefault() *Config{
 				Database: "organisations",
 				ConnectionRetries: 3,
 				MigrationsDatabase: "migrations",
+			},
+		},
+		Municipalities: ConfigMunicipalities{
+			Sync: ConfigMunicipalitiesSync{
+				MaxProcesses: 10,
+				BatchSize: 100,
+				Countries: []string{},
 			},
 		},
 	}

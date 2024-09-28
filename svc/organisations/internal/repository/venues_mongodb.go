@@ -30,7 +30,7 @@ func (r *MongoDbVenues) getCollection() (*mongo.Collection, error) {
 	return coll, nil
 }
 
-func getSortColumn(sortBy model.VenueSortBy) (string, error) {
+func (r *MongoDbVenues) getSortColumn(sortBy model.VenueSortBy) (string, error) {
 	switch sortBy {
 	case model.VenueSortByName:
 		return "name", nil
@@ -43,20 +43,7 @@ func getSortColumn(sortBy model.VenueSortBy) (string, error) {
 	}
 }
 
-func getSortDirection(dir model.SortDirection) (int, error) {
-	switch dir {
-	case model.SortAsc:
-		return 1, nil
-	case model.SortDesc:
-		return -1, nil
-	default:
-		return 0, model.ErrInvalidSortBy{
-			Chosen: string(dir),
-		}
-	}
-}
-
-func filterToBsonD(search model.VenueSearchFilter) bson.D {
+func (r *MongoDbVenues) filterToBsonD(search model.VenueSearchFilter) bson.D {
 	var orgFilter bson.D
 
 	if len(search.OrganisationID) > 0 {
@@ -64,8 +51,8 @@ func filterToBsonD(search model.VenueSearchFilter) bson.D {
 		orgFilter = bson.D{{"organisation_id", bson.D{{"$in", search.OrganisationID}}}}
 	}
 
-	if orgFilter != nil {
-
+	if orgFilter == nil {
+		return bson.D{{}}
 	}
 
 	return bson.D{{"$and", bson.A{
@@ -82,7 +69,7 @@ func (r *MongoDbVenues) Paginate(p model.VenuePaginationFilter, search model.Ven
 
 	
 
-	sortColumn, err := getSortColumn(p.OrderBy)
+	sortColumn, err := r.getSortColumn(p.OrderBy)
 
 	if err != nil {
 		return nil, model.PaginationResult{}, err
@@ -100,7 +87,7 @@ func (r *MongoDbVenues) Paginate(p model.VenuePaginationFilter, search model.Ven
 		SetSort(bson.D{{sortColumn, sortDir}})
 
 
-	filter := filterToBsonD(search)
+	filter := r.filterToBsonD(search)
 
 	// Consider estimated count, prefer it to be accurate though and once we use 
 	// filters this is no longer viable

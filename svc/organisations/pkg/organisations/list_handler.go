@@ -8,10 +8,10 @@ type ListHandlerRepo interface {
 }
 
 type ListCommand struct {
-	OrderDirection model.SortDirection `query:"order_dir"`
-	OrderBy model.OrganisationSortBy `query:"order_by"`
-	Page int `query:"page"`
-	PerPage int `query:"per_page"`
+	OrderDirection model.SortDirection
+	OrderBy model.OrganisationSortBy
+	Page int
+	PerPage int
 }
 
 func NewListCommand() ListCommand {

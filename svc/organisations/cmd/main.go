@@ -7,15 +7,18 @@ import (
 	"strings"
 
 	apicmd "github.com/adamkirk-stayaway/organisations/cmd/api"
-	"github.com/adamkirk-stayaway/organisations/cmd/dbmigrate"
-	"github.com/adamkirk-stayaway/organisations/cmd/dbping"
+	dbmigrate "github.com/adamkirk-stayaway/organisations/cmd/db_migrate"
+	dbping "github.com/adamkirk-stayaway/organisations/cmd/db_ping"
+	municipalitiessync "github.com/adamkirk-stayaway/organisations/cmd/municipalities_sync"
 	"github.com/adamkirk-stayaway/organisations/internal/api"
 	"github.com/adamkirk-stayaway/organisations/internal/config"
 	"github.com/adamkirk-stayaway/organisations/internal/db"
 	"github.com/adamkirk-stayaway/organisations/internal/repository"
+	"github.com/adamkirk-stayaway/organisations/pkg/municipalities"
 	"github.com/adamkirk-stayaway/organisations/pkg/organisations"
 	"github.com/adamkirk-stayaway/organisations/pkg/validation"
 	"github.com/adamkirk-stayaway/organisations/pkg/venues"
+	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"go.uber.org/fx"
@@ -41,6 +44,25 @@ var apiServeCmd = &cobra.Command{
 		apicmd.Handler(sharedOpts(), cmd, args)
 	},
 }
+
+var municipalitiesCmd = &cobra.Command{
+	Use: "municipalities",
+	Short: "Municipalities commands",
+	Long:`Blah`,
+	Run: func (cmd *cobra.Command, args []string) {
+		cmd.Help()
+	},
+}
+
+var municipalitiesSyncCmd = &cobra.Command{
+	Use: "sync",
+	Short: "Sync municipalities",
+	Long:`Blah`,
+	Run: func (cmd *cobra.Command, args []string) {
+		municipalitiessync.Handler(sharedOpts(), cmd, args)
+	},
+}
+
 
 var dbCmd = &cobra.Command{
 	Use: "db",
@@ -69,6 +91,10 @@ var dbMigrateCmd = &cobra.Command{
 	},
 }
 
+func newFs() afero.Fs {
+	return afero.NewOsFs()
+}
+
 func sharedOpts() []fx.Option {
 	opts := []fx.Option{
 		fx.Provide(
@@ -77,8 +103,10 @@ func sharedOpts() []fx.Option {
 				fx.As(new(api.ApiServerConfig)),
 				fx.As(new(api.OrganisationsV1ControllerConfig)),
 				fx.As(new(api.VenuesV1ControllerConfig)),
+				fx.As(new(api.MunicipalitiesV1ControllerConfig)),
 				fx.As(new(db.MongoConfig)),
 				fx.As(new(db.MongoDbMigratorConfig)),
+				fx.As(new(municipalities.SyncHandlerConfig)),
 			),
 		),
 		fx.Provide(
@@ -97,6 +125,13 @@ func sharedOpts() []fx.Option {
 		fx.Provide(
 			fx.Annotate(
 				api.NewVenuesV1Controller,
+				fx.As(new(api.Controller)),
+				fx.ResultTags(`group:"apiControllers"`),
+			),
+		),
+		fx.Provide(
+			fx.Annotate(
+				api.NewMunicipalitiesV1Controller,
 				fx.As(new(api.Controller)),
 				fx.ResultTags(`group:"apiControllers"`),
 			),
@@ -136,6 +171,7 @@ func sharedOpts() []fx.Option {
 				validation.NewValidator,
 				fx.As(new(organisations.Validator)),
 				fx.As(new(venues.Validator)),
+				fx.As(new(municipalities.Validator)),
 				fx.ParamTags(`group:"validationExtensions"`),
 			),
 		),
@@ -174,6 +210,24 @@ func sharedOpts() []fx.Option {
 			fx.Annotate(
 				venues.NewUpdateHandler,
 				fx.As(new(api.VenuesUpdateHandler)),
+			),
+		),
+
+		fx.Provide(
+			fx.Annotate(
+				municipalities.NewListHandler,
+				fx.As(new(api.MunicipalitiesListHandler)),
+			),
+		),
+		fx.Provide(
+			fx.Annotate(
+				municipalities.NewSyncHandler,
+			),
+		),
+		fx.Provide(
+			fx.Annotate(
+				newFs,
+				fx.As(new(afero.Fs)),
 			),
 		),
 		fx.Provide(api.NewValidationMapper),
@@ -226,6 +280,13 @@ func sharedOpts() []fx.Option {
 					fx.As(new(venues.UpdateHandlerRepo)),
 				),
 			),
+			fx.Provide(
+				fx.Annotate(
+					repository.NewMongoDbMunicipalities,
+					fx.As(new(municipalities.SyncHandlerRepo)),
+					fx.As(new(municipalities.ListHandlerRepo)),
+				),
+			),
 		}...)
 	}
 	return opts
@@ -252,10 +313,14 @@ func init() {
 	rootCmd.PersistentFlags().String("log-format",  "json", "log format to use")
 	rootCmd.PersistentFlags().Int("port",  8080, "port to serve API on")
 
+	municipalitiesCmd.AddCommand(municipalitiesSyncCmd)
+
 	dbCmd.AddCommand(dbInitCmd)
 	dbCmd.AddCommand(dbMigrateCmd)
+
 	rootCmd.AddCommand(apiServeCmd)
 	rootCmd.AddCommand(dbCmd)
+	rootCmd.AddCommand(municipalitiesCmd)
 
 	viper.BindPFlag("logging.level", rootCmd.PersistentFlags().Lookup("log-level"))
 	viper.BindPFlag("logging.format", rootCmd.PersistentFlags().Lookup("log-format"))

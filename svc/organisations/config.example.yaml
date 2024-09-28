@@ -17,3 +17,11 @@ db:
     # Needs to be present in config though, some weird viper behaviour i think
     uri: mongodb://user:pass@mongo:27017
     database: "organisations"
+
+
+municipalities:
+  sync:
+    max_processes: 10
+    batch_size: 10
+    countries:
+      - "United Kingdom"

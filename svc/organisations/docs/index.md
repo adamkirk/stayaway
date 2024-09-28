@@ -43,9 +43,9 @@ Contains all the organisations for the wider system.
 - room_facilities
 - availability
 
-### Conurbation
+### Municipality
 
-See: https://simplemaps.com/data/gb-cities
+See: https://simplemaps.com/data/world-cities
 
 > It ain't a full list, but it'll be enough...dont' wanna pay for the full list tbh
 

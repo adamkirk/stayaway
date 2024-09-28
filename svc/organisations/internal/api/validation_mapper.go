@@ -88,6 +88,8 @@ func mapJsonFieldsToMapTags(t reflect.Type) (StructMapMeta) {
 	return props
 }
 
+// TODO: add an option to change from using json tag to another tag
+// This will support query param validation
 func (vm *ValidationMapper) Map(err validation.ValidationError, req any) validation.ValidationError {
 
 	fldErrors := []validation.FieldError{}

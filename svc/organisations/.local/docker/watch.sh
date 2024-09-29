@@ -12,4 +12,4 @@ if [ "$AIR_DEBUG" == "true" ]; then
     DEBUG_OPT="-d"
 fi
 
-air $DEBUG_OPT -build.bin ./build/stayaway-$APP_COMMAND -build.cmd "go build -o ./build/stayaway-$APP_COMMAND ./cmd/main.go"
+air $DEBUG_OPT -build.bin ./build/stayaway-$APP_COMMAND -build.cmd "./hack/build.sh"

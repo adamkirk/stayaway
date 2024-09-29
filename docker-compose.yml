@@ -175,7 +175,7 @@ services:
     <<: *network
     # image: redis:7.2-alpine
     build:
-      context: ${STAYAWAY_ETC_REDIS}/etc/redis
+      context: ${STAYAWAY_ETC_REDIS}
     environment:
       REDIS_PASSWORD: ${STAYAWAY_REDIS_PASS}
 

@@ -1,0 +1,1161 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is an API for managing organisations in the stayaway ecosystem.",
+        "title": "Stayaway - Organisations",
+        "contact": {
+            "name": "API Support",
+            "url": "https://github.com/adamkirk/stayaway",
+            "email": "adamkirk@example.com"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0"
+    },
+    "host": "organisations.stayaway.test",
+    "basePath": "/api",
+    "paths": {
+        "/v1/municipalities": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Municipalities"
+                ],
+                "summary": "List all venues for an organisation",
+                "parameters": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Countries to filter the municipalities by.\nCurrently we only support United Kingdom anyway.",
+                        "name": "country",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "name"
+                        ],
+                        "type": "string",
+                        "description": "The field by which to order the results.",
+                        "name": "order_by",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "asc",
+                            "desc"
+                        ],
+                        "type": "string",
+                        "description": "The direction to order the results by.",
+                        "name": "order_dir",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "The page to display.\nAn empty list may be returned if going beyond the last page of results.",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "The amount of results to display per page.",
+                        "name": "per_page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Characters to use as a prefix in searching by the name.\nUseful for a \"typeahead\" widget.",
+                        "name": "prefix",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.ListMunicipalities"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Invalid"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/organisations": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organisations"
+                ],
+                "summary": "List all organisations",
+                "parameters": [
+                    {
+                        "enum": [
+                            "name",
+                            "slug"
+                        ],
+                        "type": "string",
+                        "description": "The field by which to order the results.",
+                        "name": "order_by",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "asc",
+                            "desc"
+                        ],
+                        "type": "string",
+                        "description": "The direction to order the results by.",
+                        "name": "order_dir",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "The page to display.\nAn empty list may be returned if going beyond the last page of results.",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "The amount of results to display per page.",
+                        "name": "per_page",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.ListOrganisations"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Invalid"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organisations"
+                ],
+                "summary": "Create an organisation",
+                "parameters": [
+                    {
+                        "description": "Organisation definition",
+                        "name": "Organisation",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/V1.Request.CreateOrganisation"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.CreateOrganisation"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Invalid"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/organisations/{id}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organisations"
+                ],
+                "summary": "Get an organisation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The Organisation ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.GetOrganisation"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Invalid"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organisations"
+                ],
+                "summary": "Delete an organisation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The Organisation ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Invalid"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organisations"
+                ],
+                "summary": "Update an organisation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The Organisation ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Organisation definition",
+                        "name": "Changes",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/V1.Request.UpdateOrganisation"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.PatchOrganisation"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Invalid"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/organisations/{orgId}/venues": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Venues"
+                ],
+                "summary": "List all venues for an organisation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The Organisations ID",
+                        "name": "orgId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "name": "order_by",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "order_dir",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "per_page",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.ListVenues"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Invalid"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Venues"
+                ],
+                "summary": "Create a venue for an organisation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The Organisations ID",
+                        "name": "orgId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Venue definition",
+                        "name": "Venue",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/V1.Request.CreateVenue"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.PostVenue"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Invalid"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/organisations/{orgId}/venues/{id}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Venues"
+                ],
+                "summary": "Get a venue for an organisation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The Organisations ID",
+                        "name": "orgId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The Venues ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.PostVenue"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Invalid"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Venues"
+                ],
+                "summary": "Delete a venue from an organisation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The Organisations ID",
+                        "name": "orgId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The Venues ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Invalid"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Venues"
+                ],
+                "summary": "Update a venue for an organisation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The Organisations ID",
+                        "name": "orgId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The Venues ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Venue changes",
+                        "name": "Changes",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/V1.Request.UpdateVenue"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.PatchVenue"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Invalid"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "V1.Request.CreateOrganisation": {
+            "type": "object",
+            "required": [
+                "name",
+                "slug"
+            ],
+            "properties": {
+                "name": {
+                    "description": "The name of the organisation.",
+                    "type": "string",
+                    "minLength": 3
+                },
+                "slug": {
+                    "description": "A slug that will be used in URI's.\nMust only contain alphanumeric and hyphen characters",
+                    "type": "string",
+                    "minLength": 3
+                }
+            }
+        },
+        "V1.Request.CreateVenue": {
+            "type": "object",
+            "required": [
+                "address",
+                "name",
+                "slug",
+                "type"
+            ],
+            "properties": {
+                "address": {
+                    "description": "The address of the venue.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/V1.Request[Model].VenueAddress"
+                        }
+                    ]
+                },
+                "name": {
+                    "description": "The name of the venue.",
+                    "type": "string",
+                    "minLength": 3
+                },
+                "slug": {
+                    "description": "The slug of the venue, used in URI's.\nMust only contain alphanumeric and hyphen characters.\nMust be unique within the organisation.",
+                    "type": "string",
+                    "minLength": 3
+                },
+                "type": {
+                    "description": "The type of venue.\nCurrently only supports 'hotel'",
+                    "type": "string",
+                    "enum": [
+                        "hotel"
+                    ]
+                }
+            }
+        },
+        "V1.Request.UpdateOrganisation": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "description": "The name of the organisation.",
+                    "type": "string",
+                    "minLength": 3,
+                    "x-nullable": true
+                },
+                "slug": {
+                    "description": "A slug that will be used in URI's.\nMust only contain alphanumeric and hyphen characters.\nMust be unique across all other organisations.",
+                    "type": "string",
+                    "minLength": 3,
+                    "x-nullable": true
+                }
+            }
+        },
+        "V1.Request.UpdateVenue": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "description": "The address of the venue.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/V1.Request[Model].VenueAddress"
+                        }
+                    ],
+                    "x-nullable": true
+                },
+                "name": {
+                    "description": "The name of the venue.",
+                    "type": "string",
+                    "minLength": 3,
+                    "x-nullable": true
+                },
+                "slug": {
+                    "description": "The slug of the venue, used in URI's.\nMust only contain alphanumeric and hyphen characters.\nMust be unique within the organisation.",
+                    "type": "string",
+                    "minLength": 3,
+                    "x-nullable": true
+                },
+                "type": {
+                    "description": "The type of venue.\nCurrently only supports 'hotel'",
+                    "type": "string",
+                    "enum": [
+                        "hotel"
+                    ],
+                    "x-nullable": true
+                }
+            }
+        },
+        "V1.Request[Model].VenueAddress": {
+            "description": "The changes to apply to the venue. Only include fields to change.",
+            "type": "object",
+            "properties": {
+                "lat": {
+                    "description": "Latitude of the venue.",
+                    "type": "number",
+                    "minimum": 0,
+                    "x-nullable": true
+                },
+                "line_1": {
+                    "description": "Line 1 of the address, typically number/name and street.",
+                    "type": "string",
+                    "minLength": 1,
+                    "x-nullable": true
+                },
+                "line_2": {
+                    "description": "Line 2, extra information for the address if needed, optional.",
+                    "type": "string",
+                    "minLength": 1,
+                    "x-nullable": true
+                },
+                "long": {
+                    "description": "Longitude of the venue.",
+                    "type": "number",
+                    "minimum": 0,
+                    "x-nullable": true
+                },
+                "municipality": {
+                    "description": "The town/city/village that the venue is in.",
+                    "type": "string",
+                    "minLength": 1,
+                    "x-nullable": true
+                },
+                "postcode": {
+                    "description": "A valid UK postcode, following standard formats.",
+                    "type": "string",
+                    "x-nullable": true
+                }
+            }
+        },
+        "V1.Response.CreateOrganisation": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/V1.Response[Model].Organisation"
+                }
+            }
+        },
+        "V1.Response.Error": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "description": "An error message that may give you indication of the problem.",
+                    "type": "string"
+                }
+            }
+        },
+        "V1.Response.GetOrganisation": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/V1.Response[Model].Organisation"
+                }
+            }
+        },
+        "V1.Response.Invalid": {
+            "type": "object",
+            "properties": {
+                "errors": {
+                    "description": "A KV map of errors during validation.\nThe keys in the map correspond to the fields in the request.\nThe keys are using dot notation to flatten any nested fields.",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "V1.Response.ListMunicipalities": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/V1.Response[Model].Municipality"
+                    }
+                },
+                "meta": {
+                    "$ref": "#/definitions/V1.Response[Meta].List"
+                }
+            }
+        },
+        "V1.Response.ListOrganisations": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/V1.Response[Model].Organisation"
+                    }
+                },
+                "meta": {
+                    "$ref": "#/definitions/V1.Response[Meta].List"
+                }
+            }
+        },
+        "V1.Response.ListVenues": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/V1.Response[Model].Venue"
+                    }
+                },
+                "meta": {
+                    "$ref": "#/definitions/V1.Response[Meta].List"
+                }
+            }
+        },
+        "V1.Response.PatchOrganisation": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/V1.Response[Model].Organisation"
+                }
+            }
+        },
+        "V1.Response.PatchVenue": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/V1.Response[Model].Venue"
+                }
+            }
+        },
+        "V1.Response.PostVenue": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/V1.Response[Model].Venue"
+                }
+            }
+        },
+        "V1.Response[Meta].List": {
+            "type": "object",
+            "properties": {
+                "pagination": {
+                    "$ref": "#/definitions/V1.Response[Meta].Pagination"
+                },
+                "sorting": {
+                    "$ref": "#/definitions/V1.Response[Meta].SortOptions"
+                }
+            }
+        },
+        "V1.Response[Meta].Pagination": {
+            "type": "object",
+            "properties": {
+                "page": {
+                    "description": "The page number for the results returned.",
+                    "type": "integer"
+                },
+                "per_page": {
+                    "description": "The amount of results oer page.",
+                    "type": "integer"
+                },
+                "total_pages": {
+                    "description": "The total amount of pages available with the value for per_page.",
+                    "type": "integer"
+                },
+                "total_results": {
+                    "description": "The total amount of results in the system.",
+                    "type": "integer"
+                }
+            }
+        },
+        "V1.Response[Meta].SortOptions": {
+            "type": "object",
+            "properties": {
+                "order_by": {
+                    "description": "Field by which the results are sorted.",
+                    "type": "string"
+                },
+                "order_dir": {
+                    "description": "Direction that was used when sorting results.",
+                    "type": "string"
+                }
+            }
+        },
+        "V1.Response[Model].Municipality": {
+            "type": "object",
+            "properties": {
+                "country": {
+                    "description": "The country in which the municipality resides.",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "The ID of the municipality.",
+                    "type": "string"
+                },
+                "iso3": {
+                    "description": "ISO code for the country.",
+                    "type": "string"
+                },
+                "lat": {
+                    "description": "The latitude of the municipality.",
+                    "type": "number"
+                },
+                "long": {
+                    "description": "The longitude of the municipality.",
+                    "type": "number"
+                },
+                "name": {
+                    "description": "The \"common name\" of the town/city/village.",
+                    "type": "string"
+                },
+                "name_ascii": {
+                    "description": "An ascii friendly representation of the name.",
+                    "type": "string"
+                }
+            }
+        },
+        "V1.Response[Model].Organisation": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "description": "ID of the organisation.",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "The name of the organisation.",
+                    "type": "string"
+                },
+                "slug": {
+                    "description": "Unique slug used in URI's.",
+                    "type": "string"
+                }
+            }
+        },
+        "V1.Response[Model].Venue": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "description": "The address of the venue.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/V1.Response[Model].VenueAddress"
+                        }
+                    ]
+                },
+                "id": {
+                    "description": "The ID of the venue.",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "The name of the venue.",
+                    "type": "string"
+                },
+                "organisation_id": {
+                    "description": "The ID of the organisation that this venue is a part of.",
+                    "type": "string"
+                },
+                "slug": {
+                    "description": "Slug used in URI's. Unique across all venues in the organisation.",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "The type of venue this is.\nCurrently only 'hotel' is supported.",
+                    "type": "string"
+                }
+            }
+        },
+        "V1.Response[Model].VenueAddress": {
+            "type": "object",
+            "properties": {
+                "lat": {
+                    "description": "The latitude of the venue.",
+                    "type": "number"
+                },
+                "line_1": {
+                    "description": "Line 1 of the address. Typically number/name and street/road.",
+                    "type": "string"
+                },
+                "line_2": {
+                    "description": "Line 2 of the address. May be null.",
+                    "type": "string"
+                },
+                "long": {
+                    "description": "The longiitude of the venue.",
+                    "type": "number"
+                },
+                "municipality": {
+                    "description": "The town/city in which the venue is situated.",
+                    "type": "string"
+                },
+                "postcode": {
+                    "description": "The postcode of the venue.",
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

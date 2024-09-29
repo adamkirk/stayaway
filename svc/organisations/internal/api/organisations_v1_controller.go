@@ -69,6 +69,17 @@ func NewOrganisationsV1Controller(
 	}
 }
 
+//	@Summary		List all organisations
+//	@Tags			Organisations
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	V1ListOrganisationsResponse
+//	@Failure		422	{object}	V1ValidationErrorResponse
+//	@Failure		404	{object}	V1GenericErrorResponse
+//	@Failure		400	{object}	V1GenericErrorResponse
+//	@Failure		500	{object}	V1GenericErrorResponse
+//	@Router			/v1/organisations [get]
+//	@Param			request	query	V1ListOrganisationsRequest	true "Query params"
 func (c *OrganisationsV1Controller) List(ctx echo.Context) error {
 	req := V1ListOrganisationsRequest{}
 
@@ -105,6 +116,17 @@ func (c *OrganisationsV1Controller) List(ctx echo.Context) error {
 	return nil
 }
 
+//	@Summary		Create an organisation
+//	@Tags			Organisations
+//	@Accept			json
+//	@Produce		json
+//	@Success		201	{object}	V1PostOrganisationResponse
+//	@Failure		422	{object}	V1ValidationErrorResponse
+//	@Failure		404	{object}	V1GenericErrorResponse
+//	@Failure		400	{object}	V1GenericErrorResponse
+//	@Failure		500	{object}	V1GenericErrorResponse
+//	@Router			/v1/organisations [post]
+//	@Param			Organisation	body		V1PostOrganisationRequest	true	"Organisation definition"
 func (c *OrganisationsV1Controller) Create(ctx echo.Context) error {
 	req := V1PostOrganisationRequest{}
 
@@ -130,7 +152,17 @@ func (c *OrganisationsV1Controller) Create(ctx echo.Context) error {
 	return nil
 }
 
-
+//	@Summary		Get an organisation
+//	@Tags			Organisations
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	V1GetOrganisationResponse
+//	@Failure		422	{object}	V1ValidationErrorResponse
+//	@Failure		404	{object}	V1GenericErrorResponse
+//	@Failure		400	{object}	V1GenericErrorResponse
+//	@Failure		500	{object}	V1GenericErrorResponse
+//	@Router			/v1/organisations/{id} [get]
+//	@Param			id	path	string	true	"The Organisation ID"
 func (c *OrganisationsV1Controller) Get(ctx echo.Context) error {
 	req := V1GetOrganisationRequest{}
 
@@ -153,6 +185,18 @@ func (c *OrganisationsV1Controller) Get(ctx echo.Context) error {
 	return nil
 }
 
+//	@Summary		Update an organisation
+//	@Tags			Organisations
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	V1PatchOrganisationResponse
+//	@Failure		422	{object}	V1ValidationErrorResponse
+//	@Failure		404	{object}	V1GenericErrorResponse
+//	@Failure		400	{object}	V1GenericErrorResponse
+//	@Failure		500	{object}	V1GenericErrorResponse
+//	@Router			/v1/organisations/{id} [patch]
+//	@Param			id	path	string	true	"The Organisation ID"
+//	@Param			Changes	body		V1PatchOrganisationRequest	true	"Organisation definition"
 func (c *OrganisationsV1Controller) Patch(ctx echo.Context) error {
 	req := V1PatchOrganisationRequest{}
 
@@ -179,6 +223,17 @@ func (c *OrganisationsV1Controller) Patch(ctx echo.Context) error {
 	return nil
 }
 
+//	@Summary		Delete an organisation
+//	@Tags			Organisations
+//	@Accept			json
+//	@Produce		json
+//	@Success		204
+//	@Failure		422	{object}	V1ValidationErrorResponse
+//	@Failure		404	{object}	V1GenericErrorResponse
+//	@Failure		400	{object}	V1GenericErrorResponse
+//	@Failure		500	{object}	V1GenericErrorResponse
+//	@Router			/v1/organisations/{id} [delete]
+//	@Param			id	path	string	true	"The Organisation ID"
 func (c *OrganisationsV1Controller) Delete(ctx echo.Context) error {
 	req := V1DeleteOrganisationRequest{}
 

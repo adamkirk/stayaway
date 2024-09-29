@@ -39,13 +39,14 @@ func TestBuildValidationMap(t *testing.T) {
 		name string
 		in any
 		expectErr error
-		expect map[string]string
+		expect StructMapMeta
 	}{
 		{
 			name: "nested props",
 			in: CreatePersonRequest{},
 			expectErr: nil,
-			expect: map[string]string{
+			expect: StructMapMeta{
+				"address":"Address",
 				"name": "FullName",
 				"email": "EmailAddress",
 				"address.line_1": "Address.Street",
@@ -57,7 +58,7 @@ func TestBuildValidationMap(t *testing.T) {
 			name: "flattened target",
 			in: FlattenedPersonRequest{},
 			expectErr: nil,
-			expect: map[string]string{
+			expect: StructMapMeta{
 				"address.line_1":"Street",
 				"address.post_code":"Postcode",
 				"email":"EmailAddress",

@@ -1,0 +1,813 @@
+basePath: /api
+definitions:
+  V1.Request.CreateOrganisation:
+    properties:
+      name:
+        description: The name of the organisation.
+        minLength: 3
+        type: string
+      slug:
+        description: |-
+          A slug that will be used in URI's.
+          Must only contain alphanumeric and hyphen characters
+        minLength: 3
+        type: string
+    required:
+    - name
+    - slug
+    type: object
+  V1.Request.CreateVenue:
+    properties:
+      address:
+        allOf:
+        - $ref: '#/definitions/V1.Request[Model].VenueAddress'
+        description: The address of the venue.
+      name:
+        description: The name of the venue.
+        minLength: 3
+        type: string
+      slug:
+        description: |-
+          The slug of the venue, used in URI's.
+          Must only contain alphanumeric and hyphen characters.
+          Must be unique within the organisation.
+        minLength: 3
+        type: string
+      type:
+        description: |-
+          The type of venue.
+          Currently only supports 'hotel'
+        enum:
+        - hotel
+        type: string
+    required:
+    - address
+    - name
+    - slug
+    - type
+    type: object
+  V1.Request.UpdateOrganisation:
+    properties:
+      name:
+        description: The name of the organisation.
+        minLength: 3
+        type: string
+        x-nullable: true
+      slug:
+        description: |-
+          A slug that will be used in URI's.
+          Must only contain alphanumeric and hyphen characters.
+          Must be unique across all other organisations.
+        minLength: 3
+        type: string
+        x-nullable: true
+    type: object
+  V1.Request.UpdateVenue:
+    properties:
+      address:
+        allOf:
+        - $ref: '#/definitions/V1.Request[Model].VenueAddress'
+        description: The address of the venue.
+        x-nullable: true
+      name:
+        description: The name of the venue.
+        minLength: 3
+        type: string
+        x-nullable: true
+      slug:
+        description: |-
+          The slug of the venue, used in URI's.
+          Must only contain alphanumeric and hyphen characters.
+          Must be unique within the organisation.
+        minLength: 3
+        type: string
+        x-nullable: true
+      type:
+        description: |-
+          The type of venue.
+          Currently only supports 'hotel'
+        enum:
+        - hotel
+        type: string
+        x-nullable: true
+    type: object
+  V1.Request[Model].VenueAddress:
+    description: The changes to apply to the venue. Only include fields to change.
+    properties:
+      lat:
+        description: Latitude of the venue.
+        minimum: 0
+        type: number
+        x-nullable: true
+      line_1:
+        description: Line 1 of the address, typically number/name and street.
+        minLength: 1
+        type: string
+        x-nullable: true
+      line_2:
+        description: Line 2, extra information for the address if needed, optional.
+        minLength: 1
+        type: string
+        x-nullable: true
+      long:
+        description: Longitude of the venue.
+        minimum: 0
+        type: number
+        x-nullable: true
+      municipality:
+        description: The town/city/village that the venue is in.
+        minLength: 1
+        type: string
+        x-nullable: true
+      postcode:
+        description: A valid UK postcode, following standard formats.
+        type: string
+        x-nullable: true
+    type: object
+  V1.Response.CreateOrganisation:
+    properties:
+      data:
+        $ref: '#/definitions/V1.Response[Model].Organisation'
+    type: object
+  V1.Response.Error:
+    properties:
+      message:
+        description: An error message that may give you indication of the problem.
+        type: string
+    type: object
+  V1.Response.GetOrganisation:
+    properties:
+      data:
+        $ref: '#/definitions/V1.Response[Model].Organisation'
+    type: object
+  V1.Response.Invalid:
+    properties:
+      errors:
+        additionalProperties:
+          items:
+            type: string
+          type: array
+        description: |-
+          A KV map of errors during validation.
+          The keys in the map correspond to the fields in the request.
+          The keys are using dot notation to flatten any nested fields.
+        type: object
+    type: object
+  V1.Response.ListMunicipalities:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/V1.Response[Model].Municipality'
+        type: array
+      meta:
+        $ref: '#/definitions/V1.Response[Meta].List'
+    type: object
+  V1.Response.ListOrganisations:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/V1.Response[Model].Organisation'
+        type: array
+      meta:
+        $ref: '#/definitions/V1.Response[Meta].List'
+    type: object
+  V1.Response.ListVenues:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/V1.Response[Model].Venue'
+        type: array
+      meta:
+        $ref: '#/definitions/V1.Response[Meta].List'
+    type: object
+  V1.Response.PatchOrganisation:
+    properties:
+      data:
+        $ref: '#/definitions/V1.Response[Model].Organisation'
+    type: object
+  V1.Response.PatchVenue:
+    properties:
+      data:
+        $ref: '#/definitions/V1.Response[Model].Venue'
+    type: object
+  V1.Response.PostVenue:
+    properties:
+      data:
+        $ref: '#/definitions/V1.Response[Model].Venue'
+    type: object
+  V1.Response[Meta].List:
+    properties:
+      pagination:
+        $ref: '#/definitions/V1.Response[Meta].Pagination'
+      sorting:
+        $ref: '#/definitions/V1.Response[Meta].SortOptions'
+    type: object
+  V1.Response[Meta].Pagination:
+    properties:
+      page:
+        description: The page number for the results returned.
+        type: integer
+      per_page:
+        description: The amount of results oer page.
+        type: integer
+      total_pages:
+        description: The total amount of pages available with the value for per_page.
+        type: integer
+      total_results:
+        description: The total amount of results in the system.
+        type: integer
+    type: object
+  V1.Response[Meta].SortOptions:
+    properties:
+      order_by:
+        description: Field by which the results are sorted.
+        type: string
+      order_dir:
+        description: Direction that was used when sorting results.
+        type: string
+    type: object
+  V1.Response[Model].Municipality:
+    properties:
+      country:
+        description: The country in which the municipality resides.
+        type: string
+      id:
+        description: The ID of the municipality.
+        type: string
+      iso3:
+        description: ISO code for the country.
+        type: string
+      lat:
+        description: The latitude of the municipality.
+        type: number
+      long:
+        description: The longitude of the municipality.
+        type: number
+      name:
+        description: The "common name" of the town/city/village.
+        type: string
+      name_ascii:
+        description: An ascii friendly representation of the name.
+        type: string
+    type: object
+  V1.Response[Model].Organisation:
+    properties:
+      id:
+        description: ID of the organisation.
+        type: string
+      name:
+        description: The name of the organisation.
+        type: string
+      slug:
+        description: Unique slug used in URI's.
+        type: string
+    type: object
+  V1.Response[Model].Venue:
+    properties:
+      address:
+        allOf:
+        - $ref: '#/definitions/V1.Response[Model].VenueAddress'
+        description: The address of the venue.
+      id:
+        description: The ID of the venue.
+        type: string
+      name:
+        description: The name of the venue.
+        type: string
+      organisation_id:
+        description: The ID of the organisation that this venue is a part of.
+        type: string
+      slug:
+        description: Slug used in URI's. Unique across all venues in the organisation.
+        type: string
+      type:
+        description: |-
+          The type of venue this is.
+          Currently only 'hotel' is supported.
+        type: string
+    type: object
+  V1.Response[Model].VenueAddress:
+    properties:
+      lat:
+        description: The latitude of the venue.
+        type: number
+      line_1:
+        description: Line 1 of the address. Typically number/name and street/road.
+        type: string
+      line_2:
+        description: Line 2 of the address. May be null.
+        type: string
+      long:
+        description: The longiitude of the venue.
+        type: number
+      municipality:
+        description: The town/city in which the venue is situated.
+        type: string
+      postcode:
+        description: The postcode of the venue.
+        type: string
+    type: object
+host: organisations.stayaway.test
+info:
+  contact:
+    email: adamkirk@example.com
+    name: API Support
+    url: https://github.com/adamkirk/stayaway
+  description: This is an API for managing organisations in the stayaway ecosystem.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Stayaway - Organisations
+  version: "1.0"
+paths:
+  /v1/municipalities:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - collectionFormat: csv
+        description: |-
+          Countries to filter the municipalities by.
+          Currently we only support United Kingdom anyway.
+        in: query
+        items:
+          type: string
+        name: country
+        type: array
+      - description: The field by which to order the results.
+        enum:
+        - name
+        in: query
+        name: order_by
+        type: string
+      - description: The direction to order the results by.
+        enum:
+        - asc
+        - desc
+        in: query
+        name: order_dir
+        type: string
+      - description: |-
+          The page to display.
+          An empty list may be returned if going beyond the last page of results.
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: The amount of results to display per page.
+        in: query
+        maximum: 100
+        minimum: 1
+        name: per_page
+        type: integer
+      - description: |-
+          Characters to use as a prefix in searching by the name.
+          Useful for a "typeahead" widget.
+        in: query
+        name: prefix
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/V1.Response.ListMunicipalities'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/V1.Response.Invalid'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+      summary: List all venues for an organisation
+      tags:
+      - Municipalities
+  /v1/organisations:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: The field by which to order the results.
+        enum:
+        - name
+        - slug
+        in: query
+        name: order_by
+        type: string
+      - description: The direction to order the results by.
+        enum:
+        - asc
+        - desc
+        in: query
+        name: order_dir
+        type: string
+      - description: |-
+          The page to display.
+          An empty list may be returned if going beyond the last page of results.
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: The amount of results to display per page.
+        in: query
+        maximum: 100
+        minimum: 1
+        name: per_page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/V1.Response.ListOrganisations'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/V1.Response.Invalid'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+      summary: List all organisations
+      tags:
+      - Organisations
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Organisation definition
+        in: body
+        name: Organisation
+        required: true
+        schema:
+          $ref: '#/definitions/V1.Request.CreateOrganisation'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/V1.Response.CreateOrganisation'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/V1.Response.Invalid'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+      summary: Create an organisation
+      tags:
+      - Organisations
+  /v1/organisations/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: The Organisation ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/V1.Response.Invalid'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+      summary: Delete an organisation
+      tags:
+      - Organisations
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: The Organisation ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/V1.Response.GetOrganisation'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/V1.Response.Invalid'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+      summary: Get an organisation
+      tags:
+      - Organisations
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: The Organisation ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Organisation definition
+        in: body
+        name: Changes
+        required: true
+        schema:
+          $ref: '#/definitions/V1.Request.UpdateOrganisation'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/V1.Response.PatchOrganisation'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/V1.Response.Invalid'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+      summary: Update an organisation
+      tags:
+      - Organisations
+  /v1/organisations/{orgId}/venues:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: The Organisations ID
+        in: path
+        name: orgId
+        required: true
+        type: string
+      - in: query
+        name: order_by
+        type: string
+      - in: query
+        name: order_dir
+        type: string
+      - in: query
+        name: page
+        type: integer
+      - in: query
+        name: per_page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/V1.Response.ListVenues'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/V1.Response.Invalid'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+      summary: List all venues for an organisation
+      tags:
+      - Venues
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: The Organisations ID
+        in: path
+        name: orgId
+        required: true
+        type: string
+      - description: Venue definition
+        in: body
+        name: Venue
+        required: true
+        schema:
+          $ref: '#/definitions/V1.Request.CreateVenue'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/V1.Response.PostVenue'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/V1.Response.Invalid'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+      summary: Create a venue for an organisation
+      tags:
+      - Venues
+  /v1/organisations/{orgId}/venues/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: The Organisations ID
+        in: path
+        name: orgId
+        required: true
+        type: string
+      - description: The Venues ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/V1.Response.Invalid'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+      summary: Delete a venue from an organisation
+      tags:
+      - Venues
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: The Organisations ID
+        in: path
+        name: orgId
+        required: true
+        type: string
+      - description: The Venues ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/V1.Response.PostVenue'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/V1.Response.Invalid'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+      summary: Get a venue for an organisation
+      tags:
+      - Venues
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: The Organisations ID
+        in: path
+        name: orgId
+        required: true
+        type: string
+      - description: The Venues ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Venue changes
+        in: body
+        name: Changes
+        required: true
+        schema:
+          $ref: '#/definitions/V1.Request.UpdateVenue'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/V1.Response.PatchVenue'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/V1.Response.Invalid'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+      summary: Update a venue for an organisation
+      tags:
+      - Venues
+swagger: "2.0"

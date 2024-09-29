@@ -81,7 +81,9 @@ func mapJsonFieldsToMapTags(t reflect.Type) (StructMapMeta) {
 			}
 		} 
 
-		props[jsonName] = validationMap
+		if validationMap != "" {
+			props[jsonName] = validationMap
+		}
 
 	}
 

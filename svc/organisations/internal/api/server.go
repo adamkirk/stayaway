@@ -15,6 +15,9 @@ import (
 	"github.com/adamkirk-stayaway/organisations/pkg/validation"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+
+	_ "github.com/adamkirk-stayaway/organisations/internal/openapidoc"
+	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
 // RequestWithRawBody allows us to check whether fields were defined at all in
@@ -145,8 +148,8 @@ func handleValidationError(ctx echo.Context, errs validation.ValidationError) {
 		respErrors[err.Key] = err.Errors
 	}
 
-	respBody := map[string]any{
-		"errors": respErrors,
+	respBody := V1ValidationErrorResponse{
+		Errors: respErrors,
 	}
 
 	ctx.JSON(422, respBody)
@@ -240,6 +243,19 @@ func bindRequest(req any, ctx echo.Context) error {
 	return nil
 }
 
+// @title Stayaway - Organisations
+// @version 1.0
+// @description This is an API for managing organisations in the stayaway ecosystem.
+
+// @contact.name API Support
+// @contact.url https://github.com/adamkirk/stayaway
+// @contact.email adamkirk@example.com
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host organisations.stayaway.test
+// @BasePath /api
 func NewServer(apiControllers []Controller, cfg ApiServerConfig) *Server {
 	e := echo.New()
 	e.HideBanner = true
@@ -255,6 +271,8 @@ func NewServer(apiControllers []Controller, cfg ApiServerConfig) *Server {
 
 	setupLoggingMiddleware(cfg, e)
 	setupErrorHandlingMiddleware(cfg, e)
+
+	e.GET("/openapi/*", echoSwagger.WrapHandler)
 
 	srv := &Server{
 		cfg: cfg,

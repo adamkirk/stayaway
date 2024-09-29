@@ -37,6 +37,17 @@ func NewMunicipalitiesV1Controller(
 	}
 }
 
+//	@Summary		List all venues for an organisation
+//	@Tags			Municipalities
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	V1ListMunicipalitiesResponse
+//	@Failure		422	{object}	V1ValidationErrorResponse
+//	@Failure		404	{object}	V1GenericErrorResponse
+//	@Failure		400	{object}	V1GenericErrorResponse
+//	@Failure		500	{object}	V1GenericErrorResponse
+//	@Router			/v1/municipalities [get]
+//	@Param			request	query V1ListMunicipalitiesRequest	true "Query params"
 func (c *MunicipalitiesV1Controller) List(ctx echo.Context) error {
 	req := V1ListMunicipalitiesRequest{}
 

@@ -7,7 +7,15 @@ tmp_dir = ".local/air/tmp"
   # bin = "./build/api"
   # cmd = "go build -o ./build/api ."
   delay = 1000
-  exclude_dir = ["assets", "tmp", "vendor", "testdata"]
+  exclude_dir = [
+    "assets",
+    "tmp",
+    "vendor",
+    "testdata",
+
+    # Stop an infinite loop when the build script regenerates swagger docs
+    "internal/openapidoc"
+  ]
   exclude_file = []
   exclude_regex = ["_test.go"]
   exclude_unchanged = false
@@ -23,8 +31,12 @@ tmp_dir = ".local/air/tmp"
   log = "build-errors.log"
   poll = false
   poll_interval = 0
-  post_cmd = []
-  pre_cmd = []
+  post_cmd = [
+    
+  ]
+  pre_cmd = [
+
+  ]
   rerun = false
   rerun_delay = 500
   send_interrupt = false

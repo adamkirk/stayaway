@@ -1,6 +1,7 @@
 FROM golang:1.22 as dev
 
 RUN go install github.com/air-verse/air@latest
+RUN go install github.com/swaggo/swag/cmd/swag@latest
 
 COPY ./.local/docker/watch.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh

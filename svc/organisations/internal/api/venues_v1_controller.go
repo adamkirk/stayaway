@@ -70,6 +70,18 @@ func NewVenuesV1Controller(
 	}
 }
 
+//	@Summary		List all venues for an organisation
+//	@Tags			Venues
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	V1ListVenuesResponse
+//	@Failure		422	{object}	V1ValidationErrorResponse
+//	@Failure		404	{object}	V1GenericErrorResponse
+//	@Failure		400	{object}	V1GenericErrorResponse
+//	@Failure		500	{object}	V1GenericErrorResponse
+//	@Router			/v1/organisations/{orgId}/venues [get]
+//	@Param			orgId	path	string	true	"The Organisations ID"
+//	@Param			request	query V1ListVenuesRequest	true "Query params"
 func (c *VenuesV1Controller) List(ctx echo.Context) error {
 	req := V1ListVenuesRequest{}
 
@@ -106,6 +118,18 @@ func (c *VenuesV1Controller) List(ctx echo.Context) error {
 	return nil
 }
 
+//	@Summary		Create a venue for an organisation
+//	@Tags			Venues
+//	@Accept			json
+//	@Produce		json
+//	@Success		201	{object}	V1PostVenueResponse
+//	@Failure		422	{object}	V1ValidationErrorResponse
+//	@Failure		404	{object}	V1GenericErrorResponse
+//	@Failure		400	{object}	V1GenericErrorResponse
+//	@Failure		500	{object}	V1GenericErrorResponse
+//	@Router			/v1/organisations/{orgId}/venues [post]
+//	@Param			orgId	path	string	true	"The Organisations ID"
+//	@Param			Venue	body		V1PostVenueRequest	true	"Venue definition"
 func (c *VenuesV1Controller) Create(ctx echo.Context) error {
 	req := V1PostVenueRequest{}
 
@@ -131,7 +155,18 @@ func (c *VenuesV1Controller) Create(ctx echo.Context) error {
 	return nil
 }
 
-
+//	@Summary		Get a venue for an organisation
+//	@Tags			Venues
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	V1PostVenueResponse
+//	@Failure		422	{object}	V1ValidationErrorResponse
+//	@Failure		404	{object}	V1GenericErrorResponse
+//	@Failure		400	{object}	V1GenericErrorResponse
+//	@Failure		500	{object}	V1GenericErrorResponse
+//	@Router			/v1/organisations/{orgId}/venues/{id} [get]
+//	@Param			orgId	path	string	true	"The Organisations ID"
+//	@Param			id	path	string	true	"The Venues ID"
 func (c *VenuesV1Controller) Get(ctx echo.Context) error {
 	req := V1GetVenueRequest{}
 
@@ -154,6 +189,19 @@ func (c *VenuesV1Controller) Get(ctx echo.Context) error {
 	return nil
 }
 
+//	@Summary		Update a venue for an organisation
+//	@Tags			Venues
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	V1PatchVenueResponse
+//	@Failure		422	{object}	V1ValidationErrorResponse
+//	@Failure		404	{object}	V1GenericErrorResponse
+//	@Failure		400	{object}	V1GenericErrorResponse
+//	@Failure		500	{object}	V1GenericErrorResponse
+//	@Router			/v1/organisations/{orgId}/venues/{id} [patch]
+//	@Param			orgId	path	string	true	"The Organisations ID"
+//	@Param			id	path	string	true	"The Venues ID"
+//	@Param			Changes	body		V1PatchVenueRequest	true	"Venue changes"
 func (c *VenuesV1Controller) Patch(ctx echo.Context) error {
 	req := V1PatchVenueRequest{}
 	if err := bindRequest(&req, ctx); err != nil {
@@ -175,6 +223,18 @@ func (c *VenuesV1Controller) Patch(ctx echo.Context) error {
 	return nil
 }
 
+//	@Summary		Delete a venue from an organisation
+//	@Tags			Venues
+//	@Accept			json
+//	@Produce		json
+//	@Success		204
+//	@Failure		422	{object}	V1ValidationErrorResponse
+//	@Failure		404	{object}	V1GenericErrorResponse
+//	@Failure		400	{object}	V1GenericErrorResponse
+//	@Failure		500	{object}	V1GenericErrorResponse
+//	@Router			/v1/organisations/{orgId}/venues/{id} [delete]
+//	@Param			orgId	path	string	true	"The Organisations ID"
+//	@Param			id	path	string	true	"The Venues ID"
 func (c *VenuesV1Controller) Delete(ctx echo.Context) error {
 	req := V1DeleteVenueRequest{}
 

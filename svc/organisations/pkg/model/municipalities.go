@@ -4,7 +4,7 @@ package model
 type MunicipalitySortBy string
 
 const (
-	MunicipalitySortByName MunicipalitySortBy = "city"
+	MunicipalitySortByName MunicipalitySortBy = "name"
 )
 
 type MunicipalityType string

@@ -2,7 +2,7 @@
 
 Contains all the organisations for the wider system.
 
-## Models
+## Models - DONE
 
 ### organisation (this may wanna be separate service, but in here is fine for now)
 
@@ -10,7 +10,7 @@ Contains all the organisations for the wider system.
 - name
 - slug
 
-### Venue
+### Venue - DONE
 
 - id
 - chain (nullable)
@@ -43,7 +43,7 @@ Contains all the organisations for the wider system.
 - room_facilities
 - availability
 
-### Municipality
+### Municipality - DONE
 
 See: https://simplemaps.com/data/world-cities
 

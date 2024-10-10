@@ -13,6 +13,7 @@ type Validator interface {
 
 type DistributedMutex interface {
 	ClaimWithBackOff(key string, ttl time.Duration) (mutex.DistributedMutex, error)
+	MultiClaimWithBackOff(keys []string, ttl time.Duration) (mutex.DistributedMutex, error)
 }
 
 func slugMutexKey(slug string) string {

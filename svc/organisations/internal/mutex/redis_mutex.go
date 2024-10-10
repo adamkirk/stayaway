@@ -3,6 +3,7 @@ package mutex
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/bsm/redislock"
@@ -17,10 +18,27 @@ func (rl *RedisLock) Release() error {
 	err := rl.lock.Release(context.TODO())
 
 	if err == nil || err == redislock.ErrLockNotHeld {
+		slog.Debug("released lock", "key", rl.lock.Key())
 		return nil
 	}
 
 	return err
+}
+
+type RedisMultiLock struct {
+	locks []DistributedMutex
+}
+
+func (rl *RedisMultiLock) Release() error {
+	for _, l := range rl.locks {
+		err := l.Release()
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 type RedisConnector interface {
@@ -75,8 +93,31 @@ func (rm *RedisMutex) ClaimWithBackOff(key string, ttl time.Duration) (Distribut
 		}
 	}
 
+	slog.Debug("claimed lock", "key", l.Key(), "for", ttl.String())
+
 	return &RedisLock{
 		lock: l,
+	}, nil
+}
+
+
+// ClaimWithBackOff claims a a lock for the given key and retries it 3 times
+// with a 100 ms interval between. This seems a sensible default for most use
+// cases in the app.
+func (rm *RedisMutex) MultiClaimWithBackOff(keys []string, ttl time.Duration) (DistributedMutex, error) {
+	locks := make([]DistributedMutex, len(keys))
+	for i, k := range keys {
+		l, err := rm.ClaimWithBackOff(k, ttl)
+
+		if err != nil {
+			return nil, err
+		}
+
+		locks[i] = l
+	}
+
+	return &RedisMultiLock{
+		locks: locks,
 	}, nil
 }
 

@@ -18,6 +18,11 @@ db:
     uri: mongodb://user:pass@mongo:27017
     database: "organisations"
 
+redis:
+  host: "redis:6379"
+  password: ""
+  db: 0
+  connection_retries: 3
 
 municipalities:
   sync:

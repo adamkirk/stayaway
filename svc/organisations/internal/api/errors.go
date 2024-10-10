@@ -26,6 +26,18 @@ func (err ErrNotFound) HttpStatusCode() int {
 	return 404;
 }
 
+type ErrConflict struct {
+	Message string
+}
+
+func (err ErrConflict) Error() string {
+	return fmt.Sprintf("resource conflict: %s", err.Message)
+}
+
+func (err ErrConflict) HttpStatusCode() int {
+	return 409;
+}
+
 type ErrBadRequest struct {
 	Message string
 	DebugMessage string

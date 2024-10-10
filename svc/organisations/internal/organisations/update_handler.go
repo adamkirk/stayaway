@@ -1,7 +1,12 @@
 package organisations
 
 import (
+	"fmt"
+	"log/slog"
+	"time"
+
 	"github.com/adamkirk-stayaway/organisations/internal/model"
+	"github.com/adamkirk-stayaway/organisations/internal/mutex"
 	"github.com/adamkirk-stayaway/organisations/internal/validation"
 )
 
@@ -21,6 +26,7 @@ type UpdateCommand struct {
 type UpdateHandler struct {
 	repo UpdateHandlerRepo
 	validator Validator
+	mutex DistributedMutex
 }
 
 func (h *UpdateHandler) Handle(cmd UpdateCommand) (*model.Organisation, error) {
@@ -41,6 +47,8 @@ func (h *UpdateHandler) Handle(cmd UpdateCommand) (*model.Organisation, error) {
 	if cmd.Name != nil {
 		org.Name = *cmd.Name
 	}
+
+	slugMutexKey := slugMutexKey(*cmd.Slug)
 	
 	if cmd.Slug != nil {
 		orgBySlug, err := h.repo.BySlug(*cmd.Slug)
@@ -61,16 +69,57 @@ func (h *UpdateHandler) Handle(cmd UpdateCommand) (*model.Organisation, error) {
 				return nil, err
 			}
 		}
+		
+		// claim a mutex so no one else can create/edit another resource to use 
+		// this slug.
+		l, err := h.mutex.ClaimWithBackOff(slugMutexKey, 300 * time.Millisecond)
+
+		if err != nil {
+			if _, ok:= err.(mutex.ErrLockNotClaimed); ok {
+				return nil, model.ErrConflict{
+					Message: "slug is being used by another resource",
+				}
+			}
+	
+			return nil, err
+		}
+
+		defer func() {
+			if err := l.Release(); err != nil {
+				slog.Error("failed to release lock", "error", err, "key", slugMutexKey)
+			}
+		}()
 
 		org.Slug = *cmd.Slug
 	}
 
+	editLockKey := fmt.Sprintf("organisation_edit:%s", org.ID)
+
+	l, err := h.mutex.ClaimWithBackOff(editLockKey, 300 * time.Millisecond)
+	
+	if err != nil {
+		if _, ok:= err.(mutex.ErrLockNotClaimed); ok {
+			return nil, model.ErrConflict{
+				Message: "organisation is already being edited elsewhere",
+			}
+		}
+
+		return nil, err
+	}
+
+	defer func() {
+		if err := l.Release(); err != nil {
+			slog.Error("failed to release lock", "error", err, "key", editLockKey)
+		}
+	}()
+
 	return h.repo.Save(org);
 }
 
-func NewUpdateHandler(repo UpdateHandlerRepo, validator Validator) *UpdateHandler {
+func NewUpdateHandler(repo UpdateHandlerRepo, validator Validator, mutex DistributedMutex) *UpdateHandler {
 	return &UpdateHandler{
 		repo: repo,
 		validator: validator,
+		mutex: mutex,
 	}
 }

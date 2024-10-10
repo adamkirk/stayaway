@@ -20,6 +20,7 @@ services:
       APP_COMMAND: organisations
       AIR_DEBUG: ${ORGANISATIONS_AIR_DEBUG}
       STAYAWAY_DB_MONGODB_URI: ${STAYAWAY_MONGODB_INTERNAL_URI}
+      STAYAWAY_REDIS_PASSWORD: ${STAYAWAY_REDIS_PASS}
     working_dir: /app
     volumes:
       - "${ORGANISATIONS_DIR}/:/app"

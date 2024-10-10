@@ -11,6 +11,13 @@ func (e ErrNotFound) Error() string {
 	return fmt.Sprintf("resource of type '%s' with ID '%s' not found", e.ResourceName, e.ID)
 }
 
+type ErrConflict struct {
+	Message string
+}
+
+func (e ErrConflict) Error() string {
+	return e.Message
+}
 
 type  ErrInvalidSortBy struct {
 	Chosen string

@@ -14,6 +14,7 @@ import (
 	"github.com/adamkirk-stayaway/organisations/internal/config"
 	"github.com/adamkirk-stayaway/organisations/internal/db"
 	"github.com/adamkirk-stayaway/organisations/internal/municipalities"
+	"github.com/adamkirk-stayaway/organisations/internal/mutex"
 	"github.com/adamkirk-stayaway/organisations/internal/organisations"
 	"github.com/adamkirk-stayaway/organisations/internal/repository"
 	"github.com/adamkirk-stayaway/organisations/internal/validation"
@@ -107,6 +108,7 @@ func sharedOpts() []fx.Option {
 				fx.As(new(db.MongoConfig)),
 				fx.As(new(db.MongoDbMigratorConfig)),
 				fx.As(new(municipalities.SyncHandlerConfig)),
+				fx.As(new(db.RedisConnectorConfig)),
 			),
 		),
 		fx.Provide(
@@ -228,6 +230,18 @@ func sharedOpts() []fx.Option {
 			fx.Annotate(
 				newFs,
 				fx.As(new(afero.Fs)),
+			),
+		),
+		fx.Provide(
+			fx.Annotate(
+				db.NewRedisConnector,
+				fx.As(new(mutex.RedisConnector)),
+			),
+		),
+		fx.Provide(
+			fx.Annotate(
+				mutex.NewRedisMutex,
+				fx.As(new(organisations.DistributedMutex)),
 			),
 		),
 		fx.Provide(api.NewValidationMapper),

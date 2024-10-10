@@ -55,6 +55,13 @@ type ConfigDb struct {
 	MongoDb ConfigDbMongoDb
 }
 
+type ConfigRedis struct {
+	Host string
+	Password *string
+	Db int
+	ConnectionRetries int `mapstructure:"connection_retries"`
+}
+
 type ConfigMunicipalitiesSync struct {
 	MaxProcesses int `mapstructure:"max_processes"`
 	BatchSize int `mapstructure:"batch_size"`
@@ -69,6 +76,7 @@ type Config struct {
 	Logging ConfigLogging
 	Api ConfigApi
 	Db ConfigDb
+	Redis ConfigRedis
 	Municipalities ConfigMunicipalities
 }
 
@@ -128,6 +136,21 @@ func (c *Config) MunicipalitiesSyncCountries() []string {
 	return c.Municipalities.Sync.Countries
 }
 
+func (c *Config) RedisHost() string {
+	return c.Redis.Host
+}
+
+func (c *Config) RedisPassword() *string {
+	return c.Redis.Password
+}
+
+func (c *Config) RedisDb() int {
+	return c.Redis.Db
+}
+
+func (c *Config) RedisConnectionRetries() int {
+	return c.Redis.ConnectionRetries
+}
 
 func NewDefault() *Config{
 	return &Config{
@@ -153,6 +176,12 @@ func NewDefault() *Config{
 				ConnectionRetries: 3,
 				MigrationsDatabase: "migrations",
 			},
+		},
+		Redis: ConfigRedis{
+			Host: "",
+			Password: nil,
+			Db: 0,
+			ConnectionRetries: 3,
 		},
 		Municipalities: ConfigMunicipalities{
 			Sync: ConfigMunicipalitiesSync{

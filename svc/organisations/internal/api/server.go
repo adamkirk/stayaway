@@ -138,6 +138,10 @@ func translateErrToHttpErr(err error) HttpError {
 			return ErrNotFound{
 				ResourceName: t.ResourceName,
 			}
+		case model.ErrConflict:
+			return ErrConflict{
+				Message: t.Message,
+			}
 	}
 }
 

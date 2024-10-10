@@ -3,7 +3,7 @@ package municipalities
 import (
 	"sync"
 
-	"github.com/adamkirk-stayaway/organisations/pkg/model"
+	"github.com/adamkirk-stayaway/organisations/internal/model"
 	"github.com/gocarina/gocsv"
 	"github.com/spf13/afero"
 )

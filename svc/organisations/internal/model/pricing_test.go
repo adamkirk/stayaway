@@ -3,7 +3,7 @@ package model_test
 import (
 	"testing"
 
-	"github.com/adamkirk-stayaway/organisations/pkg/model"
+	"github.com/adamkirk-stayaway/organisations/internal/model"
 	"github.com/stretchr/testify/assert"
 )
 

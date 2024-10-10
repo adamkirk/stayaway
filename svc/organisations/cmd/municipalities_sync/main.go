@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/adamkirk-stayaway/organisations/pkg/model"
-	"github.com/adamkirk-stayaway/organisations/pkg/municipalities"
+	"github.com/adamkirk-stayaway/organisations/internal/model"
+	"github.com/adamkirk-stayaway/organisations/internal/municipalities"
 	"github.com/spf13/cobra"
 	"go.uber.org/fx"
 )

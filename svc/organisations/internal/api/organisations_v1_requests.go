@@ -1,8 +1,8 @@
 package api
 
 import (
-	"github.com/adamkirk-stayaway/organisations/pkg/model"
-	"github.com/adamkirk-stayaway/organisations/pkg/organisations"
+	"github.com/adamkirk-stayaway/organisations/internal/model"
+	"github.com/adamkirk-stayaway/organisations/internal/organisations"
 )
 
 

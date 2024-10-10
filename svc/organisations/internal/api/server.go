@@ -11,8 +11,8 @@ import (
 	"os"
 	"reflect"
 
-	"github.com/adamkirk-stayaway/organisations/pkg/model"
-	"github.com/adamkirk-stayaway/organisations/pkg/validation"
+	"github.com/adamkirk-stayaway/organisations/internal/model"
+	"github.com/adamkirk-stayaway/organisations/internal/validation"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 

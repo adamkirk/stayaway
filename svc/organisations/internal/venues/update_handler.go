@@ -1,8 +1,8 @@
 package venues
 
 import (
-	"github.com/adamkirk-stayaway/organisations/pkg/model"
-	"github.com/adamkirk-stayaway/organisations/pkg/validation"
+	"github.com/adamkirk-stayaway/organisations/internal/model"
+	"github.com/adamkirk-stayaway/organisations/internal/validation"
 )
 
 type UpdateHandlerRepo interface {

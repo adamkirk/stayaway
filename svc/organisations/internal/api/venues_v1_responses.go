@@ -1,6 +1,6 @@
 package api
 
-import "github.com/adamkirk-stayaway/organisations/pkg/model"
+import "github.com/adamkirk-stayaway/organisations/internal/model"
 
 type V1VenueAddress struct {
 	// Line 1 of the address. Typically number/name and street/road.

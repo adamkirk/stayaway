@@ -1,7 +1,7 @@
 package venues
 
 import (
-	"github.com/adamkirk-stayaway/organisations/pkg/model"
+	"github.com/adamkirk-stayaway/organisations/internal/model"
 )
 
 type GetHandlerRepo interface {

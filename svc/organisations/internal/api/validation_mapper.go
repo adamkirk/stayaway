@@ -8,7 +8,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/adamkirk-stayaway/organisations/pkg/validation"
+	"github.com/adamkirk-stayaway/organisations/internal/validation"
 )
 
 type ValidationMapper struct {}

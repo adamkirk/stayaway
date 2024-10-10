@@ -1,9 +1,9 @@
 package api
 
 import (
-	"github.com/adamkirk-stayaway/organisations/pkg/model"
-	"github.com/adamkirk-stayaway/organisations/pkg/validation"
-	"github.com/adamkirk-stayaway/organisations/pkg/venues"
+	"github.com/adamkirk-stayaway/organisations/internal/model"
+	"github.com/adamkirk-stayaway/organisations/internal/validation"
+	"github.com/adamkirk-stayaway/organisations/internal/venues"
 	"github.com/labstack/echo/v4"
 )
 

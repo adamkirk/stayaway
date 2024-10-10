@@ -1,6 +1,6 @@
 package organisations
 
-import "github.com/adamkirk-stayaway/organisations/pkg/model"
+import "github.com/adamkirk-stayaway/organisations/internal/model"
 
 
 type GetHandlerRepo interface {

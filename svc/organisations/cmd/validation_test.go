@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/adamkirk-stayaway/organisations/internal/api"
-	"github.com/adamkirk-stayaway/organisations/pkg/validation"
+	"github.com/adamkirk-stayaway/organisations/internal/validation"
 	"github.com/stretchr/testify/assert"
 )
 

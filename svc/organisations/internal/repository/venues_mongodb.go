@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"math"
 
+	"github.com/adamkirk-stayaway/organisations/internal/model"
 	"github.com/adamkirk-stayaway/organisations/internal/repository/mongodb"
-	"github.com/adamkirk-stayaway/organisations/pkg/model"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"

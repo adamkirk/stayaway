@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"github.com/adamkirk-stayaway/organisations/pkg/model"
+	"github.com/adamkirk-stayaway/organisations/internal/model"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 

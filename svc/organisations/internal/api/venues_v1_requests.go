@@ -1,9 +1,9 @@
 package api
 
 import (
-	"github.com/adamkirk-stayaway/organisations/pkg/model"
-	"github.com/adamkirk-stayaway/organisations/pkg/util"
-	"github.com/adamkirk-stayaway/organisations/pkg/venues"
+	"github.com/adamkirk-stayaway/organisations/internal/model"
+	"github.com/adamkirk-stayaway/organisations/internal/util"
+	"github.com/adamkirk-stayaway/organisations/internal/venues"
 )
 
 type V1ListVenuesRequest struct {

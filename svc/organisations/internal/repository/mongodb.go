@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"github.com/adamkirk-stayaway/organisations/internal/model"
+	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -12,14 +12,14 @@ type MongoDbConnector interface {
 	GetOrganisationsDb() (*mongo.Database, error)
 }
 
-func getSortDirection(dir model.SortDirection) (int, error) {
+func getSortDirection(dir common.SortDirection) (int, error) {
 	switch dir {
-	case model.SortAsc:
+	case common.SortAsc:
 		return 1, nil
-	case model.SortDesc:
+	case common.SortDesc:
 		return -1, nil
 	default:
-		return 0, model.ErrInvalidSortBy{
+		return 0, common.ErrInvalidSortBy{
 			Chosen: string(dir),
 		}
 	}

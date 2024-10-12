@@ -1,6 +1,6 @@
 package api
 
-import "github.com/adamkirk-stayaway/organisations/internal/model"
+import "github.com/adamkirk-stayaway/organisations/internal/domain/venues"
 
 type V1VenueAddress struct {
 	// Line 1 of the address. Typically number/name and street/road.
@@ -43,7 +43,7 @@ type V1Venue struct {
 	Address V1VenueAddress `json:"address"`
 } // @name	V1.Response[Model].Venue
 
-func V1VenueFromModel(v *model.Venue) V1Venue {
+func V1VenueFromModel(v *venues.Venue) V1Venue {
 	return V1Venue{
 		ID: v.ID,
 		Name: v.Name,
@@ -63,7 +63,7 @@ func V1VenueFromModel(v *model.Venue) V1Venue {
 
 type V1Venues []V1Venue  // @name	V1.Response[Model].Venues
 
-func V1VenuesFromModels(venues model.Venues) V1Venues {
+func V1VenuesFromModels(venues venues.Venues) V1Venues {
 	v1Orgs := make(V1Venues, len(venues))
 
 	for i, v := range(venues) {

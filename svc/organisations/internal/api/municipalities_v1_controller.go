@@ -1,15 +1,15 @@
 package api
 
 import (
-	"github.com/adamkirk-stayaway/organisations/internal/model"
-	"github.com/adamkirk-stayaway/organisations/internal/municipalities"
+	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
+	"github.com/adamkirk-stayaway/organisations/internal/domain/municipalities"
 	"github.com/adamkirk-stayaway/organisations/internal/validation"
 	"github.com/labstack/echo/v4"
 )
 
 
 type MunicipalitiesListHandler interface {
-	Handle(cmd municipalities.ListCommand) (model.Municipalities, model.PaginationResult, error)
+	Handle(cmd municipalities.ListCommand) (municipalities.Municipalities, common.PaginationResult, error)
 }
 
 type MunicipalitiesV1ControllerConfig interface {}

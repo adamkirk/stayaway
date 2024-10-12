@@ -1,8 +1,8 @@
 package api
 
 import (
-	"github.com/adamkirk-stayaway/organisations/internal/model"
-	"github.com/adamkirk-stayaway/organisations/internal/municipalities"
+	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
+	"github.com/adamkirk-stayaway/organisations/internal/domain/municipalities"
 )
 
 type V1ListMunicipalitiesRequest struct {
@@ -32,11 +32,11 @@ func (req V1ListMunicipalitiesRequest) ToCommand() municipalities.ListCommand {
 	cmd := municipalities.NewListCommand()
 
 	if req.OrderDirection != nil {
-		cmd.OrderDirection = model.SortDirection(*req.OrderDirection)
+		cmd.OrderDirection = common.SortDirection(*req.OrderDirection)
 	}
 
 	if req.OrderBy != nil {
-		cmd.OrderBy = model.MunicipalitySortBy(*req.OrderBy)
+		cmd.OrderBy = municipalities.SortBy(*req.OrderBy)
 	}
 
 	if req.Page != nil {

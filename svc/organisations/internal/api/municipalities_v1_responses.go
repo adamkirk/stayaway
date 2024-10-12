@@ -1,6 +1,6 @@
 package api
 
-import "github.com/adamkirk-stayaway/organisations/internal/model"
+import "github.com/adamkirk-stayaway/organisations/internal/domain/municipalities"
 
 type V1Municipality struct {
 	// The ID of the municipality.
@@ -25,7 +25,7 @@ type V1Municipality struct {
 	Iso3 string `json:"iso3"`
 } // @name	V1.Response[Model].Municipality
 
-func V1MunicipalityFromModel(v model.Municipality) V1Municipality {
+func V1MunicipalityFromModel(v municipalities.Municipality) V1Municipality {
 	return V1Municipality{
 		ID: v.ID,
 		Name: v.Name,
@@ -39,7 +39,7 @@ func V1MunicipalityFromModel(v model.Municipality) V1Municipality {
 
 type V1Municipalities []V1Municipality // @name	V1.Response[Model].Municipalities
 
-func V1MunicipalitiesFromModels(venues model.Municipalities) V1Municipalities {
+func V1MunicipalitiesFromModels(venues municipalities.Municipalities) V1Municipalities {
 	v1Orgs := make(V1Municipalities, len(venues))
 
 	for i, v := range(venues) {

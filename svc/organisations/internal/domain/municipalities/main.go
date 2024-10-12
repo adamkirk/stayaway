@@ -1,22 +1,27 @@
-package model
+package municipalities
 
+import "github.com/adamkirk-stayaway/organisations/internal/domain/common"
 
-type MunicipalitySortBy string
+type Validator interface {
+	Validate(any) error
+}
+
+type SortBy string
 
 const (
-	MunicipalitySortByName MunicipalitySortBy = "name"
+	SortByName SortBy = "name"
 )
 
-type MunicipalityType string
+type Type string
 
-type MunicipalitySearchFilter struct {
+type SearchFilter struct {
 	Country []string
 	NamePrefix *string
 }
 
-type MunicipalityPaginationFilter struct {
-	OrderBy MunicipalitySortBy
-	OrderDir SortDirection
+type PaginationFilter struct {
+	OrderBy SortBy
+	OrderDir common.SortDirection
 	Page int
 	PerPage int
 }

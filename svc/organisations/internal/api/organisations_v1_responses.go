@@ -1,6 +1,6 @@
 package api
 
-import "github.com/adamkirk-stayaway/organisations/internal/model"
+import "github.com/adamkirk-stayaway/organisations/internal/domain/organisations"
 
 type V1Organisation struct {
 	// ID of the organisation.
@@ -13,7 +13,7 @@ type V1Organisation struct {
 	Slug string `json:"slug"`
 } // @name	V1.Response[Model].Organisation
 
-func V1OrganisationFromModel(org *model.Organisation) V1Organisation {
+func V1OrganisationFromModel(org *organisations.Organisation) V1Organisation {
 	return V1Organisation{
 		ID: org.ID,
 		Name: org.Name,
@@ -23,7 +23,7 @@ func V1OrganisationFromModel(org *model.Organisation) V1Organisation {
 
 type V1Organisations []V1Organisation  // @name	V1.Response[Model].Organisations
 
-func V1OrganisationsFromModels(orgs model.Organisations) V1Organisations {
+func V1OrganisationsFromModels(orgs organisations.Organisations) V1Organisations {
 	v1Orgs := make(V1Organisations, len(orgs))
 
 	for i, org := range(orgs) {

@@ -19,3 +19,19 @@ type DistributedMutex interface {
 func slugMutexKey(slug string) string {
 	return fmt.Sprintf("organisation_slug:%s", slug)
 }
+
+type SortBy string
+
+const (
+	SortBySlug SortBy = "slug"
+	SortByName SortBy = "name"
+)
+
+type Organisation struct {
+	ID string `json:"id" bson:"_id,omitempty"`
+	Name string `json:"name" bson:"name"`
+	Slug string `json:"slug" bson:"slug"`
+}
+
+type Organisations []*Organisation
+

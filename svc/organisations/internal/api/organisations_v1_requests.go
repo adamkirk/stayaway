@@ -1,8 +1,8 @@
 package api
 
 import (
-	"github.com/adamkirk-stayaway/organisations/internal/model"
-	"github.com/adamkirk-stayaway/organisations/internal/organisations"
+	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
+	"github.com/adamkirk-stayaway/organisations/internal/domain/organisations"
 )
 
 
@@ -25,11 +25,11 @@ func (req V1ListOrganisationsRequest) ToCommand() organisations.ListCommand {
 	cmd := organisations.NewListCommand()
 
 	if req.OrderDirection != nil {
-		cmd.OrderDirection = model.SortDirection(*req.OrderDirection)
+		cmd.OrderDirection = common.SortDirection(*req.OrderDirection)
 	}
 
 	if req.OrderBy != nil {
-		cmd.OrderBy = model.OrganisationSortBy(*req.OrderBy)
+		cmd.OrderBy = organisations.SortBy(*req.OrderBy)
 	}
 
 	if req.Page != nil {

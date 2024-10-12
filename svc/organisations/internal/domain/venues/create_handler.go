@@ -1,13 +1,13 @@
 package venues
 
 import (
-	"github.com/adamkirk-stayaway/organisations/internal/model"
+	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
 	"github.com/adamkirk-stayaway/organisations/internal/validation"
 )
 
 type CreateHandlerRepo interface {
-	Save(org *model.Venue) (*model.Venue, error)
-	BySlugAndOrganisation(slug string, orgId string) (*model.Venue, error)
+	Save(org *Venue) (*Venue, error)
+	BySlugAndOrganisation(slug string, orgId string) (*Venue, error)
 }
 
 type CreateCommand struct {
@@ -28,7 +28,7 @@ type CreateHandler struct {
 	repo CreateHandlerRepo
 }
 
-func (h *CreateHandler) Handle(cmd CreateCommand) (*model.Venue, error) {
+func (h *CreateHandler) Handle(cmd CreateCommand) (*Venue, error) {
 	err := h.validator.Validate(cmd)
 
 	if err != nil {
@@ -49,22 +49,22 @@ func (h *CreateHandler) Handle(cmd CreateCommand) (*model.Venue, error) {
 	}
 
 	if err != nil {
-		if _, ok := err.(model.ErrNotFound); !ok {
+		if _, ok := err.(common.ErrNotFound); !ok {
 			return nil, err
 		}
 	}
 	
-	v := &model.Venue{
+	v := &Venue{
 		OrganisationID: *cmd.OrganisationID,
 		Name: *cmd.Name,
 		Slug: *cmd.Slug,
-		Type: model.VenueType(*cmd.Type),
-		Address: &model.VenueAddress{
+		Type: Type(*cmd.Type),
+		Address: &Address{
 			Line1: *cmd.AddressLine1,
 			Line2: cmd.AddressLine2,
 			Municipality: *cmd.Municipality,
 			PostCode: *cmd.PostCode,
-			Coordinates: &model.VenueCoordinates{
+			Coordinates: &Coordinates{
 				Lat: *cmd.Lat,
 				Long: *cmd.Long,
 			},

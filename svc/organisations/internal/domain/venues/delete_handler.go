@@ -1,12 +1,8 @@
 package venues
 
-import (
-	"github.com/adamkirk-stayaway/organisations/internal/model"
-)
-
 type DeleteHandlerRepo interface {
-	Get(id string, orgId string) (*model.Venue, error)
-	Delete(v *model.Venue) error
+	Get(id string, orgId string) (*Venue, error)
+	Delete(v *Venue) error
 }
 
 type DeleteCommand struct {

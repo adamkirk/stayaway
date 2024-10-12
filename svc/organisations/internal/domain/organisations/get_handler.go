@@ -1,10 +1,8 @@
 package organisations
 
-import "github.com/adamkirk-stayaway/organisations/internal/model"
-
 
 type GetHandlerRepo interface {
-	Get(id string) (*model.Organisation, error)
+	Get(id string) (*Organisation, error)
 }
 
 type GetCommand struct {
@@ -15,7 +13,7 @@ type GetHandler struct {
 	repo GetHandlerRepo
 }
 
-func (h *GetHandler) Handle(cmd GetCommand) (*model.Organisation, error) {
+func (h *GetHandler) Handle(cmd GetCommand) (*Organisation, error) {
 	return h.repo.Get(cmd.ID)
 }
 

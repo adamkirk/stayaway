@@ -6,7 +6,8 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/adamkirk-stayaway/organisations/internal/model"
+	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
+	"github.com/adamkirk-stayaway/organisations/internal/domain/organisations"
 	"github.com/adamkirk-stayaway/organisations/internal/repository/mongodb"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -30,11 +31,11 @@ func (r *MongoDbOrganisations) getCollection() (*mongo.Collection, error) {
 	return coll, nil
 }
 
-func (r *MongoDbOrganisations) Paginate(orderBy model.OrganisationSortBy, orderDir model.SortDirection, page int, perPage int) (model.Organisations, model.PaginationResult, error) {
+func (r *MongoDbOrganisations) Paginate(orderBy organisations.SortBy, orderDir common.SortDirection, page int, perPage int) (organisations.Organisations, common.PaginationResult, error) {
 	coll, err := r.getCollection()
 
 	if err != nil {
-		return nil, model.PaginationResult{}, err
+		return nil, common.PaginationResult{}, err
 	}
 
 	// Consider estimated count, prefer it to be accurate though and once we use 
@@ -46,14 +47,14 @@ func (r *MongoDbOrganisations) Paginate(orderBy model.OrganisationSortBy, orderD
 
 	cursor, err := coll.Find(context.TODO(), bson.D{}, &options.FindOptions{Limit: &mongoLimit, Skip: &mongoSkip})
 
-	orgs := &model.Organisations{}
+	orgs := &organisations.Organisations{}
 
 	if err := cursor.All(context.TODO(), orgs); err != nil {
-		return nil, model.PaginationResult{}, err
+		return nil, common.PaginationResult{}, err
 	}
 
 	totalPages := int(math.Ceil(float64(total)/float64(perPage)))
-	return *orgs, model.PaginationResult{
+	return *orgs, common.PaginationResult{
 		Page: page,
 		PerPage: perPage,
 		Total: int(total),
@@ -61,7 +62,7 @@ func (r *MongoDbOrganisations) Paginate(orderBy model.OrganisationSortBy, orderD
 	}, nil
 }
 
-func (r *MongoDbOrganisations) Get(id string) (*model.Organisation, error) {
+func (r *MongoDbOrganisations) Get(id string) (*organisations.Organisation, error) {
 	coll, err := r.getCollection()
 
 	if err != nil {
@@ -74,12 +75,12 @@ func (r *MongoDbOrganisations) Get(id string) (*model.Organisation, error) {
 		return nil, err
 	}
 
-	org := &model.Organisation{}
+	org := &organisations.Organisation{}
 
 	res := coll.FindOne(context.TODO(), bson.D{{"_id", objID}})
 
 	if res.Err() != nil && res.Err() == mongo.ErrNoDocuments {
-		return nil, model.ErrNotFound{
+		return nil, common.ErrNotFound{
 			ResourceName: "organisation",
 			ID: id,
 		}
@@ -90,19 +91,19 @@ func (r *MongoDbOrganisations) Get(id string) (*model.Organisation, error) {
 	return org, err
 }
 
-func (r *MongoDbOrganisations) BySlug(slug string) (*model.Organisation, error) {
+func (r *MongoDbOrganisations) BySlug(slug string) (*organisations.Organisation, error) {
 	coll, err := r.getCollection()
 
 	if err != nil {
 		return nil, err
 	}
 
-	org := &model.Organisation{}
+	org := &organisations.Organisation{}
 
 	res := coll.FindOne(context.TODO(), bson.D{{"slug", slug}})
 
 	if res.Err() != nil && res.Err() == mongo.ErrNoDocuments {
-		return nil, model.ErrNotFound{
+		return nil, common.ErrNotFound{
 			ResourceName: "organisation",
 			ID: fmt.Sprintf("slug:%s", slug),
 		}
@@ -113,7 +114,7 @@ func (r *MongoDbOrganisations) BySlug(slug string) (*model.Organisation, error) 
 	return org, err
 }
 
-func (r *MongoDbOrganisations) Delete(org *model.Organisation) (error) {
+func (r *MongoDbOrganisations) Delete(org *organisations.Organisation) (error) {
 	coll, err := r.getCollection()
 
 	if err != nil {
@@ -131,7 +132,7 @@ func (r *MongoDbOrganisations) Delete(org *model.Organisation) (error) {
 	return err
 }
 
-func (r *MongoDbOrganisations) doInsert(org *model.Organisation) (*model.Organisation, error) {
+func (r *MongoDbOrganisations) doInsert(org *organisations.Organisation) (*organisations.Organisation, error) {
 	coll, err := r.getCollection()
 
 	if err != nil {
@@ -153,7 +154,7 @@ func (r *MongoDbOrganisations) doInsert(org *model.Organisation) (*model.Organis
 	return org, nil
 }
 
-func (r *MongoDbOrganisations) doUpdate(org *model.Organisation) (*model.Organisation, error) {
+func (r *MongoDbOrganisations) doUpdate(org *organisations.Organisation) (*organisations.Organisation, error) {
 	coll, err := r.getCollection()
 
 	if err != nil {
@@ -184,7 +185,7 @@ func (r *MongoDbOrganisations) doUpdate(org *model.Organisation) (*model.Organis
 	return org, nil
 }
 
-func (r *MongoDbOrganisations) Save(org *model.Organisation) (*model.Organisation, error) {
+func (r *MongoDbOrganisations) Save(org *organisations.Organisation) (*organisations.Organisation, error) {
 	if org.ID == "" {
 		return r.doInsert(org)
 	}

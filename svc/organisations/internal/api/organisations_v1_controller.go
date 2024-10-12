@@ -1,22 +1,22 @@
 package api
 
 import (
-	"github.com/adamkirk-stayaway/organisations/internal/model"
-	"github.com/adamkirk-stayaway/organisations/internal/organisations"
+	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
+	"github.com/adamkirk-stayaway/organisations/internal/domain/organisations"
 	"github.com/adamkirk-stayaway/organisations/internal/validation"
 	"github.com/labstack/echo/v4"
 )
 
 type OrganisationsGetHandler interface {
-	Handle(organisations.GetCommand) (*model.Organisation, error)
+	Handle(organisations.GetCommand) (*organisations.Organisation, error)
 }
 
 type OrganisationsListHandler interface {
-	Handle(cmd organisations.ListCommand) (model.Organisations, model.PaginationResult, error)
+	Handle(cmd organisations.ListCommand) (organisations.Organisations, common.PaginationResult, error)
 }
 
 type OrganisationsCreateHandler interface {
-	Handle(cmd organisations.CreateCommand) (*model.Organisation, error)
+	Handle(cmd organisations.CreateCommand) (*organisations.Organisation, error)
 }
 
 type OrganisationsDeleteHandler interface {
@@ -25,7 +25,7 @@ type OrganisationsDeleteHandler interface {
 
 
 type OrganisationsUpdateHandler interface {
-	Handle(cmd organisations.UpdateCommand) (*model.Organisation, error)
+	Handle(cmd organisations.UpdateCommand) (*organisations.Organisation, error)
 }
 
 type OrganisationsV1ControllerConfig interface {}

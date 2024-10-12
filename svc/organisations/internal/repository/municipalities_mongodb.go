@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/adamkirk-stayaway/organisations/internal/model"
+	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
+	"github.com/adamkirk-stayaway/organisations/internal/domain/municipalities"
 	"github.com/adamkirk-stayaway/organisations/internal/repository/mongodb"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -29,18 +31,18 @@ func (r *MongoDbMunicipalities) getCollection() (*mongo.Collection, error) {
 }
 
 
-func (r *MongoDbMunicipalities) getSortColumn(opt model.MunicipalitySortBy) (string, error) {
+func (r *MongoDbMunicipalities) getSortColumn(opt municipalities.SortBy) (string, error) {
 	switch opt {
-	case model.MunicipalitySortByName:
+	case municipalities.SortByName:
 		return "name", nil
 	default:
-		return "", model.ErrInvalidSortBy{
+		return "", common.ErrInvalidSortBy{
 			Chosen: string(opt),
 		}
 	}
 }
 
-func (r *MongoDbMunicipalities) filterToBsonD(search model.MunicipalitySearchFilter) bson.D {
+func (r *MongoDbMunicipalities) filterToBsonD(search municipalities.SearchFilter) bson.D {
 	filters := []bson.D{}
 
 	if len(search.Country) > 0 {
@@ -63,23 +65,23 @@ func (r *MongoDbMunicipalities) filterToBsonD(search model.MunicipalitySearchFil
 }
 
 
-func (r *MongoDbMunicipalities) Paginate(p model.MunicipalityPaginationFilter, search model.MunicipalitySearchFilter) (model.Municipalities, model.PaginationResult, error) {
+func (r *MongoDbMunicipalities) Paginate(p municipalities.PaginationFilter, search municipalities.SearchFilter) (municipalities.Municipalities, common.PaginationResult, error) {
 	coll, err := r.getCollection()
 
 	if err != nil {
-		return nil, model.PaginationResult{}, err
+		return nil, common.PaginationResult{}, err
 	}
 
 	sortColumn, err := r.getSortColumn(p.OrderBy)
 
 	if err != nil {
-		return nil, model.PaginationResult{}, err
+		return nil, common.PaginationResult{}, err
 	}
 
 	sortDir, err := getSortDirection(p.OrderDir)
 
 	if err != nil {
-		return nil, model.PaginationResult{}, err
+		return nil, common.PaginationResult{}, err
 	}
 
 	opts := options.Find().
@@ -95,20 +97,20 @@ func (r *MongoDbMunicipalities) Paginate(p model.MunicipalityPaginationFilter, s
 	total, err := coll.CountDocuments(context.TODO(), filter)
 
 	if err != nil {
-		return nil, model.PaginationResult{}, err
+		return nil, common.PaginationResult{}, err
 	}
 	
 	cursor, err := coll.Find(context.TODO(), filter, opts)
 
-	municipalities := &model.Municipalities{}
+	municipalities := &municipalities.Municipalities{}
 
 	if err := cursor.All(context.TODO(), municipalities); err != nil {
-		return nil, model.PaginationResult{}, err
+		return nil, common.PaginationResult{}, err
 	}
 
 	totalPages := int(math.Ceil(float64(total)/float64(p.PerPage)))
 
-	return *municipalities, model.PaginationResult{
+	return *municipalities, common.PaginationResult{
 		Page: p.Page,
 		PerPage: p.PerPage,
 		Total: int(total),
@@ -116,7 +118,7 @@ func (r *MongoDbMunicipalities) Paginate(p model.MunicipalityPaginationFilter, s
 	}, nil
 }
 
-// func (r *MongoDbMunicipalities) Get(id string, orgId string) (*model.Venue, error) {
+// func (r *MongoDbMunicipalities) Get(id string, orgId string) (*municipalities.Venue, error) {
 // 	coll, err := r.getCollection()
 
 // 	if err != nil {
@@ -129,7 +131,7 @@ func (r *MongoDbMunicipalities) Paginate(p model.MunicipalityPaginationFilter, s
 // 		return nil, err
 // 	}
 
-// 	org := &model.Venue{}
+// 	org := &municipalities.Venue{}
 
 // 	filter := bson.D{{
 // 		"$and", bson.A{
@@ -142,7 +144,7 @@ func (r *MongoDbMunicipalities) Paginate(p model.MunicipalityPaginationFilter, s
 // 	res := coll.FindOne(context.TODO(), filter)
 
 // 	if res.Err() != nil && res.Err() == mongo.ErrNoDocuments {
-// 		return nil, model.ErrNotFound{
+// 		return nil, municipalities.ErrNotFound{
 // 			ResourceName: "venue",
 // 			ID: id,
 // 		}
@@ -153,7 +155,7 @@ func (r *MongoDbMunicipalities) Paginate(p model.MunicipalityPaginationFilter, s
 // 	return org, err
 // }
 
-// func (r *MongoDbMunicipalities) Delete(v *model.Venue) (error) {
+// func (r *MongoDbMunicipalities) Delete(v *municipalities.Venue) (error) {
 // 	coll, err := r.getCollection()
 
 // 	if err != nil {
@@ -171,12 +173,12 @@ func (r *MongoDbMunicipalities) Paginate(p model.MunicipalityPaginationFilter, s
 // 	return err
 // }
 
-func (r *MongoDbMunicipalities) UpdateBatch(batch []model.Municipality) (model.BatchUpdateResult, error) {
+func (r *MongoDbMunicipalities) UpdateBatch(batch []municipalities.Municipality) (municipalities.BatchUpdateResult, error) {
 	
 	coll, err := r.getCollection()
 	
 	if err != nil {
-		return model.BatchUpdateResult{}, err
+		return municipalities.BatchUpdateResult{}, err
 	}
 
 	models := []mongo.WriteModel{}
@@ -190,7 +192,7 @@ func (r *MongoDbMunicipalities) UpdateBatch(batch []model.Municipality) (model.B
 
 	res, err := coll.BulkWrite(context.TODO(), models, options.BulkWrite())
 
-	return model.BatchUpdateResult{
+	return municipalities.BatchUpdateResult{
 		Created: int(res.UpsertedCount),
 		Updated: int(res.ModifiedCount),
 	}, err

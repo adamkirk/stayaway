@@ -1,9 +1,9 @@
 package api
 
 import (
-	"github.com/adamkirk-stayaway/organisations/internal/model"
+	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
+	"github.com/adamkirk-stayaway/organisations/internal/domain/venues"
 	"github.com/adamkirk-stayaway/organisations/internal/util"
-	"github.com/adamkirk-stayaway/organisations/internal/venues"
 )
 
 type V1ListVenuesRequest struct {
@@ -18,11 +18,11 @@ func (req V1ListVenuesRequest) ToCommand() venues.ListCommand {
 	cmd := venues.NewListCommand()
 
 	if req.OrderDirection != nil {
-		cmd.OrderDirection = model.SortDirection(*req.OrderDirection)
+		cmd.OrderDirection = common.SortDirection(*req.OrderDirection)
 	}
 
 	if req.OrderBy != nil {
-		cmd.OrderBy = model.VenueSortBy(*req.OrderBy)
+		cmd.OrderBy = venues.SortBy(*req.OrderBy)
 	}
 
 	if req.Page != nil {

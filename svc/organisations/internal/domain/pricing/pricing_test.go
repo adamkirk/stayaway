@@ -1,9 +1,9 @@
-package model_test
+package pricing_test
 
 import (
 	"testing"
 
-	"github.com/adamkirk-stayaway/organisations/internal/model"
+	"github.com/adamkirk-stayaway/organisations/internal/domain/pricing"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -66,7 +66,7 @@ func TestTaxCalculations(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(tt *testing.T) {
-			p := model.NewPrice(test.in, test.tax)
+			p := pricing.NewPrice(test.in, test.tax)
 
 			assert.Equal(tt, test.out, p.WithTaxString())
 			assert.Equal(tt, test.outPretax, p.PreTaxString())
@@ -78,20 +78,20 @@ func TestTaxCalculations(t *testing.T) {
 func TestAddPreTax(t *testing.T) {
 	tests := []struct{
 		name string
-		subject model.Price
-		toAdd model.Price
+		subject pricing.Price
+		toAdd pricing.Price
 		expect string
 	}{
 		{
 			name: "add two prices without tax",
-			subject: model.NewPrice(10000, 20),
-			toAdd: model.NewPrice(10000, 20),
+			subject: pricing.NewPrice(10000, 20),
+			toAdd: pricing.NewPrice(10000, 20),
 			expect: "200.00",
 		},
 		{
 			name: "add two prices without tax",
-			subject: model.NewPrice(10010, 20),
-			toAdd: model.NewPrice(30, 20),
+			subject: pricing.NewPrice(10010, 20),
+			toAdd: pricing.NewPrice(30, 20),
 			expect: "100.40",
 		},
 	}
@@ -110,20 +110,20 @@ func TestAddPreTax(t *testing.T) {
 func TestAddPostTax(t *testing.T) {
 	tests := []struct{
 		name string
-		subject model.Price
-		toAdd model.Price
+		subject pricing.Price
+		toAdd pricing.Price
 		expect string
 	}{
 		{
 			name: "add two prices with tax",
-			subject: model.NewPrice(10000, 20),
-			toAdd: model.NewPrice(10000, 20),
+			subject: pricing.NewPrice(10000, 20),
+			toAdd: pricing.NewPrice(10000, 20),
 			expect: "240.00",
 		},
 		{
 			name: "add two prices with tax",
-			subject: model.NewPrice(10010, 20),
-			toAdd: model.NewPrice(30, 20),
+			subject: pricing.NewPrice(10010, 20),
+			toAdd: pricing.NewPrice(30, 20),
 			expect: "120.48",
 		},
 	}

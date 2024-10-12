@@ -5,16 +5,16 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/adamkirk-stayaway/organisations/internal/model"
+	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
 	"github.com/adamkirk-stayaway/organisations/internal/mutex"
 	"github.com/adamkirk-stayaway/organisations/internal/validation"
 )
 
 
 type UpdateHandlerRepo interface {
-	Get(id string) (*model.Organisation, error)
-	Save(org *model.Organisation) (*model.Organisation, error)
-	BySlug(slug string) (*model.Organisation, error)
+	Get(id string) (*Organisation, error)
+	Save(org *Organisation) (*Organisation, error)
+	BySlug(slug string) (*Organisation, error)
 }
 
 type UpdateCommand struct {
@@ -29,7 +29,7 @@ type UpdateHandler struct {
 	mutex DistributedMutex
 }
 
-func (h *UpdateHandler) Handle(cmd UpdateCommand) (*model.Organisation, error) {
+func (h *UpdateHandler) Handle(cmd UpdateCommand) (*Organisation, error) {
 	err := h.validator.Validate(cmd)
 
 	if err != nil {
@@ -63,7 +63,7 @@ func (h *UpdateHandler) Handle(cmd UpdateCommand) (*model.Organisation, error) {
 		}
 
 		if err != nil {
-			if _, ok := err.(model.ErrNotFound); !ok {
+			if _, ok := err.(common.ErrNotFound); !ok {
 				return nil, err
 			}
 		}
@@ -78,7 +78,7 @@ func (h *UpdateHandler) Handle(cmd UpdateCommand) (*model.Organisation, error) {
 	
 	if err != nil {
 		if _, ok:= err.(mutex.ErrLockNotClaimed); ok {
-			return nil, model.ErrConflict{
+			return nil, common.ErrConflict{
 				Message: "organisation is already being edited elsewhere",
 			}
 		}

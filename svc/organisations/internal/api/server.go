@@ -11,7 +11,7 @@ import (
 	"os"
 	"reflect"
 
-	"github.com/adamkirk-stayaway/organisations/internal/model"
+	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
 	"github.com/adamkirk-stayaway/organisations/internal/validation"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -134,11 +134,11 @@ func translateErrToHttpErr(err error) HttpError {
 	switch t := err.(type) {
 		default:
 			return nil
-		case model.ErrNotFound:
+		case common.ErrNotFound:
 			return ErrNotFound{
 				ResourceName: t.ResourceName,
 			}
-		case model.ErrConflict:
+		case common.ErrConflict:
 			return ErrConflict{
 				Message: t.Message,
 			}

@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/adamkirk-stayaway/organisations/internal/model"
-	"github.com/adamkirk-stayaway/organisations/internal/municipalities"
+	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
+	"github.com/adamkirk-stayaway/organisations/internal/domain/municipalities"
 	"github.com/spf13/cobra"
 	"go.uber.org/fx"
 )
@@ -62,7 +62,7 @@ func (act *Action) run() {
 	if err != nil {
 		fmt.Printf("Error: %s\n\n", err.Error())
 
-		if errGroup, ok := err.(model.ErrGroup); ok {
+		if errGroup, ok := err.(common.ErrGroup); ok {
 			for _, err := range errGroup.All() {
 				fmt.Println(err.Error())
 			}

@@ -1,22 +1,22 @@
 package api
 
 import (
-	"github.com/adamkirk-stayaway/organisations/internal/model"
+	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
+	"github.com/adamkirk-stayaway/organisations/internal/domain/venues"
 	"github.com/adamkirk-stayaway/organisations/internal/validation"
-	"github.com/adamkirk-stayaway/organisations/internal/venues"
 	"github.com/labstack/echo/v4"
 )
 
 type VenuesGetHandler interface {
-	Handle(venues.GetCommand) (*model.Venue, error)
+	Handle(venues.GetCommand) (*venues.Venue, error)
 }
 
 type VenuesListHandler interface {
-	Handle(cmd venues.ListCommand) (model.Venues, model.PaginationResult, error)
+	Handle(cmd venues.ListCommand) (venues.Venues, common.PaginationResult, error)
 }
 
 type VenuesCreateHandler interface {
-	Handle(cmd venues.CreateCommand) (*model.Venue, error)
+	Handle(cmd venues.CreateCommand) (*venues.Venue, error)
 }
 
 type VenuesDeleteHandler interface {
@@ -25,7 +25,7 @@ type VenuesDeleteHandler interface {
 
 
 type VenuesUpdateHandler interface {
-	Handle(cmd venues.UpdateCommand) (*model.Venue, error)
+	Handle(cmd venues.UpdateCommand) (*venues.Venue, error)
 }
 
 type VenuesV1ControllerConfig interface {}

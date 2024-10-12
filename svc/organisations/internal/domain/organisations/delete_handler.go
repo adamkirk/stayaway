@@ -1,11 +1,9 @@
 package organisations
 
-import "github.com/adamkirk-stayaway/organisations/internal/model"
-
 
 type DeleteHandlerRepo interface {
-	Get(id string) (*model.Organisation, error)
-	Delete(*model.Organisation) error
+	Get(id string) (*Organisation, error)
+	Delete(*Organisation) error
 }
 
 type DeleteCommand struct {

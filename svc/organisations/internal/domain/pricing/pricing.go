@@ -1,4 +1,4 @@
-package model
+package pricing
 
 import "math/big"
 

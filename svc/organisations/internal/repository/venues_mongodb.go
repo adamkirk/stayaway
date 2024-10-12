@@ -6,7 +6,8 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/adamkirk-stayaway/organisations/internal/model"
+	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
+	"github.com/adamkirk-stayaway/organisations/internal/domain/venues"
 	"github.com/adamkirk-stayaway/organisations/internal/repository/mongodb"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -30,20 +31,20 @@ func (r *MongoDbVenues) getCollection() (*mongo.Collection, error) {
 	return coll, nil
 }
 
-func (r *MongoDbVenues) getSortColumn(sortBy model.VenueSortBy) (string, error) {
+func (r *MongoDbVenues) getSortColumn(sortBy venues.SortBy) (string, error) {
 	switch sortBy {
-	case model.VenueSortByName:
+	case venues.SortByName:
 		return "name", nil
-	case model.VenueSortBySlug:
+	case venues.SortBySlug:
 		return "slug", nil
 	default:
-		return "", model.ErrInvalidSortBy{
+		return "", common.ErrInvalidSortBy{
 			Chosen: string(sortBy),
 		}
 	}
 }
 
-func (r *MongoDbVenues) filterToBsonD(search model.VenueSearchFilter) bson.D {
+func (r *MongoDbVenues) filterToBsonD(search venues.SearchFilter) bson.D {
 	var orgFilter bson.D
 
 	if len(search.OrganisationID) > 0 {
@@ -60,11 +61,11 @@ func (r *MongoDbVenues) filterToBsonD(search model.VenueSearchFilter) bson.D {
 	}}}
 }
 
-func (r *MongoDbVenues) Paginate(p model.VenuePaginationFilter, search model.VenueSearchFilter) (model.Venues, model.PaginationResult, error) {
+func (r *MongoDbVenues) Paginate(p venues.PaginationFilter, search venues.SearchFilter) (venues.Venues, common.PaginationResult, error) {
 	coll, err := r.getCollection()
 
 	if err != nil {
-		return nil, model.PaginationResult{}, err
+		return nil, common.PaginationResult{}, err
 	}
 
 	
@@ -72,13 +73,13 @@ func (r *MongoDbVenues) Paginate(p model.VenuePaginationFilter, search model.Ven
 	sortColumn, err := r.getSortColumn(p.OrderBy)
 
 	if err != nil {
-		return nil, model.PaginationResult{}, err
+		return nil, common.PaginationResult{}, err
 	}
 
 	sortDir, err := getSortDirection(p.OrderDir)
 
 	if err != nil {
-		return nil, model.PaginationResult{}, err
+		return nil, common.PaginationResult{}, err
 	}
 
 	opts := options.Find().
@@ -94,20 +95,20 @@ func (r *MongoDbVenues) Paginate(p model.VenuePaginationFilter, search model.Ven
 	total, err := coll.CountDocuments(context.TODO(), filter)
 
 	if err != nil {
-		return nil, model.PaginationResult{}, err
+		return nil, common.PaginationResult{}, err
 	}
 	
 	cursor, err := coll.Find(context.TODO(), filter, opts)
 
-	orgs := &model.Venues{}
+	orgs := &venues.Venues{}
 
 	if err := cursor.All(context.TODO(), orgs); err != nil {
-		return nil, model.PaginationResult{}, err
+		return nil, common.PaginationResult{}, err
 	}
 
 	totalPages := int(math.Ceil(float64(total)/float64(p.PerPage)))
 
-	return *orgs, model.PaginationResult{
+	return *orgs, common.PaginationResult{
 		Page: p.Page,
 		PerPage: p.PerPage,
 		Total: int(total),
@@ -115,7 +116,7 @@ func (r *MongoDbVenues) Paginate(p model.VenuePaginationFilter, search model.Ven
 	}, nil
 }
 
-func (r *MongoDbVenues) Get(id string, orgId string) (*model.Venue, error) {
+func (r *MongoDbVenues) Get(id string, orgId string) (*venues.Venue, error) {
 	coll, err := r.getCollection()
 
 	if err != nil {
@@ -128,7 +129,7 @@ func (r *MongoDbVenues) Get(id string, orgId string) (*model.Venue, error) {
 		return nil, err
 	}
 
-	org := &model.Venue{}
+	org := &venues.Venue{}
 
 	filter := bson.D{{
 		"$and", bson.A{
@@ -141,7 +142,7 @@ func (r *MongoDbVenues) Get(id string, orgId string) (*model.Venue, error) {
 	res := coll.FindOne(context.TODO(), filter)
 
 	if res.Err() != nil && res.Err() == mongo.ErrNoDocuments {
-		return nil, model.ErrNotFound{
+		return nil, common.ErrNotFound{
 			ResourceName: "venue",
 			ID: id,
 		}
@@ -152,14 +153,14 @@ func (r *MongoDbVenues) Get(id string, orgId string) (*model.Venue, error) {
 	return org, err
 }
 
-func (r *MongoDbVenues) BySlugAndOrganisation(slug string, orgId string)(*model.Venue, error) {
+func (r *MongoDbVenues) BySlugAndOrganisation(slug string, orgId string)(*venues.Venue, error) {
 	coll, err := r.getCollection()
 
 	if err != nil {
 		return nil, err
 	}
 
-	org := &model.Venue{}
+	org := &venues.Venue{}
 
 	filter := bson.D{{
 		"$and", bson.A{
@@ -171,7 +172,7 @@ func (r *MongoDbVenues) BySlugAndOrganisation(slug string, orgId string)(*model.
 	res := coll.FindOne(context.TODO(), filter)
 
 	if res.Err() != nil && res.Err() == mongo.ErrNoDocuments {
-		return nil, model.ErrNotFound{
+		return nil, common.ErrNotFound{
 			ResourceName: "venue",
 			ID: fmt.Sprintf("slug:%s", slug),
 		}
@@ -182,7 +183,7 @@ func (r *MongoDbVenues) BySlugAndOrganisation(slug string, orgId string)(*model.
 	return org, err
 }
 
-func (r *MongoDbVenues) Delete(v *model.Venue) (error) {
+func (r *MongoDbVenues) Delete(v *venues.Venue) (error) {
 	coll, err := r.getCollection()
 
 	if err != nil {
@@ -200,7 +201,7 @@ func (r *MongoDbVenues) Delete(v *model.Venue) (error) {
 	return err
 }
 
-func (r *MongoDbVenues) doInsert(org *model.Venue) (*model.Venue, error) {
+func (r *MongoDbVenues) doInsert(org *venues.Venue) (*venues.Venue, error) {
 	coll, err := r.getCollection()
 
 	if err != nil {
@@ -222,7 +223,7 @@ func (r *MongoDbVenues) doInsert(org *model.Venue) (*model.Venue, error) {
 	return org, nil
 }
 
-func (r *MongoDbVenues) doUpdate(org *model.Venue) (*model.Venue, error) {
+func (r *MongoDbVenues) doUpdate(org *venues.Venue) (*venues.Venue, error) {
 	coll, err := r.getCollection()
 
 	if err != nil {
@@ -253,7 +254,7 @@ func (r *MongoDbVenues) doUpdate(org *model.Venue) (*model.Venue, error) {
 	return org, nil
 }
 
-func (r *MongoDbVenues) Save(org *model.Venue) (*model.Venue, error) {
+func (r *MongoDbVenues) Save(org *venues.Venue) (*venues.Venue, error) {
 	if org.ID == "" {
 		return r.doInsert(org)
 	}

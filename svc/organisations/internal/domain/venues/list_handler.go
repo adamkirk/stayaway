@@ -1,24 +1,24 @@
 package venues
 
-import "github.com/adamkirk-stayaway/organisations/internal/model"
+import "github.com/adamkirk-stayaway/organisations/internal/domain/common"
 
 
 type ListHandlerRepo interface {
-	Paginate(p model.VenuePaginationFilter, search model.VenueSearchFilter) (model.Venues, model.PaginationResult, error)
+	Paginate(p PaginationFilter, search SearchFilter) (Venues, common.PaginationResult, error)
 }
 
 type ListCommand struct {
 	OrganisationID string `validate:"required"`
-	OrderDirection model.SortDirection `validate:"required"`
-	OrderBy model.VenueSortBy `validate:"required"`
+	OrderDirection common.SortDirection `validate:"required"`
+	OrderBy SortBy `validate:"required"`
 	Page int `validate:"required,min=1"`
 	PerPage int `validate:"required"`
 }
 
 func NewListCommand() ListCommand {
 	return ListCommand{
-		OrderDirection: model.SortAsc,
-		OrderBy: model.VenueSortByName,
+		OrderDirection: common.SortAsc,
+		OrderBy: SortByName,
 		Page: 1,
 		PerPage: 50,
 	}
@@ -29,21 +29,21 @@ type ListHandler struct {
 	validator Validator
 }
 
-func (h *ListHandler) Handle(cmd ListCommand) (model.Venues, model.PaginationResult, error) {
+func (h *ListHandler) Handle(cmd ListCommand) (Venues, common.PaginationResult, error) {
 	err := h.validator.Validate(cmd)
 
 	if err != nil {
-		return nil, model.PaginationResult{}, err
+		return nil, common.PaginationResult{}, err
 	}
 
 	return h.repo.Paginate(
-		model.VenuePaginationFilter{
+		PaginationFilter{
 			OrderBy: cmd.OrderBy,
 			OrderDir: cmd.OrderDirection,
 			Page: cmd.Page,
 			PerPage: cmd.PerPage,
 		},
-		model.VenueSearchFilter{
+		SearchFilter{
 			OrganisationID: []string{cmd.OrganisationID},
 		},
 	)

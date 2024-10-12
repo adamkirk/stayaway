@@ -1,15 +1,17 @@
 package municipalities
 
-import "github.com/adamkirk-stayaway/organisations/internal/model"
+import (
+	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
+)
 
 
 type ListHandlerRepo interface {
-	Paginate(p model.MunicipalityPaginationFilter, search model.MunicipalitySearchFilter) (model.Municipalities, model.PaginationResult, error)
+	Paginate(p PaginationFilter, search SearchFilter) (Municipalities, common.PaginationResult, error)
 }
 
 type ListCommand struct {
-	OrderDirection model.SortDirection `validate:"required"`
-	OrderBy model.MunicipalitySortBy `validate:"required"`
+	OrderDirection common.SortDirection `validate:"required"`
+	OrderBy SortBy `validate:"required"`
 	Page int `validate:"required,min=1"`
 	PerPage int `validate:"required,min=1,max=100"`
 	Country []string
@@ -18,8 +20,8 @@ type ListCommand struct {
 
 func NewListCommand() ListCommand {
 	return ListCommand{
-		OrderDirection: model.SortAsc,
-		OrderBy: model.MunicipalitySortByName,
+		OrderDirection: common.SortAsc,
+		OrderBy: SortByName,
 		Page: 1,
 		PerPage: 50,
 		Country: []string{},
@@ -31,21 +33,21 @@ type ListHandler struct {
 	validator Validator
 }
 
-func (h *ListHandler) Handle(cmd ListCommand) (model.Municipalities, model.PaginationResult, error) {
+func (h *ListHandler) Handle(cmd ListCommand) (Municipalities, common.PaginationResult, error) {
 	err := h.validator.Validate(cmd)
 
 	if err != nil {
-		return nil, model.PaginationResult{}, err
+		return nil, common.PaginationResult{}, err
 	}
 
 	return h.repo.Paginate(
-		model.MunicipalityPaginationFilter{
+		PaginationFilter{
 			Page: cmd.Page,
 			PerPage: cmd.PerPage,
 			OrderBy: cmd.OrderBy,
 			OrderDir: cmd.OrderDirection,
 		},
-		model.MunicipalitySearchFilter{
+		SearchFilter{
 			Country: cmd.Country,
 			NamePrefix: cmd.NamePrefix,
 		},

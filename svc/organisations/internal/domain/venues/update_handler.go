@@ -1,14 +1,14 @@
 package venues
 
 import (
-	"github.com/adamkirk-stayaway/organisations/internal/model"
+	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
 	"github.com/adamkirk-stayaway/organisations/internal/validation"
 )
 
 type UpdateHandlerRepo interface {
-	Save(org *model.Venue) (*model.Venue, error)
-	Get(id string, orgId string) (*model.Venue, error)
-	BySlugAndOrganisation(slug string, orgId string) (*model.Venue, error)
+	Save(org *Venue) (*Venue, error)
+	Get(id string, orgId string) (*Venue, error)
+	BySlugAndOrganisation(slug string, orgId string) (*Venue, error)
 }
 
 type UpdateCommand struct {
@@ -31,7 +31,7 @@ type UpdateHandler struct {
 	repo UpdateHandlerRepo
 }
 
-func (h *UpdateHandler) Handle(cmd UpdateCommand) (*model.Venue, error) {
+func (h *UpdateHandler) Handle(cmd UpdateCommand) (*Venue, error) {
 	err := h.validator.Validate(cmd)
 
 	if err != nil {
@@ -59,7 +59,7 @@ func (h *UpdateHandler) Handle(cmd UpdateCommand) (*model.Venue, error) {
 		}
 	
 		if err != nil {
-			if _, ok := err.(model.ErrNotFound); !ok {
+			if _, ok := err.(common.ErrNotFound); !ok {
 				return nil, err
 			}
 		}
@@ -72,7 +72,7 @@ func (h *UpdateHandler) Handle(cmd UpdateCommand) (*model.Venue, error) {
 	}
 
 	if cmd.Type != nil {
-		v.Type = model.VenueType(*cmd.Slug)
+		v.Type = Type(*cmd.Slug)
 	}
 
 	if cmd.AddressLine1 != nil {

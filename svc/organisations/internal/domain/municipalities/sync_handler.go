@@ -3,7 +3,7 @@ package municipalities
 import (
 	"sync"
 
-	"github.com/adamkirk-stayaway/organisations/internal/model"
+	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
 	"github.com/gocarina/gocsv"
 	"github.com/spf13/afero"
 )
@@ -15,7 +15,7 @@ type SyncHandlerConfig interface {
 }
 
 type SyncHandlerRepo interface {
-	UpdateBatch(batch []model.Municipality) (model.BatchUpdateResult, error)
+	UpdateBatch(batch []Municipality) (BatchUpdateResult, error)
 }
 
 type SyncHandler struct {
@@ -26,7 +26,7 @@ type SyncHandler struct {
 
 type MunicipalityBatch struct {
 	Number int
-	Rows []model.Municipality
+	Rows []Municipality
 }
 
 type SyncCommand struct {
@@ -42,7 +42,7 @@ type processorFunc func (rows MunicipalityBatch, wg *sync.WaitGroup, sem process
 
 type processorSemaphore chan MunicipalityBatch
 
-func (h *SyncHandler) shouldIncludeRow(row model.Municipality) bool {
+func (h *SyncHandler) shouldIncludeRow(row Municipality) bool {
 	for _, c := range h.cfg.MunicipalitiesSyncCountries() {
 		if c == row.Country {
 			return true
@@ -62,17 +62,17 @@ func (h *SyncHandler) processBatches(path string, processor processorFunc) ([]ba
 	defer f.Close()
 
 
-	rows := []model.Municipality{}
+	rows := []Municipality{}
 
 	if err := gocsv.Unmarshal(f, &rows); err != nil {
 		return nil, err
 	}
 
 	batchSize := h.cfg.MunicipalitiesSyncBatchSize()
-	batches := [][]model.Municipality{}
+	batches := [][]Municipality{}
 	
 
-	batch := []model.Municipality{}
+	batch := []Municipality{}
 	for _, row := range rows {
 		if ! h.shouldIncludeRow(row) {
 			continue
@@ -82,7 +82,7 @@ func (h *SyncHandler) processBatches(path string, processor processorFunc) ([]ba
 
 		if len(batch) == batchSize {
 			batches = append(batches, batch)
-			batch = []model.Municipality{}
+			batch = []Municipality{}
 		}
 	}
 
@@ -132,11 +132,11 @@ func (h *SyncHandler) syncBatch(batch MunicipalityBatch, wg *sync.WaitGroup, sem
 	resChan <- res
 }
 
-func (h *SyncHandler) Handle(cmd SyncCommand) (model.SyncResult, error) {
+func (h *SyncHandler) Handle(cmd SyncCommand) (SyncResult, error) {
 	res, err := h.processBatches(cmd.SourceCsvPath, h.syncBatch)
 
 	if err != nil {
-		return model.SyncResult{}, err
+		return SyncResult{}, err
 	}
 
 	totalProcessed := 0
@@ -150,12 +150,12 @@ func (h *SyncHandler) Handle(cmd SyncCommand) (model.SyncResult, error) {
 	}
 
 	if len(errs) > 0 {
-		return model.SyncResult{}, model.ErrGroup{
+		return SyncResult{}, common.ErrGroup{
 			Errors: errs,
 		}
 	}
 
-	return model.SyncResult{
+	return SyncResult{
 		Processed: totalProcessed,
 		Path: cmd.SourceCsvPath,
 	}, nil

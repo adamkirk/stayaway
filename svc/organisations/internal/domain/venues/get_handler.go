@@ -1,11 +1,7 @@
 package venues
 
-import (
-	"github.com/adamkirk-stayaway/organisations/internal/model"
-)
-
 type GetHandlerRepo interface {
-	Get(id string, orgId string) (*model.Venue, error)
+	Get(id string, orgId string) (*Venue, error)
 }
 
 type GetCommand struct {
@@ -18,7 +14,7 @@ type GetHandler struct {
 	repo GetHandlerRepo
 }
 
-func (h *GetHandler) Handle(cmd GetCommand) (*model.Venue, error) {
+func (h *GetHandler) Handle(cmd GetCommand) (*Venue, error) {
 	err := h.validator.Validate(cmd)
 
 	if err != nil {

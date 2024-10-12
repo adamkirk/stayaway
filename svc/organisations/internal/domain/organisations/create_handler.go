@@ -5,14 +5,14 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/adamkirk-stayaway/organisations/internal/model"
+	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
 	"github.com/adamkirk-stayaway/organisations/internal/mutex"
 	"github.com/adamkirk-stayaway/organisations/internal/validation"
 )
 
 type CreateHandlerRepo interface {
-	Save(org *model.Organisation) (*model.Organisation, error)
-	BySlug(slug string) (*model.Organisation, error)
+	Save(org *Organisation) (*Organisation, error)
+	BySlug(slug string) (*Organisation, error)
 }
 
 type CreateCommand struct {
@@ -26,7 +26,7 @@ type CreateHandler struct {
 	mutex DistributedMutex
 }
 
-func (h *CreateHandler) Handle(cmd CreateCommand) (*model.Organisation, error) {
+func (h *CreateHandler) Handle(cmd CreateCommand) (*Organisation, error) {
 	err := h.validator.Validate(cmd)
 
 	if err != nil {
@@ -49,7 +49,7 @@ func (h *CreateHandler) Handle(cmd CreateCommand) (*model.Organisation, error) {
 	}
 
 	if err != nil {
-		if _, ok := err.(model.ErrNotFound); !ok {
+		if _, ok := err.(common.ErrNotFound); !ok {
 			return nil, err
 		}
 	}
@@ -59,7 +59,7 @@ func (h *CreateHandler) Handle(cmd CreateCommand) (*model.Organisation, error) {
 
 	if err != nil {
 		if _, ok:= err.(mutex.ErrLockNotClaimed); ok {
-			return nil, model.ErrConflict{
+			return nil, common.ErrConflict{
 				Message: "slug is being used by another resource",
 			}
 		}
@@ -73,7 +73,7 @@ func (h *CreateHandler) Handle(cmd CreateCommand) (*model.Organisation, error) {
 		}
 	}()
 
-	org := &model.Organisation{
+	org := &Organisation{
 		Name: *cmd.Name,
 		Slug: *cmd.Slug,
 	}

@@ -1,11 +1,11 @@
-package api
+package requests
 
 import (
 	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
 	"github.com/adamkirk-stayaway/organisations/internal/domain/municipalities"
 )
 
-type V1ListMunicipalitiesRequest struct {
+type ListMunicipalitiesRequest struct {
 	// The direction to order the results by.
 	OrderDirection *string `query:"order_dir" json:"order_dir" validationmap:"OrderDirection" validate:"optional" enums:"asc,desc"`
 
@@ -28,7 +28,7 @@ type V1ListMunicipalitiesRequest struct {
 	NamePrefix *string `query:"prefix" json:"prefix" validationmap:"NamePrefix" validate:"optional" minimum:"3"`
 }
 
-func (req V1ListMunicipalitiesRequest) ToCommand() municipalities.ListCommand {
+func (req ListMunicipalitiesRequest) ToCommand() municipalities.ListCommand {
 	cmd := municipalities.NewListCommand()
 
 	if req.OrderDirection != nil {

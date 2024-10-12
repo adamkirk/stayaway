@@ -1,4 +1,4 @@
-package api
+package requests
 
 import (
 	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
@@ -6,7 +6,7 @@ import (
 )
 
 
-type V1ListOrganisationsRequest struct {
+type ListOrganisationsRequest struct {
 	// The direction to order the results by.
 	OrderDirection *string `query:"order_dir" json:"order_dir" validate:"optional" enums:"asc,desc"`
 	
@@ -21,7 +21,7 @@ type V1ListOrganisationsRequest struct {
 	PerPage *int `query:"per_page" json:"per_page" validate:"optional" minimum:"1" maximum:"100"`
 }
 
-func (req V1ListOrganisationsRequest) ToCommand() organisations.ListCommand {
+func (req ListOrganisationsRequest) ToCommand() organisations.ListCommand {
 	cmd := organisations.NewListCommand()
 
 	if req.OrderDirection != nil {
@@ -43,7 +43,7 @@ func (req V1ListOrganisationsRequest) ToCommand() organisations.ListCommand {
 	return cmd
 }
 
-type V1PostOrganisationRequest struct {
+type PostOrganisationRequest struct {
 	// The name of the organisation.
 	Name *string `json:"name" validationmap:"Name" validate:"required" minLength:"3"`
 	
@@ -52,34 +52,34 @@ type V1PostOrganisationRequest struct {
 	Slug *string `json:"slug" validationmap:"Slug" validate:"required" minLength:"3"`
 } // @name	V1.Request.CreateOrganisation
 
-func (req V1PostOrganisationRequest) ToCommand() organisations.CreateCommand {
+func (req PostOrganisationRequest) ToCommand() organisations.CreateCommand {
 	return organisations.CreateCommand{
 		Name: req.Name,
 		Slug: req.Slug,
 	}
 }
 
-type V1DeleteOrganisationRequest struct {
+type DeleteOrganisationRequest struct {
 	ID string `param:"id"`
 }
 
-func (req V1DeleteOrganisationRequest) ToCommand() organisations.DeleteCommand {
+func (req DeleteOrganisationRequest) ToCommand() organisations.DeleteCommand {
 	return organisations.DeleteCommand{
 		ID: req.ID,
 	}
 }
 
-type V1GetOrganisationRequest struct {
+type GetOrganisationRequest struct {
 	ID string `param:"id"`
 }
 
-func (req V1GetOrganisationRequest) ToCommand() organisations.GetCommand {
+func (req GetOrganisationRequest) ToCommand() organisations.GetCommand {
 	return organisations.GetCommand{
 		ID: req.ID,
 	}
 }
 
-type V1PatchOrganisationRequest struct {
+type PatchOrganisationRequest struct {
 	ID string `param:"id" swaggerignore:"true"`
 
 	// The name of the organisation.
@@ -91,7 +91,7 @@ type V1PatchOrganisationRequest struct {
 	Slug *string `json:"slug,omitempty" validationmap:"Slug" validate:"optional" minLength:"3" extensions:"x-nullable"`
 } // @name	V1.Request.UpdateOrganisation
 
-func (req V1PatchOrganisationRequest) ToCommand() organisations.UpdateCommand {
+func (req PatchOrganisationRequest) ToCommand() organisations.UpdateCommand {
 	return organisations.UpdateCommand{
 		ID: req.ID,
 		Name: req.Name,

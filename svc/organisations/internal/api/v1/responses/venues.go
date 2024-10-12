@@ -1,8 +1,8 @@
-package api
+package responses
 
 import "github.com/adamkirk-stayaway/organisations/internal/domain/venues"
 
-type V1VenueAddress struct {
+type VenueAddress struct {
 	// Line 1 of the address. Typically number/name and street/road.
 	Line1 string `json:"line_1"`
 
@@ -22,7 +22,7 @@ type V1VenueAddress struct {
 	Long float64 `json:"long"`
 } // @name	V1.Response[Model].VenueAddress
 
-type V1Venue struct {
+type Venue struct {
 	// The ID of the venue.
 	ID string `json:"id"`
 
@@ -40,17 +40,17 @@ type V1Venue struct {
 	Type string `json:"type"`
 
 	// The address of the venue.
-	Address V1VenueAddress `json:"address"`
+	Address VenueAddress `json:"address"`
 } // @name	V1.Response[Model].Venue
 
-func V1VenueFromModel(v *venues.Venue) V1Venue {
-	return V1Venue{
+func VenueFromModel(v *venues.Venue) Venue {
+	return Venue{
 		ID: v.ID,
 		Name: v.Name,
 		Slug: v.Slug,
 		Type: string(v.Type),
 		OrganisationID: v.OrganisationID,
-		Address: V1VenueAddress{
+		Address: VenueAddress{
 			Line1: v.Address.Line1,
 			Line2: v.Address.Line2,
 			Municipality: v.Address.Municipality,
@@ -61,31 +61,31 @@ func V1VenueFromModel(v *venues.Venue) V1Venue {
 	}
 }
 
-type V1Venues []V1Venue  // @name	V1.Response[Model].Venues
+type Venues []Venue  // @name	V1.Response[Model].Venues
 
-func V1VenuesFromModels(venues venues.Venues) V1Venues {
-	v1Orgs := make(V1Venues, len(venues))
+func VenuesFromModels(venues venues.Venues) Venues {
+	v1Orgs := make(Venues, len(venues))
 
 	for i, v := range(venues) {
-		v1Orgs[i] = V1VenueFromModel(v)
+		v1Orgs[i] = VenueFromModel(v)
 	}
 
 	return v1Orgs
 }
 
-type V1ListVenuesResponse struct {
-	Data V1Venues `json:"data"`
-	Meta V1ListResponseMeta `json:"meta"`
+type ListVenuesResponse struct {
+	Data Venues `json:"data"`
+	Meta ListResponseMeta `json:"meta"`
 } // @name	V1.Response.ListVenues
 
-type V1PostVenueResponse struct {
-	Data V1Venue `json:"data"`
+type PostVenueResponse struct {
+	Data Venue `json:"data"`
 } // @name	V1.Response.PostVenue
 
-type V1GetVenueResponse struct {
-	Data V1Venue `json:"data"`
+type GetVenueResponse struct {
+	Data Venue `json:"data"`
 } // @name	V1.Response.GetVenue
 
-type V1PatchVenueResponse struct {
-	Data V1Venue `json:"data"`
+type PatchVenueResponse struct {
+	Data Venue `json:"data"`
 } // @name	V1.Response.PatchVenue

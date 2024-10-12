@@ -6,7 +6,6 @@ package main_test
 import (
 	"testing"
 
-	"github.com/adamkirk-stayaway/organisations/internal/api"
 	"github.com/adamkirk-stayaway/organisations/internal/validation"
 	"github.com/stretchr/testify/assert"
 )
@@ -174,7 +173,7 @@ func TestValidationMapper(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func (tt *testing.T) {
-			vm := api.NewValidationMapper()
+			vm := validation.NewValidationMapper()
 			v := validation.NewValidator([]validation.Extension{})
 		
 			err := v.Validate(test.p)

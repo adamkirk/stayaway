@@ -1,8 +1,8 @@
-package api
+package responses
 
 import "github.com/adamkirk-stayaway/organisations/internal/domain/municipalities"
 
-type V1Municipality struct {
+type Municipality struct {
 	// The ID of the municipality.
 	ID string `json:"id"`
 
@@ -25,8 +25,8 @@ type V1Municipality struct {
 	Iso3 string `json:"iso3"`
 } // @name	V1.Response[Model].Municipality
 
-func V1MunicipalityFromModel(v municipalities.Municipality) V1Municipality {
-	return V1Municipality{
+func MunicipalityFromModel(v municipalities.Municipality) Municipality {
+	return Municipality{
 		ID: v.ID,
 		Name: v.Name,
 		NameAscii: v.NameAscii,
@@ -37,19 +37,19 @@ func V1MunicipalityFromModel(v municipalities.Municipality) V1Municipality {
 	}
 }
 
-type V1Municipalities []V1Municipality // @name	V1.Response[Model].Municipalities
+type Municipalities []Municipality // @name	V1.Response[Model].Municipalities
 
-func V1MunicipalitiesFromModels(venues municipalities.Municipalities) V1Municipalities {
-	v1Orgs := make(V1Municipalities, len(venues))
+func MunicipalitiesFromModels(venues municipalities.Municipalities) Municipalities {
+	v1Orgs := make(Municipalities, len(venues))
 
 	for i, v := range(venues) {
-		v1Orgs[i] = V1MunicipalityFromModel(v)
+		v1Orgs[i] = MunicipalityFromModel(v)
 	}
 
 	return v1Orgs
 }
 
-type V1ListMunicipalitiesResponse struct {
-	Data V1Municipalities `json:"data"`
-	Meta V1ListResponseMeta `json:"meta"`
+type ListMunicipalitiesResponse struct {
+	Data Municipalities `json:"data"`
+	Meta ListResponseMeta `json:"meta"`
 } // @name	V1.Response.ListMunicipalities

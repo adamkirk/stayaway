@@ -11,14 +11,15 @@ import (
 	dbping "github.com/adamkirk-stayaway/organisations/cmd/db_ping"
 	municipalitiessync "github.com/adamkirk-stayaway/organisations/cmd/municipalities_sync"
 	"github.com/adamkirk-stayaway/organisations/internal/api"
+	v1 "github.com/adamkirk-stayaway/organisations/internal/api/v1"
 	"github.com/adamkirk-stayaway/organisations/internal/config"
 	"github.com/adamkirk-stayaway/organisations/internal/db"
 	"github.com/adamkirk-stayaway/organisations/internal/domain/municipalities"
-	"github.com/adamkirk-stayaway/organisations/internal/mutex"
 	"github.com/adamkirk-stayaway/organisations/internal/domain/organisations"
+	"github.com/adamkirk-stayaway/organisations/internal/domain/venues"
+	"github.com/adamkirk-stayaway/organisations/internal/mutex"
 	"github.com/adamkirk-stayaway/organisations/internal/repository"
 	"github.com/adamkirk-stayaway/organisations/internal/validation"
-	"github.com/adamkirk-stayaway/organisations/internal/domain/venues"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -102,70 +103,71 @@ func sharedOpts() []fx.Option {
 			fx.Annotate(
 				buildConfig,
 				fx.As(new(api.ApiServerConfig)),
-				fx.As(new(api.OrganisationsV1ControllerConfig)),
-				fx.As(new(api.VenuesV1ControllerConfig)),
-				fx.As(new(api.MunicipalitiesV1ControllerConfig)),
+				fx.As(new(v1.OrganisationsControllerConfig)),
+				fx.As(new(v1.VenuesControllerConfig)),
+				fx.As(new(v1.MunicipalitiesControllerConfig)),
 				fx.As(new(db.MongoConfig)),
 				fx.As(new(db.MongoDbMigratorConfig)),
 				fx.As(new(municipalities.SyncHandlerConfig)),
 				fx.As(new(db.RedisConnectorConfig)),
 			),
 		),
+		fx.Provide(api.NewServer),
 		fx.Provide(
 			fx.Annotate(
-				api.NewServer,
-				fx.ParamTags(`group:"apiControllers"`),
+				api.NewV1Api,
+				fx.ParamTags(`group:"api.v1.controllers"`),
 			),
 		),
 		fx.Provide(
 			fx.Annotate(
-				api.NewOrganisationsV1Controller,
+				v1.NewOrganisationsController,
 				fx.As(new(api.Controller)),
-				fx.ResultTags(`group:"apiControllers"`),
+				fx.ResultTags(`group:"api.v1.controllers"`),
 			),
 		),
 		fx.Provide(
 			fx.Annotate(
-				api.NewVenuesV1Controller,
+				v1.NewVenuesController,
 				fx.As(new(api.Controller)),
-				fx.ResultTags(`group:"apiControllers"`),
+				fx.ResultTags(`group:"api.v1.controllers"`),
 			),
 		),
 		fx.Provide(
 			fx.Annotate(
-				api.NewMunicipalitiesV1Controller,
+				v1.NewMunicipalitiesController,
 				fx.As(new(api.Controller)),
-				fx.ResultTags(`group:"apiControllers"`),
+				fx.ResultTags(`group:"api.v1.controllers"`),
 			),
 		),
 		fx.Provide(
 			fx.Annotate(
 				organisations.NewGetHandler,
-				fx.As(new(api.OrganisationsGetHandler)),
+				fx.As(new(v1.OrganisationsGetHandler)),
 			),
 		),
 		fx.Provide(
 			fx.Annotate(
 				organisations.NewListHandler,
-				fx.As(new(api.OrganisationsListHandler)),
+				fx.As(new(v1.OrganisationsListHandler)),
 			),
 		),
 		fx.Provide(
 			fx.Annotate(
 				organisations.NewCreateHandler,
-				fx.As(new(api.OrganisationsCreateHandler)),
+				fx.As(new(v1.OrganisationsCreateHandler)),
 			),
 		),
 		fx.Provide(
 			fx.Annotate(
 				organisations.NewDeleteHandler,
-				fx.As(new(api.OrganisationsDeleteHandler)),
+				fx.As(new(v1.OrganisationsDeleteHandler)),
 			),
 		),
 		fx.Provide(
 			fx.Annotate(
 				organisations.NewUpdateHandler,
-				fx.As(new(api.OrganisationsUpdateHandler)),
+				fx.As(new(v1.OrganisationsUpdateHandler)),
 			),
 		),
 		fx.Provide(
@@ -187,38 +189,38 @@ func sharedOpts() []fx.Option {
 		fx.Provide(
 			fx.Annotate(
 				venues.NewCreateHandler,
-				fx.As(new(api.VenuesCreateHandler)),
+				fx.As(new(v1.VenuesCreateHandler)),
 			),
 		),
 		fx.Provide(
 			fx.Annotate(
 				venues.NewListHandler,
-				fx.As(new(api.VenuesListHandler)),
+				fx.As(new(v1.VenuesListHandler)),
 			),
 		),
 		fx.Provide(
 			fx.Annotate(
 				venues.NewGetHandler,
-				fx.As(new(api.VenuesGetHandler)),
+				fx.As(new(v1.VenuesGetHandler)),
 			),
 		),
 		fx.Provide(
 			fx.Annotate(
 				venues.NewDeleteHandler,
-				fx.As(new(api.VenuesDeleteHandler)),
+				fx.As(new(v1.VenuesDeleteHandler)),
 			),
 		),
 		fx.Provide(
 			fx.Annotate(
 				venues.NewUpdateHandler,
-				fx.As(new(api.VenuesUpdateHandler)),
+				fx.As(new(v1.VenuesUpdateHandler)),
 			),
 		),
 
 		fx.Provide(
 			fx.Annotate(
 				municipalities.NewListHandler,
-				fx.As(new(api.MunicipalitiesListHandler)),
+				fx.As(new(v1.MunicipalitiesListHandler)),
 			),
 		),
 		fx.Provide(
@@ -244,7 +246,7 @@ func sharedOpts() []fx.Option {
 				fx.As(new(organisations.DistributedMutex)),
 			),
 		),
-		fx.Provide(api.NewValidationMapper),
+		fx.Provide(validation.NewValidationMapper),
 	}
 
 	if ! appCfg.DbDriver().IsKnown() {

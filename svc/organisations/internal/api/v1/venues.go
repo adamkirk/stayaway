@@ -1,6 +1,8 @@
-package api
+package v1
 
 import (
+	"github.com/adamkirk-stayaway/organisations/internal/api/v1/requests"
+	"github.com/adamkirk-stayaway/organisations/internal/api/v1/responses"
 	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
 	"github.com/adamkirk-stayaway/organisations/internal/domain/venues"
 	"github.com/adamkirk-stayaway/organisations/internal/validation"
@@ -28,21 +30,20 @@ type VenuesUpdateHandler interface {
 	Handle(cmd venues.UpdateCommand) (*venues.Venue, error)
 }
 
-type VenuesV1ControllerConfig interface {}
+type VenuesControllerConfig interface {}
 
-type VenuesV1Controller struct {
-	cfg VenuesV1ControllerConfig
-	// repo VenuesRepo
+type VenuesController struct {
+	cfg VenuesControllerConfig
 	get VenuesGetHandler
 	list VenuesListHandler
 	create VenuesCreateHandler
 	delete VenuesDeleteHandler
 	update VenuesUpdateHandler
-	validationMapper *ValidationMapper
+	validationMapper *validation.ValidationMapper
 }
 
-func (c *VenuesV1Controller) RegisterRoutes(api *echo.Group) {
-	g := api.Group("/v1/organisations/:organisationId/venues")
+func (c *VenuesController) RegisterRoutes(api *echo.Group) {
+	g := api.Group("/organisations/:organisationId/venues")
 	g.POST("", c.Create).Name = "v1.organisations.venues.create"
 	g.DELETE("/:id", c.Delete).Name = "v1.organisations.venues.delete"
 	g.GET("/:id", c.Get).Name = "v1.organisations.venues.get"
@@ -50,16 +51,16 @@ func (c *VenuesV1Controller) RegisterRoutes(api *echo.Group) {
 	g.GET("", c.List).Name = "v1.organisations.venues.list"
 }
 
-func NewVenuesV1Controller(
-	cfg VenuesV1ControllerConfig,
+func NewVenuesController(
+	cfg VenuesControllerConfig,
 	create VenuesCreateHandler,
-	validationMapper *ValidationMapper,
+	validationMapper *validation.ValidationMapper,
 	get VenuesGetHandler,
 	list VenuesListHandler,
 	delete VenuesDeleteHandler,
 	update VenuesUpdateHandler,
-) *VenuesV1Controller {
-	return &VenuesV1Controller{
+) *VenuesController {
+	return &VenuesController{
 		cfg: cfg,
 		get: get,
 		list: list,
@@ -74,16 +75,16 @@ func NewVenuesV1Controller(
 //	@Tags			Venues
 //	@Accept			json
 //	@Produce		json
-//	@Success		200	{object}	V1ListVenuesResponse
-//	@Failure		422	{object}	V1ValidationErrorResponse
-//	@Failure		404	{object}	V1GenericErrorResponse
-//	@Failure		400	{object}	V1GenericErrorResponse
-//	@Failure		500	{object}	V1GenericErrorResponse
+//	@Success		200	{object}	responses.ListVenuesResponse
+//	@Failure		422	{object}	responses.ValidationErrorResponse
+//	@Failure		404	{object}	responses.GenericErrorResponse
+//	@Failure		400	{object}	responses.GenericErrorResponse
+//	@Failure		500	{object}	responses.GenericErrorResponse
 //	@Router			/v1/organisations/{orgId}/venues [get]
 //	@Param			orgId	path	string	true	"The Organisations ID"
-//	@Param			request	query V1ListVenuesRequest	true "Query params"
-func (c *VenuesV1Controller) List(ctx echo.Context) error {
-	req := V1ListVenuesRequest{}
+//	@Param			request	query requests.ListVenuesRequest	true "Query params"
+func (c *VenuesController) List(ctx echo.Context) error {
+	req := requests.ListVenuesRequest{}
 
 	if err := bindRequest(&req, ctx); err != nil {
 		return err
@@ -97,20 +98,20 @@ func (c *VenuesV1Controller) List(ctx echo.Context) error {
 		return err
 	}
 	
-	resp := V1ListVenuesResponse{
-		Meta: V1ListResponseMeta{
-			V1SortOptionsResponseMeta: V1SortOptionsResponseMeta{
+	resp := responses.ListVenuesResponse{
+		Meta: responses.ListResponseMeta{
+			SortOptionsResponseMeta: responses.SortOptionsResponseMeta{
 				OrderDirection: string(cmd.OrderDirection),
 				OrderBy: string(cmd.OrderBy),
 			},
-			V1PaginationResponseMeta: V1PaginationResponseMeta{
+			PaginationResponseMeta: responses.PaginationResponseMeta{
 				Page: pagination.Page,
 				PerPage: pagination.PerPage,
 				TotalPages: pagination.TotalPages,
 				TotalResults: pagination.Total,
 			},
 		},
-		Data: V1VenuesFromModels(results),
+		Data: responses.VenuesFromModels(results),
 	}
 
 	ctx.JSON(200, resp)
@@ -122,16 +123,16 @@ func (c *VenuesV1Controller) List(ctx echo.Context) error {
 //	@Tags			Venues
 //	@Accept			json
 //	@Produce		json
-//	@Success		201	{object}	V1PostVenueResponse
-//	@Failure		422	{object}	V1ValidationErrorResponse
-//	@Failure		404	{object}	V1GenericErrorResponse
-//	@Failure		400	{object}	V1GenericErrorResponse
-//	@Failure		500	{object}	V1GenericErrorResponse
+//	@Success		201	{object}	responses.PostVenueResponse
+//	@Failure		422	{object}	responses.ValidationErrorResponse
+//	@Failure		404	{object}	responses.GenericErrorResponse
+//	@Failure		400	{object}	responses.GenericErrorResponse
+//	@Failure		500	{object}	responses.GenericErrorResponse
 //	@Router			/v1/organisations/{orgId}/venues [post]
 //	@Param			orgId	path	string	true	"The Organisations ID"
-//	@Param			Venue	body		V1PostVenueRequest	true	"Venue definition"
-func (c *VenuesV1Controller) Create(ctx echo.Context) error {
-	req := V1PostVenueRequest{}
+//	@Param			Venue	body		requests.PostVenueRequest	true	"Venue definition"
+func (c *VenuesController) Create(ctx echo.Context) error {
+	req := requests.PostVenueRequest{}
 
 	if err := bindRequest(&req, ctx); err != nil {
 		return err
@@ -146,8 +147,8 @@ func (c *VenuesV1Controller) Create(ctx echo.Context) error {
 		return err
 	}
 
-	resp := V1PostVenueResponse{
-		Data: V1VenueFromModel(v),
+	resp := responses.PostVenueResponse{
+		Data: responses.VenueFromModel(v),
 	}
 
 	ctx.JSON(201, resp)
@@ -159,16 +160,16 @@ func (c *VenuesV1Controller) Create(ctx echo.Context) error {
 //	@Tags			Venues
 //	@Accept			json
 //	@Produce		json
-//	@Success		200	{object}	V1PostVenueResponse
-//	@Failure		422	{object}	V1ValidationErrorResponse
-//	@Failure		404	{object}	V1GenericErrorResponse
-//	@Failure		400	{object}	V1GenericErrorResponse
-//	@Failure		500	{object}	V1GenericErrorResponse
+//	@Success		200	{object}	responses.PostVenueResponse
+//	@Failure		422	{object}	responses.ValidationErrorResponse
+//	@Failure		404	{object}	responses.GenericErrorResponse
+//	@Failure		400	{object}	responses.GenericErrorResponse
+//	@Failure		500	{object}	responses.GenericErrorResponse
 //	@Router			/v1/organisations/{orgId}/venues/{id} [get]
 //	@Param			orgId	path	string	true	"The Organisations ID"
 //	@Param			id	path	string	true	"The Venues ID"
-func (c *VenuesV1Controller) Get(ctx echo.Context) error {
-	req := V1GetVenueRequest{}
+func (c *VenuesController) Get(ctx echo.Context) error {
+	req := requests.GetVenueRequest{}
 
 	if err := bindRequest(&req, ctx); err != nil {
 		return err
@@ -180,8 +181,8 @@ func (c *VenuesV1Controller) Get(ctx echo.Context) error {
 		return err
 	}
 
-	resp := V1GetVenueResponse{
-		Data: V1VenueFromModel(org),
+	resp := responses.GetVenueResponse{
+		Data: responses.VenueFromModel(org),
 	}
 
 	ctx.JSON(200, resp)
@@ -193,17 +194,17 @@ func (c *VenuesV1Controller) Get(ctx echo.Context) error {
 //	@Tags			Venues
 //	@Accept			json
 //	@Produce		json
-//	@Success		200	{object}	V1PatchVenueResponse
-//	@Failure		422	{object}	V1ValidationErrorResponse
-//	@Failure		404	{object}	V1GenericErrorResponse
-//	@Failure		400	{object}	V1GenericErrorResponse
-//	@Failure		500	{object}	V1GenericErrorResponse
+//	@Success		200	{object}	responses.PatchVenueResponse
+//	@Failure		422	{object}	responses.ValidationErrorResponse
+//	@Failure		404	{object}	responses.GenericErrorResponse
+//	@Failure		400	{object}	responses.GenericErrorResponse
+//	@Failure		500	{object}	responses.GenericErrorResponse
 //	@Router			/v1/organisations/{orgId}/venues/{id} [patch]
 //	@Param			orgId	path	string	true	"The Organisations ID"
 //	@Param			id	path	string	true	"The Venues ID"
-//	@Param			Changes	body		V1PatchVenueRequest	true	"Venue changes"
-func (c *VenuesV1Controller) Patch(ctx echo.Context) error {
-	req := V1PatchVenueRequest{}
+//	@Param			Changes	body		requests.PatchVenueRequest	true	"Venue changes"
+func (c *VenuesController) Patch(ctx echo.Context) error {
+	req := requests.PatchVenueRequest{}
 	if err := bindRequest(&req, ctx); err != nil {
 		return err
 	}
@@ -214,8 +215,8 @@ func (c *VenuesV1Controller) Patch(ctx echo.Context) error {
 		return err
 	}
 
-	resp := V1PatchVenueResponse{
-		Data: V1VenueFromModel(venue),
+	resp := responses.PatchVenueResponse{
+		Data: responses.VenueFromModel(venue),
 	}
 
 	ctx.JSON(200, resp)
@@ -228,15 +229,15 @@ func (c *VenuesV1Controller) Patch(ctx echo.Context) error {
 //	@Accept			json
 //	@Produce		json
 //	@Success		204
-//	@Failure		422	{object}	V1ValidationErrorResponse
-//	@Failure		404	{object}	V1GenericErrorResponse
-//	@Failure		400	{object}	V1GenericErrorResponse
-//	@Failure		500	{object}	V1GenericErrorResponse
+//	@Failure		422	{object}	responses.ValidationErrorResponse
+//	@Failure		404	{object}	responses.GenericErrorResponse
+//	@Failure		400	{object}	responses.GenericErrorResponse
+//	@Failure		500	{object}	responses.GenericErrorResponse
 //	@Router			/v1/organisations/{orgId}/venues/{id} [delete]
 //	@Param			orgId	path	string	true	"The Organisations ID"
 //	@Param			id	path	string	true	"The Venues ID"
-func (c *VenuesV1Controller) Delete(ctx echo.Context) error {
-	req := V1DeleteVenueRequest{}
+func (c *VenuesController) Delete(ctx echo.Context) error {
+	req := requests.DeleteVenueRequest{}
 
 	if err := bindRequest(&req, ctx); err != nil {
 		return err

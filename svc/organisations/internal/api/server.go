@@ -1,32 +1,16 @@
 package api
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
-	"errors"
 	"fmt"
-	"io"
 	"log/slog"
-	"os"
-	"reflect"
 
-	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
-	"github.com/adamkirk-stayaway/organisations/internal/validation"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
 	_ "github.com/adamkirk-stayaway/organisations/internal/api/doc"
 	echoSwagger "github.com/swaggo/echo-swagger"
 )
-
-// RequestWithRawBody allows us to check whether fields were defined at all in
-// the json body. Realy just a way to define the different between setting
-// something to null, and something not being present
-type RequestWithRawBody interface {
-	IncludeRawBody(raw map[string]any)
-	FieldWasPresent(fld string) bool
-}
 
 type RouteHandler func(e echo.Context) error
 
@@ -64,189 +48,6 @@ func (s *Server) Shutdown(ctx context.Context) error {
 	return s.e.Shutdown(ctx)
 }
 
-// setupLoggingMiddleare adds a curtom logger to the given echo server
-// We're purposely using slgo here so that it will default to whatever type of
-// logger we initially used .e.g JSON or TEXT
-func setupLoggingMiddleware(cfg ApiServerConfig, e *echo.Echo) {
-	if !cfg.ApiServerAccessLogEnabled() {
-		slog.Info("access logs disabled")
-		return
-	}
-	opts := &slog.HandlerOptions{
-		Level: slog.LevelInfo,
-	}
-
-	// logger := slog.Default().With(slog.String("source", "access_log"))
-	var logger *slog.Logger
-	if cfg.ApiServerAccessLogFormat() == "json" {
-		logger = slog.New(slog.NewJSONHandler(os.Stdout, opts))
-	} else {
-		logger = slog.New(slog.NewTextHandler(os.Stdout, opts))
-	}
-
-	registeredRoutes := e.Routes()
-
-	// See https://echo.labstack.com/docs/middleware/logger#examples
-	e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
-		LogStatus:    true,
-		LogURI:       true,
-		LogError:     true,
-		LogLatency:   true,
-		LogMethod:    true,
-		LogRequestID: true,
-		HandleError:  true, // forwards error to the global error handler, so it can decide appropriate status code
-		LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
-
-			level := slog.LevelInfo
-			errorMsg := "nil"
-
-			if v.Error != nil {
-				errorMsg = v.Error.Error()
-				level = slog.LevelError
-			}
-
-			var routeName string = "nil"
-
-			for _, r := range registeredRoutes {
-				if r.Method == c.Request().Method && r.Path == c.Path() {
-					routeName = r.Name
-					break
-				}
-			}
-
-			logger.LogAttrs(context.Background(), level, "REQUEST",
-				slog.String("uri", v.URI),
-				slog.Int("status", v.Status),
-				slog.String("method", v.Method),
-				slog.String("request-id", v.RequestID),
-				slog.String("log_type", "access"),
-				slog.String("route", routeName),
-				// Convert to milliseconds
-				slog.Float64("duration", float64(v.Latency.Microseconds())/1000),
-				slog.String("err", errorMsg),
-			)
-			return nil
-		},
-	}))
-}
-
-func translateErrToHttpErr(err error) HttpError {
-	switch t := err.(type) {
-		default:
-			return nil
-		case common.ErrNotFound:
-			return ErrNotFound{
-				ResourceName: t.ResourceName,
-			}
-		case common.ErrConflict:
-			return ErrConflict{
-				Message: t.Message,
-			}
-	}
-}
-
-func handleValidationError(ctx echo.Context, errs validation.ValidationError) {
-	respErrors := map[string][]string{}
-
-	for _, err := range errs.Errs {
-		respErrors[err.Key] = err.Errors
-	}
-
-	respBody := V1ValidationErrorResponse{
-		Errors: respErrors,
-	}
-
-	ctx.JSON(422, respBody)
-}
-
-func setupErrorHandlingMiddleware(cfg ApiServerConfig, e *echo.Echo) {
-	e.Use(func (next echo.HandlerFunc) echo.HandlerFunc {
-		return func (ctx echo.Context) error {
-			err := next(ctx); 
-			if err == nil {
-				return nil
-			}
-
-			if err, ok := err.(validation.ValidationError); ok {
-				handleValidationError(ctx, err)
-				return nil
-			}
-
-			respBody := map[string]any{}
-
-			var httpErr HttpError
-
-			if translated := translateErrToHttpErr(err); translated != nil {
-				httpErr = translated
-			} else {
-				translated, ok := err.(HttpError);
-
-				if ok {
-					httpErr = translated
-				}
-			}
-
-			if httpErr != nil {
-				respBody["message"] = err.Error()
-
-				debuggableErr, ok := err.(HttpDebuggableError)
-
-				if ok && cfg.ApiServerDebugErrorsEnabled() {
-					respBody["debug"] = map[string]any{
-						"error": debuggableErr.DebugError(),
-					}
-				}
-
-				ctx.JSON(httpErr.HttpStatusCode(), respBody)
-
-				return nil
-			}
-
-			if cfg.ApiServerDebugErrorsEnabled() {
-				respBody["debug"] = map[string]any{
-					"error": err.Error(),
-				}
-			}
-
-			respBody["message"] = "internal server error"
-			ctx.JSON(500, respBody)
-
-			return nil
-		}
-	})
-}
-
-func bindRequest(req any, ctx echo.Context) error {
-	if reflect.ValueOf(req).Kind() != reflect.Ptr {
-		slog.Error("cannot bind to non pointer", "path", ctx.Path())
-
-		return errors.New("cannot bind request to non pointer value")
-	}
-
-	if reqWithRaw, ok := req.(RequestWithRawBody); ok {
-		b, err := io.ReadAll(ctx.Request().Body)
-
-		if err != nil {
-			return err
-		}
-		
-		raw := map[string]any{}
-		if err := json.Unmarshal(b, &raw); err != nil {
-			return err
-		}
-
-		reqWithRaw.IncludeRawBody(raw)
-
-		ctx.Request().Body = io.NopCloser(bytes.NewBuffer(b))
-	}
-
-	if err := ctx.Bind(req); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 // @title Stayaway - Organisations
 // @version 1.0
 // @description This is an API for managing organisations in the stayaway ecosystem.
@@ -260,21 +61,26 @@ func bindRequest(req any, ctx echo.Context) error {
 
 // @host organisations.stayaway.test
 // @BasePath /api
-func NewServer(apiControllers []Controller, cfg ApiServerConfig) *Server {
+func NewServer(v1Api *V1Api, cfg ApiServerConfig) *Server {
 	e := echo.New()
 	e.HideBanner = true
 	e.HidePort = true
 	e.Pre(middleware.RemoveTrailingSlash())
 	e.Use(middleware.RequestID())
+	
+	if cfg.ApiServerAccessLogEnabled() {
+		e.Use(buildLoggingMiddleware(cfg.ApiServerAccessLogFormat()))
+	}
 
 	api := e.Group("/api")
 
-	for _, c := range apiControllers {
-		c.RegisterRoutes(api)
-	}
+	v1 := api.Group(fmt.Sprintf("/%s", v1Api.Version()))
 
-	setupLoggingMiddleware(cfg, e)
-	setupErrorHandlingMiddleware(cfg, e)
+	v1.Use(v1Api.Middleware(cfg)...)
+	
+	for _, c := range v1Api.Controllers() {
+		c.RegisterRoutes(v1)
+	}
 
 	e.GET("/openapi/*", echoSwagger.WrapHandler)
 

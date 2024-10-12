@@ -1,4 +1,4 @@
-package api
+package requests
 
 import (
 	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
@@ -6,7 +6,7 @@ import (
 	"github.com/adamkirk-stayaway/organisations/internal/util"
 )
 
-type V1ListVenuesRequest struct {
+type ListVenuesRequest struct {
 	OrganisationID *string `param:"organisationId" swaggerignore:"true"`
 	OrderDirection *string `query:"order_dir" json:"order_dir"`
 	OrderBy *string `query:"order_by" json:"order_by"`
@@ -14,7 +14,7 @@ type V1ListVenuesRequest struct {
 	PerPage *int `query:"per_page" json:"per_page"`
 }
 
-func (req V1ListVenuesRequest) ToCommand() venues.ListCommand {
+func (req ListVenuesRequest) ToCommand() venues.ListCommand {
 	cmd := venues.NewListCommand()
 
 	if req.OrderDirection != nil {
@@ -38,7 +38,7 @@ func (req V1ListVenuesRequest) ToCommand() venues.ListCommand {
 	return cmd
 }
 
-type V1PostVenueAddress struct {
+type PostVenueAddress struct {
 	// Line 1 of the address, typically number/name and street.
 	Line1 *string `json:"line_1" validationmap:"AddressLine1" validate:"required" minLength:"1"` 
 
@@ -58,7 +58,7 @@ type V1PostVenueAddress struct {
 	Long *float64 `json:"long" validationmap:"Long" validate:"required" minimum:"0"`
 } // @name	V1.Request[Model].VenueAddress
 
-type V1PostVenueRequest struct {
+type PostVenueRequest struct {
 	OrganisationID string `param:"organisationId" swaggerignore:"true"`
 
 	// The name of the venue.
@@ -74,10 +74,10 @@ type V1PostVenueRequest struct {
 	Type *string `json:"type" validationmap:"Type" validate:"required" enums:"hotel"`
 
 	// The address of the venue.
-	Address V1PostVenueAddress `json:"address" validate:"required"`
+	Address PostVenueAddress `json:"address" validate:"required"`
 } // @name	V1.Request.CreateVenue
 
-func (req V1PostVenueRequest) ToCommand() venues.CreateCommand {
+func (req PostVenueRequest) ToCommand() venues.CreateCommand {
 	return venues.CreateCommand{
 		OrganisationID: &req.OrganisationID,
 		Name: req.Name,
@@ -93,23 +93,23 @@ func (req V1PostVenueRequest) ToCommand() venues.CreateCommand {
 }
 
 
-type V1DeleteVenueRequest struct {
+type DeleteVenueRequest struct {
 	ID string `param:"id"`
 	OrganisationID string `param:"organisationId"`
 }
 
-func (req V1DeleteVenueRequest) ToCommand() venues.DeleteCommand {
+func (req DeleteVenueRequest) ToCommand() venues.DeleteCommand {
 	return venues.DeleteCommand{
 		ID: req.ID,
 		OrganisationID: req.OrganisationID,
 	}
 }
-type V1GetVenueRequest struct {
+type GetVenueRequest struct {
 	ID string `param:"id"`
 	OrganisationID string `param:"organisationId"`
 }
 
-func (req V1GetVenueRequest) ToCommand() venues.GetCommand {
+func (req GetVenueRequest) ToCommand() venues.GetCommand {
 	return venues.GetCommand{
 		ID: req.ID,
 		OrganisationID: req.OrganisationID,
@@ -117,7 +117,7 @@ func (req V1GetVenueRequest) ToCommand() venues.GetCommand {
 }
 
 // @Description The changes to apply to the venue. Only include fields to change.
-type V1PatchVenueAddress struct {
+type PatchVenueAddress struct {
 	// Line 1 of the address, typically number/name and street.
 	Line1 *string `json:"line_1" validationmap:"AddressLine1" validate:"optional" minLength:"1" extensions:"x-nullable"` 
 
@@ -137,7 +137,7 @@ type V1PatchVenueAddress struct {
 	Long *float64 `json:"long" validationmap:"Long" validate:"optional" minimum:"0" extensions:"x-nullable"`
 } // @name	V1.Request[Model].VenueAddress
 
-type V1PatchVenueRequest struct {
+type PatchVenueRequest struct {
 	raw map[string]any
 
 	ID string `param:"id" swaggerignore:"true"`
@@ -157,18 +157,18 @@ type V1PatchVenueRequest struct {
 	Type *string `json:"type" validationmap:"Type" validate:"optional" enums:"hotel" extensions:"x-nullable"`
 
 	// The address of the venue.
-	Address V1PatchVenueAddress `json:"address" validate:"optional" extensions:"x-nullable"`
+	Address PatchVenueAddress `json:"address" validate:"optional" extensions:"x-nullable"`
 } // @name	V1.Request.UpdateVenue
 
-func (req *V1PatchVenueRequest) IncludeRawBody(raw map[string]any) {
+func (req *PatchVenueRequest) IncludeRawBody(raw map[string]any) {
 	req.raw = raw
 }
 
-func (req *V1PatchVenueRequest) FieldWasPresent(fld string) bool {
+func (req *PatchVenueRequest) FieldWasPresent(fld string) bool {
 	return util.KeyExistsInMap(req.raw, fld)
 }
 
-func (req V1PatchVenueRequest) ToCommand() venues.UpdateCommand {
+func (req PatchVenueRequest) ToCommand() venues.UpdateCommand {
 	return venues.UpdateCommand{
 		ID: &req.ID,
 		OrganisationID: &req.OrganisationID,

@@ -1,4 +1,4 @@
-package api
+package validation
 
 import (
 	"errors"
@@ -7,8 +7,6 @@ import (
 	"reflect"
 	"sort"
 	"strings"
-
-	"github.com/adamkirk-stayaway/organisations/internal/validation"
 )
 
 type ValidationMapper struct {}
@@ -92,9 +90,9 @@ func mapJsonFieldsToMapTags(t reflect.Type) (StructMapMeta) {
 
 // TODO: add an option to change from using json tag to another tag
 // This will support query param validation
-func (vm *ValidationMapper) Map(err validation.ValidationError, req any) validation.ValidationError {
+func (vm *ValidationMapper) Map(err ValidationError, req any) ValidationError {
 
-	fldErrors := []validation.FieldError{}
+	fldErrors := []FieldError{}
 
 	t := reflect.TypeOf(req)
 
@@ -108,7 +106,7 @@ func (vm *ValidationMapper) Map(err validation.ValidationError, req any) validat
 			slog.Warn("did not find validationmap field error", "field", err.Key, "type", t.Name())
 		}
 
-		fldErrors = append(fldErrors, validation.FieldError{
+		fldErrors = append(fldErrors, FieldError{
 			Key: k,
 			Errors: err.Errors,
 		})
@@ -119,7 +117,7 @@ func (vm *ValidationMapper) Map(err validation.ValidationError, req any) validat
 		return fldErrors[i].Key < fldErrors[j].Key
 	})
 
-	return validation.ValidationError{
+	return ValidationError{
 		Errs: fldErrors,
 	}
 }

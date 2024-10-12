@@ -14,7 +14,7 @@ tmp_dir = ".local/air/tmp"
     "testdata",
 
     # Stop an infinite loop when the build script regenerates swagger docs
-    "internal/openapidoc"
+    "internal/api/doc"
   ]
   exclude_file = []
   exclude_regex = ["_test.go"]

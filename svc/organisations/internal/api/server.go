@@ -16,7 +16,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
-	_ "github.com/adamkirk-stayaway/organisations/internal/openapidoc"
+	_ "github.com/adamkirk-stayaway/organisations/internal/api/doc"
 	echoSwagger "github.com/swaggo/echo-swagger"
 )
 

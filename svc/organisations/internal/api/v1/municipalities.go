@@ -9,16 +9,15 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-
 type MunicipalitiesListHandler interface {
 	Handle(cmd municipalities.ListCommand) (municipalities.Municipalities, common.PaginationResult, error)
 }
 
-type MunicipalitiesControllerConfig interface {}
+type MunicipalitiesControllerConfig interface{}
 
 type MunicipalitiesController struct {
-	cfg MunicipalitiesControllerConfig
-	list MunicipalitiesListHandler
+	cfg              MunicipalitiesControllerConfig
+	list             MunicipalitiesListHandler
 	validationMapper *validation.ValidationMapper
 }
 
@@ -33,23 +32,23 @@ func NewMunicipalitiesController(
 	list MunicipalitiesListHandler,
 ) *MunicipalitiesController {
 	return &MunicipalitiesController{
-		cfg: cfg,
-		list: list,
+		cfg:              cfg,
+		list:             list,
 		validationMapper: validationMapper,
 	}
 }
 
-//	@Summary		List all municipalities that can be used
-//	@Tags			Municipalities
-//	@Accept			json
-//	@Produce		json
-//	@Success		200	{object}	responses.ListMunicipalitiesResponse
-//	@Failure		422	{object}	responses.ValidationErrorResponse
-//	@Failure		404	{object}	responses.GenericErrorResponse
-//	@Failure		400	{object}	responses.GenericErrorResponse
-//	@Failure		500	{object}	responses.GenericErrorResponse
-//	@Router			/v1/municipalities [get]
-//	@Param			request	query requests.ListMunicipalitiesRequest	true "Query params"
+// @Summary		List all municipalities that can be used
+// @Tags			Municipalities
+// @Accept			json
+// @Produce		json
+// @Success		200	{object}	responses.ListMunicipalitiesResponse
+// @Failure		422	{object}	responses.ValidationErrorResponse
+// @Failure		404	{object}	responses.GenericErrorResponse
+// @Failure		400	{object}	responses.GenericErrorResponse
+// @Failure		500	{object}	responses.GenericErrorResponse
+// @Router			/v1/municipalities [get]
+// @Param			request	query requests.ListMunicipalitiesRequest	true "Query params"
 func (c *MunicipalitiesController) List(ctx echo.Context) error {
 	req := requests.ListMunicipalitiesRequest{}
 
@@ -72,12 +71,12 @@ func (c *MunicipalitiesController) List(ctx echo.Context) error {
 		Meta: responses.ListResponseMeta{
 			SortOptionsResponseMeta: responses.SortOptionsResponseMeta{
 				OrderDirection: string(cmd.OrderDirection),
-				OrderBy: string(cmd.OrderBy),
+				OrderBy:        string(cmd.OrderBy),
 			},
 			PaginationResponseMeta: responses.PaginationResponseMeta{
-				Page: pagination.Page,
-				PerPage: pagination.PerPage,
-				TotalPages: pagination.TotalPages,
+				Page:         pagination.Page,
+				PerPage:      pagination.PerPage,
+				TotalPages:   pagination.TotalPages,
 				TotalResults: pagination.Total,
 			},
 		},

@@ -1,6 +1,5 @@
 package organisations
 
-
 type GetHandlerRepo interface {
 	Get(id string) (*Organisation, error)
 }

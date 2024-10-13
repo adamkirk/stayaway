@@ -22,23 +22,22 @@ type VenueAccommodationTemplatesListHandler interface {
 }
 
 type VenueAccommodationTemplateDeleteHandler interface {
-	Handle(cmd accommodations.DeleteVenueTemplateCommand) (error)
+	Handle(cmd accommodations.DeleteVenueTemplateCommand) error
 }
 
 type VenueAccommodationTemplateUpdateHandler interface {
 	Handle(cmd accommodations.UpdateVenueTemplateCommand) (*accommodations.VenueTemplate, error)
 }
 
-
-type VenueAccommodationTemplatesControllerConfig interface {}
+type VenueAccommodationTemplatesControllerConfig interface{}
 
 type VenueAccommodationTemplatesController struct {
-	cfg VenuesControllerConfig
-	create VenueAccommodationTemplateCreateHandler
-	get VenueAccommodationTemplateGetHandler
-	delete VenueAccommodationTemplateDeleteHandler
-	update VenueAccommodationTemplateUpdateHandler
-	list VenueAccommodationTemplatesListHandler
+	cfg              VenuesControllerConfig
+	create           VenueAccommodationTemplateCreateHandler
+	get              VenueAccommodationTemplateGetHandler
+	delete           VenueAccommodationTemplateDeleteHandler
+	update           VenueAccommodationTemplateUpdateHandler
+	list             VenueAccommodationTemplatesListHandler
 	validationMapper *validation.ValidationMapper
 }
 
@@ -61,29 +60,29 @@ func NewVenueAccommodationTemplatesController(
 	validationMapper *validation.ValidationMapper,
 ) *VenueAccommodationTemplatesController {
 	return &VenueAccommodationTemplatesController{
-		cfg: cfg,
-		create: create,
-		list: list,
-		get: get,
-		delete: delete,
-		update: update,
+		cfg:              cfg,
+		create:           create,
+		list:             list,
+		get:              get,
+		delete:           delete,
+		update:           update,
 		validationMapper: validationMapper,
 	}
 }
 
-//	@Summary		Create a venue accommodation template for an organisation
-//	@Tags			AccommodationTemplates
-//	@Accept			json
-//	@Produce		json
-//	@Success		201	{object}	responses.PostVenueAccommodationTemplateResponse
-//	@Failure		422	{object}	responses.ValidationErrorResponse
-//	@Failure		404	{object}	responses.GenericErrorResponse
-//	@Failure		400	{object}	responses.GenericErrorResponse
-//	@Failure		500	{object}	responses.GenericErrorResponse
-//	@Router			/v1/organisations/{orgId}/venues/{venueId}/accommodation-templates [post]
-//	@Param			orgId	path	string	true	"The Organisations ID"
-//	@Param			venueId	path	string	true	"The Venues ID"
-//	@Param			VenueAccommodationTemplate	body		requests.PostVenueAccommodationTemplateRequest	true	"Venue Accommodation Template definition"
+// @Summary		Create a venue accommodation template for an organisation
+// @Tags			AccommodationTemplates
+// @Accept			json
+// @Produce		json
+// @Success		201	{object}	responses.PostVenueAccommodationTemplateResponse
+// @Failure		422	{object}	responses.ValidationErrorResponse
+// @Failure		404	{object}	responses.GenericErrorResponse
+// @Failure		400	{object}	responses.GenericErrorResponse
+// @Failure		500	{object}	responses.GenericErrorResponse
+// @Router			/v1/organisations/{orgId}/venues/{venueId}/accommodation-templates [post]
+// @Param			orgId	path	string	true	"The Organisations ID"
+// @Param			venueId	path	string	true	"The Venues ID"
+// @Param			VenueAccommodationTemplate	body		requests.PostVenueAccommodationTemplateRequest	true	"Venue Accommodation Template definition"
 func (c *VenueAccommodationTemplatesController) Create(ctx echo.Context) error {
 	req := requests.PostVenueAccommodationTemplateRequest{}
 
@@ -109,19 +108,19 @@ func (c *VenueAccommodationTemplatesController) Create(ctx echo.Context) error {
 	return nil
 }
 
-//	@Summary		Get a venue accommodation template
-//	@Tags			AccommodationTemplates
-//	@Accept			json
-//	@Produce		json
-//	@Success		200	{object}	responses.GetVenueAccommodationTemplateResponse
-//	@Failure		422	{object}	responses.ValidationErrorResponse
-//	@Failure		404	{object}	responses.GenericErrorResponse
-//	@Failure		400	{object}	responses.GenericErrorResponse
-//	@Failure		500	{object}	responses.GenericErrorResponse
-//	@Router			/v1/organisations/{orgId}/venues/{venueId}/accommodation-templates/{id} [get]
-//	@Param			orgId	path	string	true	"The Organisations ID"
-//	@Param			venueId	path	string	true	"The Venues ID"
-//	@Param			id	path	string	true	"The ID of the template"
+// @Summary		Get a venue accommodation template
+// @Tags			AccommodationTemplates
+// @Accept			json
+// @Produce		json
+// @Success		200	{object}	responses.GetVenueAccommodationTemplateResponse
+// @Failure		422	{object}	responses.ValidationErrorResponse
+// @Failure		404	{object}	responses.GenericErrorResponse
+// @Failure		400	{object}	responses.GenericErrorResponse
+// @Failure		500	{object}	responses.GenericErrorResponse
+// @Router			/v1/organisations/{orgId}/venues/{venueId}/accommodation-templates/{id} [get]
+// @Param			orgId	path	string	true	"The Organisations ID"
+// @Param			venueId	path	string	true	"The Venues ID"
+// @Param			id	path	string	true	"The ID of the template"
 func (c *VenueAccommodationTemplatesController) Get(ctx echo.Context) error {
 	req := requests.GetVenueAccommodationTemplateRequest{}
 
@@ -144,21 +143,20 @@ func (c *VenueAccommodationTemplatesController) Get(ctx echo.Context) error {
 	return nil
 }
 
-
-//	@Summary		Update a venue accommodation template
-//	@Tags			AccommodationTemplates
-//	@Accept			json
-//	@Produce		json
-//	@Success		200	{object}	responses.PatchVenueAccommodationTemplateResponse
-//	@Failure		422	{object}	responses.ValidationErrorResponse
-//	@Failure		404	{object}	responses.GenericErrorResponse
-//	@Failure		400	{object}	responses.GenericErrorResponse
-//	@Failure		500	{object}	responses.GenericErrorResponse
-//	@Router			/v1/organisations/{orgId}/venues/{venueId}/accommodation-templates/{id} [patch]
-//	@Param			orgId	path	string	true	"The Organisations ID"
-//	@Param			venueId	path	string	true	"The Venues ID"
-//	@Param			id	path	string	true	"The ID of the template"
-//	@Param			Changes	body		requests.PatchVenueAccommodationTemplateRequest	true	"Venue changes"
+// @Summary		Update a venue accommodation template
+// @Tags			AccommodationTemplates
+// @Accept			json
+// @Produce		json
+// @Success		200	{object}	responses.PatchVenueAccommodationTemplateResponse
+// @Failure		422	{object}	responses.ValidationErrorResponse
+// @Failure		404	{object}	responses.GenericErrorResponse
+// @Failure		400	{object}	responses.GenericErrorResponse
+// @Failure		500	{object}	responses.GenericErrorResponse
+// @Router			/v1/organisations/{orgId}/venues/{venueId}/accommodation-templates/{id} [patch]
+// @Param			orgId	path	string	true	"The Organisations ID"
+// @Param			venueId	path	string	true	"The Venues ID"
+// @Param			id	path	string	true	"The ID of the template"
+// @Param			Changes	body		requests.PatchVenueAccommodationTemplateRequest	true	"Venue changes"
 func (c *VenueAccommodationTemplatesController) Patch(ctx echo.Context) error {
 	req := requests.PatchVenueAccommodationTemplateRequest{}
 
@@ -184,19 +182,19 @@ func (c *VenueAccommodationTemplatesController) Patch(ctx echo.Context) error {
 	return nil
 }
 
-//	@Summary		List all accommodation templates for a venue
-//	@Tags			AccommodationTemplates
-//	@Accept			json
-//	@Produce		json
-//	@Success		200	{object}	responses.ListVenueAccommodationTemplatesResponse
-//	@Failure		422	{object}	responses.ValidationErrorResponse
-//	@Failure		404	{object}	responses.GenericErrorResponse
-//	@Failure		400	{object}	responses.GenericErrorResponse
-//	@Failure		500	{object}	responses.GenericErrorResponse
-//	@Router			/v1/organisations/{orgId}/venues/{venueId}/accommodation-templates [get]
-//	@Param			orgId	path	string	true	"The Organisations ID"
-//	@Param			venueId	path	string	true	"The Venues ID"
-//	@Param			request	query requests.ListVenueAccommodationTemplatesRequest	true "Query params"
+// @Summary		List all accommodation templates for a venue
+// @Tags			AccommodationTemplates
+// @Accept			json
+// @Produce		json
+// @Success		200	{object}	responses.ListVenueAccommodationTemplatesResponse
+// @Failure		422	{object}	responses.ValidationErrorResponse
+// @Failure		404	{object}	responses.GenericErrorResponse
+// @Failure		400	{object}	responses.GenericErrorResponse
+// @Failure		500	{object}	responses.GenericErrorResponse
+// @Router			/v1/organisations/{orgId}/venues/{venueId}/accommodation-templates [get]
+// @Param			orgId	path	string	true	"The Organisations ID"
+// @Param			venueId	path	string	true	"The Venues ID"
+// @Param			request	query requests.ListVenueAccommodationTemplatesRequest	true "Query params"
 func (c *VenueAccommodationTemplatesController) List(ctx echo.Context) error {
 	req := requests.ListVenueAccommodationTemplatesRequest{}
 
@@ -211,17 +209,17 @@ func (c *VenueAccommodationTemplatesController) List(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
-	
+
 	resp := responses.ListVenueAccommodationTemplatesResponse{
 		Meta: responses.ListResponseMeta{
 			SortOptionsResponseMeta: responses.SortOptionsResponseMeta{
 				OrderDirection: string(cmd.OrderDirection),
-				OrderBy: string(cmd.OrderBy),
+				OrderBy:        string(cmd.OrderBy),
 			},
 			PaginationResponseMeta: responses.PaginationResponseMeta{
-				Page: pagination.Page,
-				PerPage: pagination.PerPage,
-				TotalPages: pagination.TotalPages,
+				Page:         pagination.Page,
+				PerPage:      pagination.PerPage,
+				TotalPages:   pagination.TotalPages,
 				TotalResults: pagination.Total,
 			},
 		},
@@ -233,19 +231,19 @@ func (c *VenueAccommodationTemplatesController) List(ctx echo.Context) error {
 	return nil
 }
 
-//	@Summary		Delete a venue accommodation template
-//	@Tags			AccommodationTemplates
-//	@Accept			json
-//	@Produce		json
-//	@Success		204
-//	@Failure		422	{object}	responses.ValidationErrorResponse
-//	@Failure		404	{object}	responses.GenericErrorResponse
-//	@Failure		400	{object}	responses.GenericErrorResponse
-//	@Failure		500	{object}	responses.GenericErrorResponse
-//	@Router			/v1/organisations/{orgId}/venues/{venueId}/accommodation-templates/{id} [delete]
-//	@Param			orgId	path	string	true	"The Organisations ID"
-//	@Param			venueId	path	string	true	"The Venues ID"
-//	@Param			id	path	string	true	"The template ID"
+// @Summary		Delete a venue accommodation template
+// @Tags			AccommodationTemplates
+// @Accept			json
+// @Produce		json
+// @Success		204
+// @Failure		422	{object}	responses.ValidationErrorResponse
+// @Failure		404	{object}	responses.GenericErrorResponse
+// @Failure		400	{object}	responses.GenericErrorResponse
+// @Failure		500	{object}	responses.GenericErrorResponse
+// @Router			/v1/organisations/{orgId}/venues/{venueId}/accommodation-templates/{id} [delete]
+// @Param			orgId	path	string	true	"The Organisations ID"
+// @Param			venueId	path	string	true	"The Venues ID"
+// @Param			id	path	string	true	"The template ID"
 func (c *VenueAccommodationTemplatesController) Delete(ctx echo.Context) error {
 	req := requests.DeleteVenueAccommodationTemplateRequest{}
 
@@ -258,7 +256,7 @@ func (c *VenueAccommodationTemplatesController) Delete(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
-	
+
 	ctx.NoContent(204)
 
 	return nil

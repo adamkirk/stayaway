@@ -12,7 +12,7 @@ import (
 
 type Action struct {
 	pinger db.Pinger
-	sh fx.Shutdowner
+	sh     fx.Shutdowner
 }
 
 func newAction(
@@ -21,7 +21,7 @@ func newAction(
 	pinger db.Pinger,
 ) *Action {
 	act := &Action{
-		sh: sh,
+		sh:     sh,
 		pinger: pinger,
 	}
 
@@ -54,7 +54,6 @@ func (act *Action) run() {
 	act.sh.Shutdown()
 }
 
-
 func Handler(opts []fx.Option, cmd *cobra.Command, args []string) {
 	opts = append(opts, []fx.Option{
 		// Prevents all the logging noise when building the service container
@@ -65,5 +64,5 @@ func Handler(opts []fx.Option, cmd *cobra.Command, args []string) {
 
 	fx.New(
 		opts...,
-	  ).Run()
+	).Run()
 }

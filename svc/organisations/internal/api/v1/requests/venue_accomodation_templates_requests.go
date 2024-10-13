@@ -6,7 +6,6 @@ import (
 	"github.com/adamkirk-stayaway/organisations/internal/util"
 )
 
-
 type ListVenueAccommodationTemplatesRequest struct {
 	// The direction to order the results by.
 	OrderDirection *string `query:"order_dir" json:"order_dir" validationmap:"OrderDirection" validate:"optional" enums:"asc,desc"`
@@ -26,7 +25,7 @@ type ListVenueAccommodationTemplatesRequest struct {
 	NamePrefix *string `query:"prefix" json:"prefix" validationmap:"NamePrefix" validate:"optional" minimum:"3"`
 
 	OrganisationID *string `param:"organisationId" swaggerignore:"true"`
-	VenueID *string `param:"venueId" swaggerignore:"true"`
+	VenueID        *string `param:"venueId" swaggerignore:"true"`
 }
 
 func (req ListVenueAccommodationTemplatesRequest) ToCommand() accommodations.ListVenueTemplatesCommand {
@@ -68,7 +67,7 @@ type PostVenueAccommodationTemplateOccupancy struct {
 
 type PostVenueAccommodationTemplateRequest struct {
 	OrganisationID string `param:"organisationId" swaggerignore:"true"`
-	VenueID string `param:"venueId" swaggerignore:"true"`
+	VenueID        string `param:"venueId" swaggerignore:"true"`
 
 	// The name of the template.
 	Name *string `json:"name" validationmap:"Name" validate:"required" minLength:"3"`
@@ -86,15 +85,14 @@ type PostVenueAccommodationTemplateRequest struct {
 func (req PostVenueAccommodationTemplateRequest) ToCommand() accommodations.CreateVenueTemplateCommand {
 	return accommodations.CreateVenueTemplateCommand{
 		OrganisationID: &req.OrganisationID,
-		VenueID: &req.VenueID,
-		Name: req.Name,
-		Type: req.Type,
-		Description: req.Description,
-		MinOccupancy: req.Occupancy.Min,
-		MaxOccupancy: req.Occupancy.Max,
+		VenueID:        &req.VenueID,
+		Name:           req.Name,
+		Type:           req.Type,
+		Description:    req.Description,
+		MinOccupancy:   req.Occupancy.Min,
+		MaxOccupancy:   req.Occupancy.Max,
 	}
 }
-
 
 type PatchVenueAccommodationTemplateOccupancy struct {
 	// The minimum amount of people that must occupy the accommodation.
@@ -110,8 +108,8 @@ type PatchVenueAccommodationTemplateRequest struct {
 	raw map[string]any
 
 	OrganisationID string `param:"organisationId" swaggerignore:"true"`
-	VenueID string `param:"venueId" swaggerignore:"true"`
-	ID string `param:"id" swaggerignore:"true"`
+	VenueID        string `param:"venueId" swaggerignore:"true"`
+	ID             string `param:"id" swaggerignore:"true"`
 
 	// The name of the template.
 	Name *string `json:"name" validationmap:"Name" validate:"optional" minLength:"3" extensions:"x-nullable"`
@@ -121,7 +119,7 @@ type PatchVenueAccommodationTemplateRequest struct {
 	Type *string `json:"type" validationmap:"Type" validate:"optional" enums:"room" extensions:"x-nullable"`
 
 	// Description of the accommodation that this applies to.
-	Description *string `json:"description" validationmap:"Description" validate:"optional" minLength:"10" extensions:"x-nullable"` 
+	Description *string `json:"description" validationmap:"Description" validate:"optional" minLength:"10" extensions:"x-nullable"`
 
 	Occupancy PatchVenueAccommodationTemplateOccupancy `json:"occupancy" validate:"optional" minLength:"10" extensions:"x-nullable"`
 } // @name	V1.Request.UpdateAccommodationVenueTemplate
@@ -136,43 +134,42 @@ func (req *PatchVenueAccommodationTemplateRequest) FieldWasPresent(fld string) b
 
 func (req PatchVenueAccommodationTemplateRequest) ToCommand() accommodations.UpdateVenueTemplateCommand {
 	return accommodations.UpdateVenueTemplateCommand{
-		OrganisationID: req.OrganisationID,
-		VenueID: req.VenueID,
-		ID: req.ID,
-		Name: req.Name,
-		Type: req.Type,
-		Description: req.Description,
-		MinOccupancy: req.Occupancy.Min,
-		MaxOccupancy: req.Occupancy.Max,
+		OrganisationID:      req.OrganisationID,
+		VenueID:             req.VenueID,
+		ID:                  req.ID,
+		Name:                req.Name,
+		Type:                req.Type,
+		Description:         req.Description,
+		MinOccupancy:        req.Occupancy.Min,
+		MaxOccupancy:        req.Occupancy.Max,
 		NullifyMaxOccupancy: req.FieldWasPresent("occupancy.max") && req.Occupancy.Max == nil,
 	}
 }
 
 type GetVenueAccommodationTemplateRequest struct {
-	ID string `param:"id"`
+	ID             string `param:"id"`
 	OrganisationID string `param:"organisationId"`
-	VenueID string `param:"venueId"`
+	VenueID        string `param:"venueId"`
 }
 
 func (req GetVenueAccommodationTemplateRequest) ToCommand() accommodations.GetVenueTemplateCommand {
 	return accommodations.GetVenueTemplateCommand{
-		ID: req.ID,
+		ID:             req.ID,
 		OrganisationID: req.OrganisationID,
-		VenueID: req.VenueID,
+		VenueID:        req.VenueID,
 	}
 }
 
 type DeleteVenueAccommodationTemplateRequest struct {
-	ID string `param:"id"`
+	ID             string `param:"id"`
 	OrganisationID string `param:"organisationId"`
-	VenueID string `param:"venueId"`
+	VenueID        string `param:"venueId"`
 }
 
 func (req DeleteVenueAccommodationTemplateRequest) ToCommand() accommodations.DeleteVenueTemplateCommand {
 	return accommodations.DeleteVenueTemplateCommand{
-		ID: req.ID,
+		ID:             req.ID,
 		OrganisationID: req.OrganisationID,
-		VenueID: req.VenueID,
+		VenueID:        req.VenueID,
 	}
 }
-

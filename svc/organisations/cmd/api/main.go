@@ -15,18 +15,17 @@ func Handler(opts []fx.Option, cmd *cobra.Command, args []string) {
 
 	fx.New(
 		opts...,
-	  ).Run()
+	).Run()
 }
-
 
 func startServer(lc fx.Lifecycle, srv *api.Server) {
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
-		  go srv.Start()
-		  return nil
+			go srv.Start()
+			return nil
 		},
 		OnStop: func(ctx context.Context) error {
-		  return srv.Shutdown(ctx)
+			return srv.Shutdown(ctx)
 		},
-	  })
+	})
 }

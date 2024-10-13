@@ -9,16 +9,16 @@ import (
 
 func translateErrToHttpErr(err error) HttpError {
 	switch t := err.(type) {
-		default:
-			return nil
-		case common.ErrNotFound:
-			return ErrNotFound{
-				ResourceName: t.ResourceName,
-			}
-		case common.ErrConflict:
-			return ErrConflict{
-				Message: t.Message,
-			}
+	default:
+		return nil
+	case common.ErrNotFound:
+		return ErrNotFound{
+			ResourceName: t.ResourceName,
+		}
+	case common.ErrConflict:
+		return ErrConflict{
+			Message: t.Message,
+		}
 	}
 }
 
@@ -36,10 +36,10 @@ func handleValidationError(ctx echo.Context, errs validation.ValidationError) {
 	ctx.JSON(422, respBody)
 }
 
-func NewErrorHandler(debugErrorsEnabled bool) func (next echo.HandlerFunc) echo.HandlerFunc {
-	return func (next echo.HandlerFunc) echo.HandlerFunc {
-		return func (ctx echo.Context) error {
-			err := next(ctx); 
+func NewErrorHandler(debugErrorsEnabled bool) func(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(ctx echo.Context) error {
+			err := next(ctx)
 			if err == nil {
 				return nil
 			}
@@ -56,7 +56,7 @@ func NewErrorHandler(debugErrorsEnabled bool) func (next echo.HandlerFunc) echo.
 			if translated := translateErrToHttpErr(err); translated != nil {
 				httpErr = translated
 			} else {
-				translated, ok := err.(HttpError);
+				translated, ok := err.(HttpError)
 
 				if ok {
 					httpErr = translated

@@ -32,7 +32,7 @@ func bindRequest(req any, ctx echo.Context) error {
 		if err != nil {
 			return err
 		}
-		
+
 		raw := map[string]any{}
 		if err := json.Unmarshal(b, &raw); err != nil {
 			return err

@@ -27,13 +27,13 @@ type Municipality struct {
 
 func MunicipalityFromModel(v municipalities.Municipality) Municipality {
 	return Municipality{
-		ID: v.ID,
-		Name: v.Name,
+		ID:        v.ID,
+		Name:      v.Name,
 		NameAscii: v.NameAscii,
-		Lat: v.Lat,
-		Long: v.Long,
-		Country: v.Country,
-		Iso3: v.Iso3,
+		Lat:       v.Lat,
+		Long:      v.Long,
+		Country:   v.Country,
+		Iso3:      v.Iso3,
 	}
 }
 
@@ -42,7 +42,7 @@ type Municipalities []Municipality // @name	V1.Response[Model].Municipalities
 func MunicipalitiesFromModels(venues municipalities.Municipalities) Municipalities {
 	v1Orgs := make(Municipalities, len(venues))
 
-	for i, v := range(venues) {
+	for i, v := range venues {
 		v1Orgs[i] = MunicipalityFromModel(v)
 	}
 
@@ -50,6 +50,6 @@ func MunicipalitiesFromModels(venues municipalities.Municipalities) Municipaliti
 }
 
 type ListMunicipalitiesResponse struct {
-	Data Municipalities `json:"data"`
+	Data Municipalities   `json:"data"`
 	Meta ListResponseMeta `json:"meta"`
 } // @name	V1.Response.ListMunicipalities

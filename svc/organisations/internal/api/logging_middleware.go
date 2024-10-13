@@ -53,7 +53,7 @@ func buildLoggingMiddleware(format string) echo.MiddlewareFunc {
 				slog.String("request-id", v.RequestID),
 				slog.String("log_type", "access"),
 
-				// Gives us a consistent id that we can use for filtering, 
+				// Gives us a consistent id that we can use for filtering,
 				// aggregation rather than regexing our way through life
 				slog.String("route_id", c.Path()),
 				// Convert to milliseconds

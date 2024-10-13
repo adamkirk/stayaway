@@ -11,7 +11,7 @@ type VenueAddress struct {
 
 	// The town/city in which the venue is situated.
 	Municipality string `json:"municipality"`
-	
+
 	// The postcode of the venue.
 	PostCode string `json:"postcode"`
 
@@ -45,28 +45,28 @@ type Venue struct {
 
 func VenueFromModel(v *venues.Venue) Venue {
 	return Venue{
-		ID: v.ID,
-		Name: v.Name,
-		Slug: v.Slug,
-		Type: string(v.Type),
+		ID:             v.ID,
+		Name:           v.Name,
+		Slug:           v.Slug,
+		Type:           string(v.Type),
 		OrganisationID: v.OrganisationID,
 		Address: VenueAddress{
-			Line1: v.Address.Line1,
-			Line2: v.Address.Line2,
+			Line1:        v.Address.Line1,
+			Line2:        v.Address.Line2,
 			Municipality: v.Address.Municipality,
-			PostCode: v.Address.PostCode,
-			Lat: v.Address.Coordinates.Lat,
-			Long: v.Address.Coordinates.Long,
+			PostCode:     v.Address.PostCode,
+			Lat:          v.Address.Coordinates.Lat,
+			Long:         v.Address.Coordinates.Long,
 		},
 	}
 }
 
-type Venues []Venue  // @name	V1.Response[Model].Venues
+type Venues []Venue // @name	V1.Response[Model].Venues
 
 func VenuesFromModels(venues venues.Venues) Venues {
 	v1Orgs := make(Venues, len(venues))
 
-	for i, v := range(venues) {
+	for i, v := range venues {
 		v1Orgs[i] = VenueFromModel(v)
 	}
 
@@ -74,7 +74,7 @@ func VenuesFromModels(venues venues.Venues) Venues {
 }
 
 type ListVenuesResponse struct {
-	Data Venues `json:"data"`
+	Data Venues           `json:"data"`
 	Meta ListResponseMeta `json:"meta"`
 } // @name	V1.Response.ListVenues
 

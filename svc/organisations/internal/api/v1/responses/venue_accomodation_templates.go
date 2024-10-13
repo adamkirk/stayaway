@@ -37,10 +37,10 @@ type VenueAccommodationTemplate struct {
 func VenueAccommodationTemplateFromModel(v *accommodations.VenueTemplate) VenueAccommodationTemplate {
 
 	return VenueAccommodationTemplate{
-		ID: v.ID,
-		VenueID: v.VenueID,
-		Name: v.Name,
-		Type: string(v.Type),
+		ID:          v.ID,
+		VenueID:     v.VenueID,
+		Name:        v.Name,
+		Type:        string(v.Type),
 		Description: v.Description,
 		Occupancy: VenueAccommodationTemplateOccupancy{
 			Min: v.MinOccupancy,
@@ -49,12 +49,12 @@ func VenueAccommodationTemplateFromModel(v *accommodations.VenueTemplate) VenueA
 	}
 }
 
-type VenueAccommodationTemplates []VenueAccommodationTemplate  // @name	V1.Response[Model].VenueAccommodationTemplates
+type VenueAccommodationTemplates []VenueAccommodationTemplate // @name	V1.Response[Model].VenueAccommodationTemplates
 
 func VenueAccommodationTemplatesFromModels(templates accommodations.VenueTemplates) VenueAccommodationTemplates {
 	v1Orgs := make(VenueAccommodationTemplates, len(templates))
 
-	for i, t := range(templates) {
+	for i, t := range templates {
 		v1Orgs[i] = VenueAccommodationTemplateFromModel(t)
 	}
 
@@ -65,18 +65,15 @@ type PostVenueAccommodationTemplateResponse struct {
 	Data VenueAccommodationTemplate `json:"data"`
 } // @name	V1.Response.PostVenueAccommodationTemplate
 
-
 type PatchVenueAccommodationTemplateResponse struct {
 	Data VenueAccommodationTemplate `json:"data"`
 } // @name	V1.Response.PatchVenueAccommodationTemplate
-
 
 type GetVenueAccommodationTemplateResponse struct {
 	Data VenueAccommodationTemplate `json:"data"`
 } // @name	V1.Response.GetVenueAccommodationTemplate
 
-
 type ListVenueAccommodationTemplatesResponse struct {
 	Data VenueAccommodationTemplates `json:"data"`
-	Meta ListResponseMeta `json:"meta"`
+	Meta ListResponseMeta            `json:"meta"`
 } // @name	V1.Response.ListVenueAccommodationTemplates

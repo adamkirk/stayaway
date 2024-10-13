@@ -2,30 +2,29 @@ package venues
 
 import "github.com/adamkirk-stayaway/organisations/internal/domain/common"
 
-
 type ListHandlerRepo interface {
 	Paginate(p PaginationFilter, search SearchFilter) (Venues, common.PaginationResult, error)
 }
 
 type ListCommand struct {
-	OrganisationID string `validate:"required"`
+	OrganisationID string               `validate:"required"`
 	OrderDirection common.SortDirection `validate:"required"`
-	OrderBy SortBy `validate:"required"`
-	Page int `validate:"required,min=1"`
-	PerPage int `validate:"required"`
+	OrderBy        SortBy               `validate:"required"`
+	Page           int                  `validate:"required,min=1"`
+	PerPage        int                  `validate:"required"`
 }
 
 func NewListCommand() ListCommand {
 	return ListCommand{
 		OrderDirection: common.SortAsc,
-		OrderBy: SortByName,
-		Page: 1,
-		PerPage: 50,
+		OrderBy:        SortByName,
+		Page:           1,
+		PerPage:        50,
 	}
 }
 
 type ListHandler struct {
-	repo ListHandlerRepo
+	repo      ListHandlerRepo
 	validator Validator
 }
 
@@ -38,10 +37,10 @@ func (h *ListHandler) Handle(cmd ListCommand) (Venues, common.PaginationResult, 
 
 	return h.repo.Paginate(
 		PaginationFilter{
-			OrderBy: cmd.OrderBy,
+			OrderBy:  cmd.OrderBy,
 			OrderDir: cmd.OrderDirection,
-			Page: cmd.Page,
-			PerPage: cmd.PerPage,
+			Page:     cmd.Page,
+			PerPage:  cmd.PerPage,
 		},
 		SearchFilter{
 			OrganisationID: []string{cmd.OrganisationID},
@@ -51,7 +50,7 @@ func (h *ListHandler) Handle(cmd ListCommand) (Venues, common.PaginationResult, 
 
 func NewListHandler(validator Validator, repo ListHandlerRepo) *ListHandler {
 	return &ListHandler{
-		repo: repo,
+		repo:      repo,
 		validator: validator,
 	}
 }

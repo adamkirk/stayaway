@@ -1,8 +1,8 @@
 package common
 
 type PaginationResult struct {
-	Page int
-	PerPage int
-	Total int
+	Page       int
+	PerPage    int
+	Total      int
 	TotalPages int
 }

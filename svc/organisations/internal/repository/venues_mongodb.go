@@ -69,8 +69,6 @@ func (r *MongoDbVenues) Paginate(p venues.PaginationFilter, search venues.Search
 		return nil, common.PaginationResult{}, err
 	}
 
-	
-
 	sortColumn, err := r.getSortColumn(p.OrderBy)
 
 	if err != nil {
@@ -88,17 +86,16 @@ func (r *MongoDbVenues) Paginate(p venues.PaginationFilter, search venues.Search
 		SetSkip(int64((p.Page - 1)) * int64(p.PerPage)).
 		SetSort(bson.D{{sortColumn, sortDir}})
 
-
 	filter := r.filterToBsonD(search)
 
-	// Consider estimated count, prefer it to be accurate though and once we use 
+	// Consider estimated count, prefer it to be accurate though and once we use
 	// filters this is no longer viable
 	total, err := coll.CountDocuments(context.TODO(), filter)
 
 	if err != nil {
 		return nil, common.PaginationResult{}, err
 	}
-	
+
 	cursor, err := coll.Find(context.TODO(), filter, opts)
 
 	orgs := &venues.Venues{}
@@ -107,12 +104,12 @@ func (r *MongoDbVenues) Paginate(p venues.PaginationFilter, search venues.Search
 		return nil, common.PaginationResult{}, err
 	}
 
-	totalPages := int(math.Ceil(float64(total)/float64(p.PerPage)))
+	totalPages := int(math.Ceil(float64(total) / float64(p.PerPage)))
 
 	return *orgs, common.PaginationResult{
-		Page: p.Page,
-		PerPage: p.PerPage,
-		Total: int(total),
+		Page:       p.Page,
+		PerPage:    p.PerPage,
+		Total:      int(total),
 		TotalPages: totalPages,
 	}, nil
 }
@@ -130,7 +127,7 @@ func (r *MongoDbVenues) Get(id string, orgId string) (*venues.Venue, error) {
 		slog.Warn("invalid id given", "id", id)
 		return nil, common.ErrNotFound{
 			ResourceName: "venue",
-			ID: id,
+			ID:           id,
 		}
 	}
 
@@ -143,13 +140,12 @@ func (r *MongoDbVenues) Get(id string, orgId string) (*venues.Venue, error) {
 		},
 	}}
 
-
 	res := coll.FindOne(context.TODO(), filter)
 
 	if res.Err() != nil && res.Err() == mongo.ErrNoDocuments {
 		return nil, common.ErrNotFound{
 			ResourceName: "venue",
-			ID: id,
+			ID:           id,
 		}
 	}
 
@@ -158,7 +154,7 @@ func (r *MongoDbVenues) Get(id string, orgId string) (*venues.Venue, error) {
 	return org, err
 }
 
-func (r *MongoDbVenues) BySlugAndOrganisation(slug string, orgId string)(*venues.Venue, error) {
+func (r *MongoDbVenues) BySlugAndOrganisation(slug string, orgId string) (*venues.Venue, error) {
 	coll, err := r.getCollection()
 
 	if err != nil {
@@ -179,7 +175,7 @@ func (r *MongoDbVenues) BySlugAndOrganisation(slug string, orgId string)(*venues
 	if res.Err() != nil && res.Err() == mongo.ErrNoDocuments {
 		return nil, common.ErrNotFound{
 			ResourceName: "venue",
-			ID: fmt.Sprintf("slug:%s", slug),
+			ID:           fmt.Sprintf("slug:%s", slug),
 		}
 	}
 
@@ -188,7 +184,7 @@ func (r *MongoDbVenues) BySlugAndOrganisation(slug string, orgId string)(*venues
 	return org, err
 }
 
-func (r *MongoDbVenues) Delete(v *venues.Venue) (error) {
+func (r *MongoDbVenues) Delete(v *venues.Venue) error {
 	coll, err := r.getCollection()
 
 	if err != nil {
@@ -268,7 +264,7 @@ func (r *MongoDbVenues) Save(org *venues.Venue) (*venues.Venue, error) {
 
 }
 
-func NewMongoDbVenues(connector MongoDbConnector ) *MongoDbVenues {
+func NewMongoDbVenues(connector MongoDbConnector) *MongoDbVenues {
 	return &MongoDbVenues{
 		connector: connector,
 	}

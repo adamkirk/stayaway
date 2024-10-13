@@ -5,13 +5,13 @@ type GetHandlerRepo interface {
 }
 
 type GetCommand struct {
-	ID string `validate:"required"`
+	ID             string `validate:"required"`
 	OrganisationID string `validate:"required"`
 }
 
 type GetHandler struct {
 	validator Validator
-	repo GetHandlerRepo
+	repo      GetHandlerRepo
 }
 
 func (h *GetHandler) Handle(cmd GetCommand) (*Venue, error) {
@@ -27,6 +27,6 @@ func (h *GetHandler) Handle(cmd GetCommand) (*Venue, error) {
 func NewGetHandler(validator Validator, repo GetHandlerRepo) *GetHandler {
 	return &GetHandler{
 		validator: validator,
-		repo: repo,
+		repo:      repo,
 	}
 }

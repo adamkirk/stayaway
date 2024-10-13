@@ -33,63 +33,62 @@ var appCfg *config.Config
 var rootCmd = &cobra.Command{
 	Use:   "",
 	Short: "Stayaway Organisations API service",
-	Long: `Blah`,
+	Long:  `Blah`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return cmd.Help()
 	},
 }
 
 var apiServeCmd = &cobra.Command{
-	Use: "api",
+	Use:   "api",
 	Short: "Start the API server",
-	Long:`Blah`,
-	Run: func (cmd *cobra.Command, args []string) {
+	Long:  `Blah`,
+	Run: func(cmd *cobra.Command, args []string) {
 		apicmd.Handler(sharedOpts(), cmd, args)
 	},
 }
 
 var municipalitiesCmd = &cobra.Command{
-	Use: "municipalities",
+	Use:   "municipalities",
 	Short: "Municipalities commands",
-	Long:`Blah`,
-	Run: func (cmd *cobra.Command, args []string) {
+	Long:  `Blah`,
+	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()
 	},
 }
 
 var municipalitiesSyncCmd = &cobra.Command{
-	Use: "sync",
+	Use:   "sync",
 	Short: "Sync municipalities",
-	Long:`Blah`,
-	Run: func (cmd *cobra.Command, args []string) {
+	Long:  `Blah`,
+	Run: func(cmd *cobra.Command, args []string) {
 		municipalitiessync.Handler(sharedOpts(), cmd, args)
 	},
 }
 
-
 var dbCmd = &cobra.Command{
-	Use: "db",
+	Use:   "db",
 	Short: "DB related commands",
-	Long:`Blah`,
-	Run: func (cmd *cobra.Command, args []string) {
+	Long:  `Blah`,
+	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()
 	},
 }
 
 var dbInitCmd = &cobra.Command{
-	Use: "ping",
+	Use:   "ping",
 	Short: "Ping the database",
-	Long:`Blah`,
-	Run: func (cmd *cobra.Command, args []string) {
+	Long:  `Blah`,
+	Run: func(cmd *cobra.Command, args []string) {
 		dbping.Handler(sharedOpts(), cmd, args)
 	},
 }
 
 var dbMigrateCmd = &cobra.Command{
-	Use: "migrate",
+	Use:   "migrate",
 	Short: "Migrate the database",
-	Long:`Blah`,
-	Run: func (cmd *cobra.Command, args []string) {
+	Long:  `Blah`,
+	Run: func(cmd *cobra.Command, args []string) {
 		dbmigrate.Handler(sharedOpts(), cmd, args)
 	},
 }
@@ -295,7 +294,7 @@ func sharedOpts() []fx.Option {
 		fx.Provide(validation.NewValidationMapper),
 	}
 
-	if ! appCfg.DbDriver().IsKnown() {
+	if !appCfg.DbDriver().IsKnown() {
 		slog.Error("Unknown db driver", "driver", string(appCfg.DbDriver()))
 		os.Exit(1)
 	}
@@ -386,9 +385,9 @@ func init() {
 	cobra.OnInitialize(bootstrap)
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is WORKING_DIRECTORY/config.yaml)")
-	rootCmd.PersistentFlags().String("log-level",  "info", "log level to use")
-	rootCmd.PersistentFlags().String("log-format",  "json", "log format to use")
-	rootCmd.PersistentFlags().Int("port",  8080, "port to serve API on")
+	rootCmd.PersistentFlags().String("log-level", "info", "log level to use")
+	rootCmd.PersistentFlags().String("log-format", "json", "log format to use")
+	rootCmd.PersistentFlags().Int("port", 8080, "port to serve API on")
 
 	municipalitiesCmd.AddCommand(municipalitiesSyncCmd)
 
@@ -438,12 +437,12 @@ func bootstrap() {
 
 	opts := &slog.HandlerOptions{
 		AddSource: true,
-		Level: l,
+		Level:     l,
 	}
 
 	var logger *slog.Logger
 
-	if (cfg.LogFormat() == "text") {
+	if cfg.LogFormat() == "text" {
 		logger = slog.New(slog.NewTextHandler(os.Stdout, opts))
 	} else {
 		logger = slog.New(slog.NewJSONHandler(os.Stdout, opts))
@@ -458,5 +457,5 @@ func main() {
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
-	  }
+	}
 }

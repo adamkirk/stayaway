@@ -46,7 +46,7 @@ type RedisConnector interface {
 }
 
 type RedisMutex struct {
-	client *redislock.Client
+	client    *redislock.Client
 	connector RedisConnector
 }
 
@@ -83,7 +83,7 @@ func (rm *RedisMutex) ClaimWithBackOff(key string, ttl time.Duration) (Distribut
 	lockKey := rm.prefixKey(key)
 
 	l, err := client.Obtain(context.TODO(), lockKey, ttl, &redislock.Options{
-		RetryStrategy: redislock.LimitRetry(redislock.LinearBackoff(100 * time.Millisecond), 3),
+		RetryStrategy: redislock.LimitRetry(redislock.LinearBackoff(100*time.Millisecond), 3),
 	})
 
 	if err != nil {
@@ -99,7 +99,6 @@ func (rm *RedisMutex) ClaimWithBackOff(key string, ttl time.Duration) (Distribut
 		lock: l,
 	}, nil
 }
-
 
 // ClaimWithBackOff claims a a lock for the given key and retries it 3 times
 // with a 100 ms interval between. This seems a sensible default for most use

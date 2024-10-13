@@ -38,7 +38,7 @@ func (r *MongoDbOrganisations) Paginate(orderBy organisations.SortBy, orderDir c
 		return nil, common.PaginationResult{}, err
 	}
 
-	// Consider estimated count, prefer it to be accurate though and once we use 
+	// Consider estimated count, prefer it to be accurate though and once we use
 	// filters this is no longer viable
 	total, err := coll.CountDocuments(context.TODO(), bson.D{})
 
@@ -53,11 +53,11 @@ func (r *MongoDbOrganisations) Paginate(orderBy organisations.SortBy, orderDir c
 		return nil, common.PaginationResult{}, err
 	}
 
-	totalPages := int(math.Ceil(float64(total)/float64(perPage)))
+	totalPages := int(math.Ceil(float64(total) / float64(perPage)))
 	return *orgs, common.PaginationResult{
-		Page: page,
-		PerPage: perPage,
-		Total: int(total),
+		Page:       page,
+		PerPage:    perPage,
+		Total:      int(total),
 		TotalPages: totalPages,
 	}, nil
 }
@@ -82,7 +82,7 @@ func (r *MongoDbOrganisations) Get(id string) (*organisations.Organisation, erro
 	if res.Err() != nil && res.Err() == mongo.ErrNoDocuments {
 		return nil, common.ErrNotFound{
 			ResourceName: "organisation",
-			ID: id,
+			ID:           id,
 		}
 	}
 
@@ -105,7 +105,7 @@ func (r *MongoDbOrganisations) BySlug(slug string) (*organisations.Organisation,
 	if res.Err() != nil && res.Err() == mongo.ErrNoDocuments {
 		return nil, common.ErrNotFound{
 			ResourceName: "organisation",
-			ID: fmt.Sprintf("slug:%s", slug),
+			ID:           fmt.Sprintf("slug:%s", slug),
 		}
 	}
 
@@ -114,7 +114,7 @@ func (r *MongoDbOrganisations) BySlug(slug string) (*organisations.Organisation,
 	return org, err
 }
 
-func (r *MongoDbOrganisations) Delete(org *organisations.Organisation) (error) {
+func (r *MongoDbOrganisations) Delete(org *organisations.Organisation) error {
 	coll, err := r.getCollection()
 
 	if err != nil {
@@ -194,7 +194,7 @@ func (r *MongoDbOrganisations) Save(org *organisations.Organisation) (*organisat
 
 }
 
-func NewMongoDbOrganisations(connector MongoDbConnector ) *MongoDbOrganisations {
+func NewMongoDbOrganisations(connector MongoDbConnector) *MongoDbOrganisations {
 	return &MongoDbOrganisations{
 		connector: connector,
 	}

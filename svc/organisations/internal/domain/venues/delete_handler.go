@@ -6,13 +6,13 @@ type DeleteHandlerRepo interface {
 }
 
 type DeleteCommand struct {
-	ID string `validate:"required"`
+	ID             string `validate:"required"`
 	OrganisationID string `validate:"required"`
 }
 
 type DeleteHandler struct {
 	validator Validator
-	repo DeleteHandlerRepo
+	repo      DeleteHandlerRepo
 }
 
 func (h *DeleteHandler) Handle(cmd DeleteCommand) error {
@@ -34,6 +34,6 @@ func (h *DeleteHandler) Handle(cmd DeleteCommand) error {
 func NewDeleteHandler(validator Validator, repo DeleteHandlerRepo) *DeleteHandler {
 	return &DeleteHandler{
 		validator: validator,
-		repo: repo,
+		repo:      repo,
 	}
 }

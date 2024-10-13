@@ -4,7 +4,7 @@ import "fmt"
 
 type ErrNotFound struct {
 	ResourceName string
-	ID string
+	ID           string
 }
 
 func (e ErrNotFound) Error() string {
@@ -19,7 +19,7 @@ func (e ErrConflict) Error() string {
 	return e.Message
 }
 
-type  ErrInvalidSortBy struct {
+type ErrInvalidSortBy struct {
 	Chosen string
 }
 
@@ -27,7 +27,7 @@ func (e ErrInvalidSortBy) Error() string {
 	return fmt.Sprintf("invalid sorting field chosen: %s", e.Chosen)
 }
 
-type  ErrInvalidSortDir struct {
+type ErrInvalidSortDir struct {
 	Chosen string
 }
 

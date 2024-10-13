@@ -23,7 +23,7 @@ func (err ErrNotFound) Error() string {
 }
 
 func (err ErrNotFound) HttpStatusCode() int {
-	return 404;
+	return 404
 }
 
 type ErrConflict struct {
@@ -35,11 +35,11 @@ func (err ErrConflict) Error() string {
 }
 
 func (err ErrConflict) HttpStatusCode() int {
-	return 409;
+	return 409
 }
 
 type ErrBadRequest struct {
-	Message string
+	Message      string
 	DebugMessage string
 }
 
@@ -48,7 +48,7 @@ func (err ErrBadRequest) Error() string {
 }
 
 func (err ErrBadRequest) HttpStatusCode() int {
-	return 400;
+	return 400
 }
 
 func (err ErrBadRequest) DebugError() string {

@@ -21,9 +21,9 @@ type CreateCommand struct {
 }
 
 type CreateHandler struct {
-	repo CreateHandlerRepo
+	repo      CreateHandlerRepo
 	validator Validator
-	mutex DistributedMutex
+	mutex     DistributedMutex
 }
 
 func (h *CreateHandler) Handle(cmd CreateCommand) (*Organisation, error) {
@@ -33,15 +33,13 @@ func (h *CreateHandler) Handle(cmd CreateCommand) (*Organisation, error) {
 		return nil, err
 	}
 
-	
-
 	orgBySlug, err := h.repo.BySlug(*cmd.Slug)
 
 	if orgBySlug != nil {
 		return nil, validation.ValidationError{
-			Errs:[]validation.FieldError{
+			Errs: []validation.FieldError{
 				{
-					Key: "Slug",
+					Key:    "Slug",
 					Errors: []string{"must be unique"},
 				},
 			},
@@ -55,10 +53,10 @@ func (h *CreateHandler) Handle(cmd CreateCommand) (*Organisation, error) {
 	}
 
 	slugMutexKey := fmt.Sprintf("organisation_slug:%s", *cmd.Slug)
-	l, err := h.mutex.ClaimWithBackOff(slugMutexKey, 300 * time.Millisecond)
+	l, err := h.mutex.ClaimWithBackOff(slugMutexKey, 300*time.Millisecond)
 
 	if err != nil {
-		if _, ok:= err.(mutex.ErrLockNotClaimed); ok {
+		if _, ok := err.(mutex.ErrLockNotClaimed); ok {
 			return nil, common.ErrConflict{
 				Message: "slug is being used by another resource",
 			}
@@ -77,14 +75,14 @@ func (h *CreateHandler) Handle(cmd CreateCommand) (*Organisation, error) {
 		Name: *cmd.Name,
 		Slug: *cmd.Slug,
 	}
-	
+
 	return h.repo.Save(org)
 }
 
 func NewCreateHandler(repo CreateHandlerRepo, validator Validator, mutex DistributedMutex) *CreateHandler {
 	return &CreateHandler{
-		repo: repo,
+		repo:      repo,
 		validator: validator,
-		mutex: mutex,
+		mutex:     mutex,
 	}
 }

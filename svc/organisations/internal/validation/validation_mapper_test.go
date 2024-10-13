@@ -13,8 +13,8 @@ type CreatePersonRequestAddress struct {
 }
 
 type CreatePersonRequest struct {
-	Name    *string                     `json:"name" validationmap:"FullName"`
-	Email   *string                     `json:"email" validationmap:"EmailAddress"`
+	Name    *string                    `json:"name" validationmap:"FullName"`
+	Email   *string                    `json:"email" validationmap:"EmailAddress"`
 	Address CreatePersonRequestAddress `json:"address" validationmap:"Address"`
 }
 
@@ -24,8 +24,8 @@ type FlattenedPersonRequestAddress struct {
 }
 
 type FlattenedPersonRequest struct {
-	Name    *string                     `json:"name" validationmap:"FullName"`
-	Email   *string                     `json:"email" validationmap:"EmailAddress"`
+	Name    *string                       `json:"name" validationmap:"FullName"`
+	Email   *string                       `json:"email" validationmap:"EmailAddress"`
 	Address FlattenedPersonRequestAddress `json:"address"`
 }
 
@@ -33,43 +33,42 @@ func ptr[T any](value T) *T {
 	return &value
 }
 
-
 func TestBuildValidationMap(t *testing.T) {
-	tests := []struct{
-		name string
-		in any
+	tests := []struct {
+		name      string
+		in        any
 		expectErr error
-		expect StructMapMeta
+		expect    StructMapMeta
 	}{
 		{
-			name: "nested props",
-			in: CreatePersonRequest{},
+			name:      "nested props",
+			in:        CreatePersonRequest{},
 			expectErr: nil,
 			expect: StructMapMeta{
-				"address":"Address",
-				"name": "FullName",
-				"email": "EmailAddress",
-				"address.line_1": "Address.Street",
+				"address":           "Address",
+				"name":              "FullName",
+				"email":             "EmailAddress",
+				"address.line_1":    "Address.Street",
 				"address.post_code": "Address.Postcode",
 			},
 		},
 
 		{
-			name: "flattened target",
-			in: FlattenedPersonRequest{},
+			name:      "flattened target",
+			in:        FlattenedPersonRequest{},
 			expectErr: nil,
 			expect: StructMapMeta{
-				"address.line_1":"Street",
-				"address.post_code":"Postcode",
-				"email":"EmailAddress",
-				"name":"FullName",
+				"address.line_1":    "Street",
+				"address.post_code": "Postcode",
+				"email":             "EmailAddress",
+				"name":              "FullName",
 			},
 		},
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func (tt *testing.T) {
-			
+		t.Run(test.name, func(tt *testing.T) {
+
 			res := mapJsonFieldsToMapTags(reflect.TypeOf(test.in))
 
 			// assert.Equal(tt, test.expectErr, err)

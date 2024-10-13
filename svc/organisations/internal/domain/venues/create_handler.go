@@ -11,21 +11,21 @@ type CreateHandlerRepo interface {
 }
 
 type CreateCommand struct {
-	OrganisationID *string `validate:"required"`
-	Name *string `validate:"required,min=3"`
-	Slug *string `validate:"required,min=3,slug"`
-	Type *string `validate:"required,venuetype"`
-	AddressLine1 *string `validate:"required,min=1"`
-	AddressLine2 *string `validate:"omitnil,min=1"`
-	Municipality *string `validate:"required,min=1"`
-	PostCode *string `validate:"required,postcode"`
-	Lat *float64 `validate:"required,min=0"`
-	Long *float64 `validate:"required,min=0"`
+	OrganisationID *string  `validate:"required"`
+	Name           *string  `validate:"required,min=3"`
+	Slug           *string  `validate:"required,min=3,slug"`
+	Type           *string  `validate:"required,venuetype"`
+	AddressLine1   *string  `validate:"required,min=1"`
+	AddressLine2   *string  `validate:"omitnil,min=1"`
+	Municipality   *string  `validate:"required,min=1"`
+	PostCode       *string  `validate:"required,postcode"`
+	Lat            *float64 `validate:"required,min=0"`
+	Long           *float64 `validate:"required,min=0"`
 }
 
 type CreateHandler struct {
 	validator Validator
-	repo CreateHandlerRepo
+	repo      CreateHandlerRepo
 }
 
 func (h *CreateHandler) Handle(cmd CreateCommand) (*Venue, error) {
@@ -39,9 +39,9 @@ func (h *CreateHandler) Handle(cmd CreateCommand) (*Venue, error) {
 
 	if venueBySlug != nil {
 		return nil, validation.ValidationError{
-			Errs:[]validation.FieldError{
+			Errs: []validation.FieldError{
 				{
-					Key: "Slug",
+					Key:    "Slug",
 					Errors: []string{"must be unique"},
 				},
 			},
@@ -53,19 +53,19 @@ func (h *CreateHandler) Handle(cmd CreateCommand) (*Venue, error) {
 			return nil, err
 		}
 	}
-	
+
 	v := &Venue{
 		OrganisationID: *cmd.OrganisationID,
-		Name: *cmd.Name,
-		Slug: *cmd.Slug,
-		Type: Type(*cmd.Type),
+		Name:           *cmd.Name,
+		Slug:           *cmd.Slug,
+		Type:           Type(*cmd.Type),
 		Address: &Address{
-			Line1: *cmd.AddressLine1,
-			Line2: cmd.AddressLine2,
+			Line1:        *cmd.AddressLine1,
+			Line2:        cmd.AddressLine2,
 			Municipality: *cmd.Municipality,
-			PostCode: *cmd.PostCode,
+			PostCode:     *cmd.PostCode,
 			Coordinates: &Coordinates{
-				Lat: *cmd.Lat,
+				Lat:  *cmd.Lat,
 				Long: *cmd.Long,
 			},
 		},
@@ -77,6 +77,6 @@ func (h *CreateHandler) Handle(cmd CreateCommand) (*Venue, error) {
 func NewCreateHandler(validator Validator, repo CreateHandlerRepo) *CreateHandler {
 	return &CreateHandler{
 		validator: validator,
-		repo: repo,
+		repo:      repo,
 	}
 }

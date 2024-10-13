@@ -9,7 +9,7 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-type ValidationExtension struct {}
+type ValidationExtension struct{}
 
 func (ve *ValidationExtension) Translations() []validation.Translation {
 	return []validation.Translation{
@@ -24,7 +24,7 @@ func (ve *ValidationExtension) Translations() []validation.Translation {
 			},
 			TranslateFunc: func(ut ut.Translator, fe validator.FieldError) string {
 				t, _ := ut.T("accommodationtype")
-				
+
 				return t
 			},
 		},

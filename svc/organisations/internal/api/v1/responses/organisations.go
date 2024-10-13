@@ -15,18 +15,18 @@ type Organisation struct {
 
 func OrganisationFromModel(org *organisations.Organisation) Organisation {
 	return Organisation{
-		ID: org.ID,
+		ID:   org.ID,
 		Name: org.Name,
 		Slug: org.Slug,
 	}
 }
 
-type Organisations []Organisation  // @name	V1.Response[Model].Organisations
+type Organisations []Organisation // @name	V1.Response[Model].Organisations
 
 func OrganisationsFromModels(orgs organisations.Organisations) Organisations {
 	v1Orgs := make(Organisations, len(orgs))
 
-	for i, org := range(orgs) {
+	for i, org := range orgs {
 		v1Orgs[i] = OrganisationFromModel(org)
 	}
 
@@ -34,7 +34,7 @@ func OrganisationsFromModels(orgs organisations.Organisations) Organisations {
 }
 
 type ListOrganisationsResponse struct {
-	Data Organisations `json:"data"`
+	Data Organisations    `json:"data"`
 	Meta ListResponseMeta `json:"meta"`
 } // @name	V1.Response.ListOrganisations
 

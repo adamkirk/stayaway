@@ -30,7 +30,6 @@ func (r *MongoDbMunicipalities) getCollection() (*mongo.Collection, error) {
 	return coll, nil
 }
 
-
 func (r *MongoDbMunicipalities) getSortColumn(opt municipalities.SortBy) (string, error) {
 	switch opt {
 	case municipalities.SortByName:
@@ -64,7 +63,6 @@ func (r *MongoDbMunicipalities) filterToBsonD(search municipalities.SearchFilter
 	return bson.D{{"$and", filters}}
 }
 
-
 func (r *MongoDbMunicipalities) Paginate(p municipalities.PaginationFilter, search municipalities.SearchFilter) (municipalities.Municipalities, common.PaginationResult, error) {
 	coll, err := r.getCollection()
 
@@ -89,17 +87,16 @@ func (r *MongoDbMunicipalities) Paginate(p municipalities.PaginationFilter, sear
 		SetSkip(int64((p.Page - 1)) * int64(p.PerPage)).
 		SetSort(bson.D{{sortColumn, sortDir}})
 
-
 	filter := r.filterToBsonD(search)
 
-	// Consider estimated count, prefer it to be accurate though and once we use 
+	// Consider estimated count, prefer it to be accurate though and once we use
 	// filters this is no longer viable
 	total, err := coll.CountDocuments(context.TODO(), filter)
 
 	if err != nil {
 		return nil, common.PaginationResult{}, err
 	}
-	
+
 	cursor, err := coll.Find(context.TODO(), filter, opts)
 
 	municipalities := &municipalities.Municipalities{}
@@ -108,12 +105,12 @@ func (r *MongoDbMunicipalities) Paginate(p municipalities.PaginationFilter, sear
 		return nil, common.PaginationResult{}, err
 	}
 
-	totalPages := int(math.Ceil(float64(total)/float64(p.PerPage)))
+	totalPages := int(math.Ceil(float64(total) / float64(p.PerPage)))
 
 	return *municipalities, common.PaginationResult{
-		Page: p.Page,
-		PerPage: p.PerPage,
-		Total: int(total),
+		Page:       p.Page,
+		PerPage:    p.PerPage,
+		Total:      int(total),
 		TotalPages: totalPages,
 	}, nil
 }
@@ -139,7 +136,6 @@ func (r *MongoDbMunicipalities) Paginate(p municipalities.PaginationFilter, sear
 // 			bson.D{{"organisation_id", orgId}},
 // 		},
 // 	}}
-
 
 // 	res := coll.FindOne(context.TODO(), filter)
 
@@ -174,9 +170,9 @@ func (r *MongoDbMunicipalities) Paginate(p municipalities.PaginationFilter, sear
 // }
 
 func (r *MongoDbMunicipalities) UpdateBatch(batch []municipalities.Municipality) (municipalities.BatchUpdateResult, error) {
-	
+
 	coll, err := r.getCollection()
-	
+
 	if err != nil {
 		return municipalities.BatchUpdateResult{}, err
 	}
@@ -185,7 +181,7 @@ func (r *MongoDbMunicipalities) UpdateBatch(batch []municipalities.Municipality)
 
 	for _, m := range batch {
 		models = append(
-			models, 
+			models,
 			mongo.NewReplaceOneModel().SetFilter(bson.D{{"import_id", m.ImportID}}).SetUpsert(true).SetReplacement(m),
 		)
 	}
@@ -199,7 +195,7 @@ func (r *MongoDbMunicipalities) UpdateBatch(batch []municipalities.Municipality)
 
 }
 
-func NewMongoDbMunicipalities(connector MongoDbConnector ) *MongoDbMunicipalities {
+func NewMongoDbMunicipalities(connector MongoDbConnector) *MongoDbMunicipalities {
 	return &MongoDbMunicipalities{
 		connector: connector,
 	}

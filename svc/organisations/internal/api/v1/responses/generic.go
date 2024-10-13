@@ -18,7 +18,7 @@ type SortOptionsResponseMeta struct {
 
 	// Field by which the results are sorted.
 	OrderBy string `json:"order_by"`
-}// @name	V1.Response[Meta].SortOptions
+} // @name	V1.Response[Meta].SortOptions
 
 type PaginationResponseMeta struct {
 	// The page number for the results returned.
@@ -32,9 +32,9 @@ type PaginationResponseMeta struct {
 
 	// The total amount of results in the system.
 	TotalResults int `json:"total_results"`
-}// @name	V1.Response[Meta].Pagination
+} // @name	V1.Response[Meta].Pagination
 
 type ListResponseMeta struct {
-	PaginationResponseMeta `json:"pagination"`
+	PaginationResponseMeta  `json:"pagination"`
 	SortOptionsResponseMeta `json:"sorting"`
-}// @name	V1.Response[Meta].List
+} // @name	V1.Response[Meta].List

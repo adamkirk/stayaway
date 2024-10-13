@@ -21,7 +21,7 @@ var errorTranslations = []Translation{
 		},
 		TranslateFunc: func(ut ut.Translator, fe validator.FieldError) string {
 			t, _ := ut.T("required")
-			
+
 			return t
 		},
 	},
@@ -32,7 +32,7 @@ var errorTranslations = []Translation{
 		},
 		TranslateFunc: func(ut ut.Translator, fe validator.FieldError) string {
 			t, _ := ut.T("slug")
-			
+
 			return t
 		},
 	},
@@ -44,7 +44,7 @@ var errorTranslations = []Translation{
 		},
 		TranslateFunc: func(ut ut.Translator, fe validator.FieldError) string {
 			t, _ := ut.T("postcode")
-			
+
 			return t
 		},
 	},
@@ -57,17 +57,17 @@ var errorTranslations = []Translation{
 
 			minValue := fe.Param()
 			var msg string
-	
+
 			k := fe.Type().Kind()
-	
+
 			if fe.Type().Kind() == reflect.Pointer {
 				k = fe.Type().Elem().Kind()
 			}
-	
+
 			switch k {
 			case reflect.Array, reflect.Slice:
 				msg = "must contain more than %s items"
-			case 
+			case
 				reflect.Float32,
 				reflect.Float64,
 				reflect.Int,
@@ -84,10 +84,9 @@ var errorTranslations = []Translation{
 			case reflect.String:
 				msg = "must be more than %s characters long"
 			}
-	
-	
+
 			t, _ := ut.T("min", fmt.Sprintf(msg, minValue))
-			
+
 			return t
 		},
 	},
@@ -100,17 +99,17 @@ var errorTranslations = []Translation{
 
 			minValue := fe.Param()
 			var msg string
-	
+
 			k := fe.Type().Kind()
-	
+
 			if fe.Type().Kind() == reflect.Pointer {
 				k = fe.Type().Elem().Kind()
 			}
-	
+
 			switch k {
 			case reflect.Array, reflect.Slice:
 				msg = "cannot contain more than %s items"
-			case 
+			case
 				reflect.Float32,
 				reflect.Float64,
 				reflect.Int,
@@ -127,10 +126,9 @@ var errorTranslations = []Translation{
 			case reflect.String:
 				msg = "cannot be more than %s characters long"
 			}
-	
-	
+
 			t, _ := ut.T("min", fmt.Sprintf(msg, minValue))
-			
+
 			return t
 		},
 	},
@@ -162,7 +160,7 @@ var validate *validator.Validate
 var trans ut.Translator
 
 type FieldError struct {
-	Key string
+	Key    string
 	Errors []string
 }
 
@@ -176,18 +174,18 @@ func (err ValidationError) Error() string {
 
 type Validator struct {
 	validate *validator.Validate
-	trans ut.Translator
+	trans    ut.Translator
 }
 
-type Translation struct  {
-	Rule string
-	RegisterFunc func(ut ut.Translator) error
+type Translation struct {
+	Rule          string
+	RegisterFunc  func(ut ut.Translator) error
 	TranslateFunc func(ut ut.Translator, fe validator.FieldError) string
 }
 
 type CustomRule struct {
-	Rule string
-	Handler func (fl validator.FieldLevel) bool
+	Rule    string
+	Handler func(fl validator.FieldLevel) bool
 }
 
 type Extension interface {
@@ -196,7 +194,7 @@ type Extension interface {
 }
 
 func (v *Validator) Validate(in any) error {
-	
+
 	err := validate.Struct(in)
 
 	if err == nil {
@@ -205,7 +203,7 @@ func (v *Validator) Validate(in any) error {
 
 	errs, ok := err.(validator.ValidationErrors)
 
-	if ! ok {
+	if !ok {
 		return errors.New("unable to handle validation")
 	}
 
@@ -222,7 +220,7 @@ func (v *Validator) Validate(in any) error {
 		)
 
 		fieldErrors = append(fieldErrors, FieldError{
-			Key: field,
+			Key:    field,
 			Errors: []string{validationErr.Translate(trans)},
 		})
 	}
@@ -237,10 +235,10 @@ func NewValidator(extensions []Extension) *Validator {
 	uni := ut.New(en, en)
 
 	trans, _ = uni.GetTranslator("en")
-	
+
 	validate = validator.New()
 	en_translations.RegisterDefaultTranslations(validate, trans)
-	
+
 	for _, rule := range customRules {
 		validate.RegisterValidation(rule.Rule, rule.Handler)
 	}
@@ -271,8 +269,6 @@ func NewValidator(extensions []Extension) *Validator {
 
 	return &Validator{
 		validate: validate,
-		trans: trans,
+		trans:    trans,
 	}
 }
-
-

@@ -10,13 +10,13 @@ import (
 )
 
 type MongoDbMigratorConfig interface {
-	 MongoDbMigrationsDatabase() string
-	 MongoDbDatabase() string
+	MongoDbMigrationsDatabase() string
+	MongoDbDatabase() string
 }
 
 type MongoDbMigrator struct {
 	connector *MongoDbConnector
-	cfg MongoDbMigratorConfig
+	cfg       MongoDbMigratorConfig
 }
 
 func migrationsToApply(target string) ([]migrations.Migration, error) {
@@ -35,7 +35,7 @@ func migrationsToApply(target string) ([]migrations.Migration, error) {
 func migrationsToRevert(target string) ([]migrations.Migration, error) {
 	after := []migrations.Migration{}
 
-	for i := len(migrations.AllMigrations) -1; i >= 0; i-- {
+	for i := len(migrations.AllMigrations) - 1; i >= 0; i-- {
 		mig := migrations.AllMigrations[i]
 		after = append(after, mig)
 		if mig.Name == target {
@@ -76,7 +76,7 @@ func (m *MongoDbMigrator) Up(to string) error {
 			}
 
 			_, err := coll.InsertOne(context.TODO(), mig)
-	
+
 			if err != nil {
 				return err
 			}
@@ -106,7 +106,6 @@ func (m *MongoDbMigrator) Down(to string) error {
 		}
 	}
 
-
 	for _, mig := range migs {
 		res := coll.FindOne(context.TODO(), bson.D{{"name", mig.Name}})
 
@@ -119,7 +118,7 @@ func (m *MongoDbMigrator) Down(to string) error {
 				return fmt.Errorf("Error while reverting %s: %w", mig.Name, err)
 			}
 			_, err := coll.DeleteOne(context.TODO(), mig)
-	
+
 			if err != nil {
 				return err
 			}
@@ -132,6 +131,6 @@ func (m *MongoDbMigrator) Down(to string) error {
 func NewMongoDbMigrator(connector *MongoDbConnector, cfg MongoDbMigratorConfig) Migrator {
 	return &MongoDbMigrator{
 		connector: connector,
-		cfg: cfg,
+		cfg:       cfg,
 	}
 }

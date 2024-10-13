@@ -7,7 +7,7 @@ import (
 
 type DeleteVenueTemplateHandlerRepo interface {
 	Get(id string, venueId string) (*VenueTemplate, error)
-	Delete(*VenueTemplate) (error)
+	Delete(*VenueTemplate) error
 }
 
 type DeleteVenueTemplateHandlerVenuesRepo interface {
@@ -16,17 +16,17 @@ type DeleteVenueTemplateHandlerVenuesRepo interface {
 
 type DeleteVenueTemplateCommand struct {
 	OrganisationID string `validate:"required"`
-	VenueID string `validate:"required"`
-	ID string `validate:"required"`
+	VenueID        string `validate:"required"`
+	ID             string `validate:"required"`
 }
 
 type DeleteVenueTemplateHandler struct {
-	validator Validator
-	repo DeleteVenueTemplateHandlerRepo
+	validator  Validator
+	repo       DeleteVenueTemplateHandlerRepo
 	venuesRepo DeleteVenueTemplateHandlerVenuesRepo
 }
 
-func (h *DeleteVenueTemplateHandler) Handle(cmd DeleteVenueTemplateCommand) (error) {
+func (h *DeleteVenueTemplateHandler) Handle(cmd DeleteVenueTemplateCommand) error {
 	err := h.validator.Validate(cmd)
 
 	if err != nil {
@@ -37,7 +37,7 @@ func (h *DeleteVenueTemplateHandler) Handle(cmd DeleteVenueTemplateCommand) (err
 	// Then we include the venue id in the get query to ensure the template
 	// belongs to the given venue.
 	// Feel like generally there is a better pattern for this rather than
-	// keeping the full hierarchy of ids around, but this is simple enough 
+	// keeping the full hierarchy of ids around, but this is simple enough
 	// for now.
 	// Applies to other areas...
 	_, err = h.venuesRepo.Get(cmd.VenueID, cmd.OrganisationID)
@@ -60,13 +60,13 @@ func (h *DeleteVenueTemplateHandler) Handle(cmd DeleteVenueTemplateCommand) (err
 }
 
 func NewDeleteVenueTemplateHandler(
-	validator Validator, 
+	validator Validator,
 	repo DeleteVenueTemplateHandlerRepo,
 	venuesRepo DeleteVenueTemplateHandlerVenuesRepo,
 ) *DeleteVenueTemplateHandler {
 	return &DeleteVenueTemplateHandler{
-		validator: validator,
-		repo: repo,
+		validator:  validator,
+		repo:       repo,
 		venuesRepo: venuesRepo,
 	}
 }

@@ -11,15 +11,15 @@ type RedisConnectorConfig interface {
 	RedisHost() string
 	RedisPassword() *string
 	RedisDb() int
-	RedisConnectionRetries() int 
+	RedisConnectionRetries() int
 }
 
 type RedisConnector struct {
-	host string
+	host     string
 	password *string
-	db int
-	retries int
-	client *redis.Client
+	db       int
+	retries  int
+	client   *redis.Client
 }
 
 func (rc *RedisConnector) Client() (*redis.Client, error) {
@@ -30,9 +30,9 @@ func (rc *RedisConnector) Client() (*redis.Client, error) {
 	var err error
 
 	opts := &redis.Options{
-		Addr: rc.host,
+		Addr:     rc.host,
 		Password: "",
-		DB: rc.db,
+		DB:       rc.db,
 	}
 
 	if rc.password != nil {
@@ -46,7 +46,7 @@ func (rc *RedisConnector) Client() (*redis.Client, error) {
 		err = res.Err()
 		if err != nil {
 			slog.Warn("failed to connect to redis", "attempt", i+1, "error", err)
-			continue;
+			continue
 		}
 	}
 
@@ -59,9 +59,9 @@ func (rc *RedisConnector) Client() (*redis.Client, error) {
 
 func NewRedisConnector(cfg RedisConnectorConfig) *RedisConnector {
 	return &RedisConnector{
-		host: cfg.RedisHost(),
-		db: cfg.RedisDb(),
+		host:     cfg.RedisHost(),
+		db:       cfg.RedisDb(),
 		password: cfg.RedisPassword(),
-		retries: cfg.RedisConnectionRetries(),
+		retries:  cfg.RedisConnectionRetries(),
 	}
 }

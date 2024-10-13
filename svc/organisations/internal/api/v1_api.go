@@ -28,4 +28,3 @@ func NewV1Api(controllers []Controller) *V1Api {
 		controllers: controllers,
 	}
 }
-

@@ -5,7 +5,7 @@ import (
 )
 
 // checkPathExists takes a dot-notated path and checks if the path exists in the map
-func KeyExistsInMap(data map[string]any, path string) (bool) {
+func KeyExistsInMap(data map[string]any, path string) bool {
 	// Split the dot notation into keys
 	keys := strings.Split(path, ".")
 
@@ -14,7 +14,7 @@ func KeyExistsInMap(data map[string]any, path string) (bool) {
 }
 
 // Helper function to recursively check if the keys exist
-func checkKeysExist(data map[string]any, keys []string) (bool) {
+func checkKeysExist(data map[string]any, keys []string) bool {
 	// If there are no keys left, return false (invalid path)
 	if len(keys) == 0 {
 		return false

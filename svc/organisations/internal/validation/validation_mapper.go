@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-type ValidationMapper struct {}
+type ValidationMapper struct{}
 
 func findStructFieldForValidationField(t reflect.Type, fieldName string, carry string, fieldNamePrefix string) (string, bool) {
 	parts := strings.Split(fieldName, ".")
@@ -22,7 +22,7 @@ func findStructFieldForValidationField(t reflect.Type, fieldName string, carry s
 
 	for i := 0; i < t.NumField(); i++ {
 		f := t.Field(i)
-		
+
 		if f.Tag.Get("validationmap") != search {
 			continue
 		}
@@ -63,7 +63,7 @@ func (meta StructMapMeta) ByFieldPath(search string) (string, bool) {
 	return search, false
 }
 
-func mapJsonFieldsToMapTags(t reflect.Type) (StructMapMeta) {
+func mapJsonFieldsToMapTags(t reflect.Type) StructMapMeta {
 	props := StructMapMeta{}
 
 	for i := 0; i < t.NumField(); i++ {
@@ -77,7 +77,7 @@ func mapJsonFieldsToMapTags(t reflect.Type) (StructMapMeta) {
 			for k, v := range sub {
 				props[fmt.Sprintf("%s.%s", jsonName, k)] = v
 			}
-		} 
+		}
 
 		if validationMap != "" {
 			props[jsonName] = validationMap
@@ -104,12 +104,12 @@ func (vm *ValidationMapper) Map(err ValidationError, req any) ValidationError {
 	for _, err := range err.Errs {
 		k, found := meta.ByFieldPath(err.Key)
 
-		if ! found {
+		if !found {
 			slog.Warn("did not find validationmap field error", "field", err.Key, "type", t.Name())
 		}
 
 		fldErrors = append(fldErrors, FieldError{
-			Key: k,
+			Key:    k,
 			Errors: err.Errors,
 		})
 	}

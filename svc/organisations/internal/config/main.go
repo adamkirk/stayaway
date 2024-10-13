@@ -4,13 +4,15 @@
 package config
 
 type DbDriver string
+
 const DbDriverMongoDb DbDriver = "mongodb"
+
 var availableDbDrivers = []DbDriver{
 	DbDriverMongoDb,
 }
 
 func (val DbDriver) IsKnown() bool {
-	for _, chosen := range(availableDbDrivers) {
+	for _, chosen := range availableDbDrivers {
 		if chosen == val {
 			return true
 		}
@@ -24,19 +26,19 @@ func (val DbDriver) IsMongoDb() bool {
 }
 
 type ConfigLogging struct {
-	Level string
+	Level  string
 	Format string
 }
 
 type ConfigApiServerAccessLog struct {
 	Enabled bool
-	Format string
+	Format  string
 }
 
 type ConfigApiServer struct {
 	DebugErrorsEnabled bool `mapstructure:"debug_errors_enabled"`
-	Port int
-	AccessLog ConfigApiServerAccessLog `mapstructure:"access_log"`
+	Port               int
+	AccessLog          ConfigApiServerAccessLog `mapstructure:"access_log"`
 }
 
 type ConfigApi struct {
@@ -44,28 +46,28 @@ type ConfigApi struct {
 }
 
 type ConfigDbMongoDb struct {
-	Uri string
-	Database string
-	ConnectionRetries int `mapstructure:"connection_retries"`
+	Uri                string
+	Database           string
+	ConnectionRetries  int    `mapstructure:"connection_retries"`
 	MigrationsDatabase string `mapstructure:"migrations_database"`
 }
 
 type ConfigDb struct {
-	Driver DbDriver
+	Driver  DbDriver
 	MongoDb ConfigDbMongoDb
 }
 
 type ConfigRedis struct {
-	Host string
-	Password *string
-	Db int
+	Host              string
+	Password          *string
+	Db                int
 	ConnectionRetries int `mapstructure:"connection_retries"`
 }
 
 type ConfigMunicipalitiesSync struct {
 	MaxProcesses int `mapstructure:"max_processes"`
-	BatchSize int `mapstructure:"batch_size"`
-	Countries []string
+	BatchSize    int `mapstructure:"batch_size"`
+	Countries    []string
 }
 
 type ConfigMunicipalities struct {
@@ -73,10 +75,10 @@ type ConfigMunicipalities struct {
 }
 
 type Config struct {
-	Logging ConfigLogging
-	Api ConfigApi
-	Db ConfigDb
-	Redis ConfigRedis
+	Logging        ConfigLogging
+	Api            ConfigApi
+	Db             ConfigDb
+	Redis          ConfigRedis
 	Municipalities ConfigMunicipalities
 }
 
@@ -152,42 +154,42 @@ func (c *Config) RedisConnectionRetries() int {
 	return c.Redis.ConnectionRetries
 }
 
-func NewDefault() *Config{
+func NewDefault() *Config {
 	return &Config{
 		Logging: ConfigLogging{
-			Level: "info",
+			Level:  "info",
 			Format: "json",
 		},
 		Api: ConfigApi{
 			Server: ConfigApiServer{
 				DebugErrorsEnabled: false,
-				Port: 8080,
+				Port:               8080,
 				AccessLog: ConfigApiServerAccessLog{
 					Enabled: true,
-					Format: "json",
+					Format:  "json",
 				},
 			},
 		},
 		Db: ConfigDb{
 			Driver: DbDriverMongoDb,
 			MongoDb: ConfigDbMongoDb{
-				Uri: "",
-				Database: "organisations",
-				ConnectionRetries: 3,
+				Uri:                "",
+				Database:           "organisations",
+				ConnectionRetries:  3,
 				MigrationsDatabase: "migrations",
 			},
 		},
 		Redis: ConfigRedis{
-			Host: "",
-			Password: nil,
-			Db: 0,
+			Host:              "",
+			Password:          nil,
+			Db:                0,
 			ConnectionRetries: 3,
 		},
 		Municipalities: ConfigMunicipalities{
 			Sync: ConfigMunicipalitiesSync{
 				MaxProcesses: 10,
-				BatchSize: 100,
-				Countries: []string{},
+				BatchSize:    100,
+				Countries:    []string{},
 			},
 		},
 	}

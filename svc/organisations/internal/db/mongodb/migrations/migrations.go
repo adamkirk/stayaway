@@ -16,7 +16,7 @@ type MongoDbMigrationConfig interface {
 
 type Migration struct {
 	Name string `bson:"name"`
-	up func(*mongo.Client, MongoDbMigrationConfig) error
+	up   func(*mongo.Client, MongoDbMigrationConfig) error
 	down func(*mongo.Client, MongoDbMigrationConfig) error
 }
 
@@ -33,20 +33,20 @@ var AllMigrations = []Migration{
 		Name: "create-unique-indexes-on-orgs-collections",
 		up: func(client *mongo.Client, cfg MongoDbMigrationConfig) error {
 			coll := client.Database(cfg.MongoDbDatabase()).Collection(mongodb.Organisations)
-			
+
 			indexModel := mongo.IndexModel{
-				Keys: bson.D{{"slug", -1}},
+				Keys:    bson.D{{"slug", -1}},
 				Options: options.Index().SetUnique(true).SetName("organisations-unique-slug"),
 			}
 			_, err := coll.Indexes().CreateOne(context.TODO(), indexModel)
-			
+
 			return err
 		},
 		down: func(client *mongo.Client, cfg MongoDbMigrationConfig) error {
 			coll := client.Database(cfg.MongoDbDatabase()).Collection(mongodb.Organisations)
-			
+
 			_, err := coll.Indexes().DropOne(context.TODO(), "organisations-unique-slug")
-			
+
 			return err
 		},
 	},
@@ -54,7 +54,7 @@ var AllMigrations = []Migration{
 		Name: "create-index-venues-unique-slug-per-org",
 		up: func(client *mongo.Client, cfg MongoDbMigrationConfig) error {
 			coll := client.Database(cfg.MongoDbDatabase()).Collection(mongodb.Venues)
-			
+
 			indexModel := mongo.IndexModel{
 				Keys: bson.D{
 					{"organisation_id", 1},
@@ -63,14 +63,14 @@ var AllMigrations = []Migration{
 				Options: options.Index().SetUnique(true).SetName("venues-unique-slug-per-org"),
 			}
 			_, err := coll.Indexes().CreateOne(context.TODO(), indexModel)
-			
+
 			return err
 		},
 		down: func(client *mongo.Client, cfg MongoDbMigrationConfig) error {
 			coll := client.Database(cfg.MongoDbDatabase()).Collection(mongodb.Venues)
-			
+
 			_, err := coll.Indexes().DropOne(context.TODO(), "venues-unique-slug-per-org")
-			
+
 			return err
 		},
 	},
@@ -78,7 +78,7 @@ var AllMigrations = []Migration{
 		Name: "create-index-venues-unique-slug-per-org",
 		up: func(client *mongo.Client, cfg MongoDbMigrationConfig) error {
 			coll := client.Database(cfg.MongoDbDatabase()).Collection(mongodb.Venues)
-			
+
 			indexModel := mongo.IndexModel{
 				Keys: bson.D{
 					{"organisation_id", 1},
@@ -87,14 +87,14 @@ var AllMigrations = []Migration{
 				Options: options.Index().SetUnique(true).SetName("venues-unique-slug-per-org"),
 			}
 			_, err := coll.Indexes().CreateOne(context.TODO(), indexModel)
-			
+
 			return err
 		},
 		down: func(client *mongo.Client, cfg MongoDbMigrationConfig) error {
 			coll := client.Database(cfg.MongoDbDatabase()).Collection(mongodb.Venues)
-			
+
 			_, err := coll.Indexes().DropOne(context.TODO(), "venues-unique-slug-per-org")
-			
+
 			return err
 		},
 	},

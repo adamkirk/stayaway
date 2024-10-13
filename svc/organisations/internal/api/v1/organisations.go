@@ -25,20 +25,19 @@ type OrganisationsDeleteHandler interface {
 	Handle(cmd organisations.DeleteCommand) error
 }
 
-
 type OrganisationsUpdateHandler interface {
 	Handle(cmd organisations.UpdateCommand) (*organisations.Organisation, error)
 }
 
-type OrganisationsControllerConfig interface {}
+type OrganisationsControllerConfig interface{}
 
 type OrganisationsController struct {
-	cfg OrganisationsControllerConfig
-	get OrganisationsGetHandler
-	list OrganisationsListHandler
-	create OrganisationsCreateHandler
-	delete OrganisationsDeleteHandler
-	update OrganisationsUpdateHandler
+	cfg              OrganisationsControllerConfig
+	get              OrganisationsGetHandler
+	list             OrganisationsListHandler
+	create           OrganisationsCreateHandler
+	delete           OrganisationsDeleteHandler
+	update           OrganisationsUpdateHandler
 	validationMapper *validation.ValidationMapper
 }
 
@@ -61,27 +60,27 @@ func NewOrganisationsController(
 	validationMapper *validation.ValidationMapper,
 ) *OrganisationsController {
 	return &OrganisationsController{
-		cfg: cfg,
-		get: get,
-		list: list,
-		create: create,
-		delete: delete,
-		update: update,
+		cfg:              cfg,
+		get:              get,
+		list:             list,
+		create:           create,
+		delete:           delete,
+		update:           update,
 		validationMapper: validationMapper,
 	}
 }
 
-//	@Summary		List all organisations
-//	@Tags			Organisations
-//	@Accept			json
-//	@Produce		json
-//	@Success		200	{object}	responses.ListOrganisationsResponse
-//	@Failure		422	{object}	responses.ValidationErrorResponse
-//	@Failure		404	{object}	responses.GenericErrorResponse
-//	@Failure		400	{object}	responses.GenericErrorResponse
-//	@Failure		500	{object}	responses.GenericErrorResponse
-//	@Router			/v1/organisations [get]
-//	@Param			request	query	requests.ListOrganisationsRequest	true "Query params"
+// @Summary		List all organisations
+// @Tags			Organisations
+// @Accept			json
+// @Produce		json
+// @Success		200	{object}	responses.ListOrganisationsResponse
+// @Failure		422	{object}	responses.ValidationErrorResponse
+// @Failure		404	{object}	responses.GenericErrorResponse
+// @Failure		400	{object}	responses.GenericErrorResponse
+// @Failure		500	{object}	responses.GenericErrorResponse
+// @Router			/v1/organisations [get]
+// @Param			request	query	requests.ListOrganisationsRequest	true "Query params"
 func (c *OrganisationsController) List(ctx echo.Context) error {
 	req := requests.ListOrganisationsRequest{}
 
@@ -96,17 +95,17 @@ func (c *OrganisationsController) List(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
-	
+
 	resp := responses.ListOrganisationsResponse{
 		Meta: responses.ListResponseMeta{
 			SortOptionsResponseMeta: responses.SortOptionsResponseMeta{
 				OrderDirection: string(cmd.OrderDirection),
-				OrderBy: string(cmd.OrderBy),
+				OrderBy:        string(cmd.OrderBy),
 			},
 			PaginationResponseMeta: responses.PaginationResponseMeta{
-				Page: pagination.Page,
-				PerPage: pagination.PerPage,
-				TotalPages: pagination.TotalPages,
+				Page:         pagination.Page,
+				PerPage:      pagination.PerPage,
+				TotalPages:   pagination.TotalPages,
 				TotalResults: pagination.Total,
 			},
 		},
@@ -118,17 +117,17 @@ func (c *OrganisationsController) List(ctx echo.Context) error {
 	return nil
 }
 
-//	@Summary		Create an organisation
-//	@Tags			Organisations
-//	@Accept			json
-//	@Produce		json
-//	@Success		201	{object}	responses.PostOrganisationResponse
-//	@Failure		422	{object}	responses.ValidationErrorResponse
-//	@Failure		404	{object}	responses.GenericErrorResponse
-//	@Failure		400	{object}	responses.GenericErrorResponse
-//	@Failure		500	{object}	responses.GenericErrorResponse
-//	@Router			/v1/organisations [post]
-//	@Param			Organisation	body		requests.PostOrganisationRequest	true	"Organisation definition"
+// @Summary		Create an organisation
+// @Tags			Organisations
+// @Accept			json
+// @Produce		json
+// @Success		201	{object}	responses.PostOrganisationResponse
+// @Failure		422	{object}	responses.ValidationErrorResponse
+// @Failure		404	{object}	responses.GenericErrorResponse
+// @Failure		400	{object}	responses.GenericErrorResponse
+// @Failure		500	{object}	responses.GenericErrorResponse
+// @Router			/v1/organisations [post]
+// @Param			Organisation	body		requests.PostOrganisationRequest	true	"Organisation definition"
 func (c *OrganisationsController) Create(ctx echo.Context) error {
 	req := requests.PostOrganisationRequest{}
 
@@ -154,17 +153,17 @@ func (c *OrganisationsController) Create(ctx echo.Context) error {
 	return nil
 }
 
-//	@Summary		Get an organisation
-//	@Tags			Organisations
-//	@Accept			json
-//	@Produce		json
-//	@Success		200	{object}	responses.GetOrganisationResponse
-//	@Failure		422	{object}	responses.ValidationErrorResponse
-//	@Failure		404	{object}	responses.GenericErrorResponse
-//	@Failure		400	{object}	responses.GenericErrorResponse
-//	@Failure		500	{object}	responses.GenericErrorResponse
-//	@Router			/v1/organisations/{id} [get]
-//	@Param			id	path	string	true	"The Organisation ID"
+// @Summary		Get an organisation
+// @Tags			Organisations
+// @Accept			json
+// @Produce		json
+// @Success		200	{object}	responses.GetOrganisationResponse
+// @Failure		422	{object}	responses.ValidationErrorResponse
+// @Failure		404	{object}	responses.GenericErrorResponse
+// @Failure		400	{object}	responses.GenericErrorResponse
+// @Failure		500	{object}	responses.GenericErrorResponse
+// @Router			/v1/organisations/{id} [get]
+// @Param			id	path	string	true	"The Organisation ID"
 func (c *OrganisationsController) Get(ctx echo.Context) error {
 	req := requests.GetOrganisationRequest{}
 
@@ -187,18 +186,18 @@ func (c *OrganisationsController) Get(ctx echo.Context) error {
 	return nil
 }
 
-//	@Summary		Update an organisation
-//	@Tags			Organisations
-//	@Accept			json
-//	@Produce		json
-//	@Success		200	{object}	responses.PatchOrganisationResponse
-//	@Failure		422	{object}	responses.ValidationErrorResponse
-//	@Failure		404	{object}	responses.GenericErrorResponse
-//	@Failure		400	{object}	responses.GenericErrorResponse
-//	@Failure		500	{object}	responses.GenericErrorResponse
-//	@Router			/v1/organisations/{id} [patch]
-//	@Param			id	path	string	true	"The Organisation ID"
-//	@Param			Changes	body		requests.PatchOrganisationRequest	true	"Organisation definition"
+// @Summary		Update an organisation
+// @Tags			Organisations
+// @Accept			json
+// @Produce		json
+// @Success		200	{object}	responses.PatchOrganisationResponse
+// @Failure		422	{object}	responses.ValidationErrorResponse
+// @Failure		404	{object}	responses.GenericErrorResponse
+// @Failure		400	{object}	responses.GenericErrorResponse
+// @Failure		500	{object}	responses.GenericErrorResponse
+// @Router			/v1/organisations/{id} [patch]
+// @Param			id	path	string	true	"The Organisation ID"
+// @Param			Changes	body		requests.PatchOrganisationRequest	true	"Organisation definition"
 func (c *OrganisationsController) Patch(ctx echo.Context) error {
 	req := requests.PatchOrganisationRequest{}
 
@@ -225,17 +224,17 @@ func (c *OrganisationsController) Patch(ctx echo.Context) error {
 	return nil
 }
 
-//	@Summary		Delete an organisation
-//	@Tags			Organisations
-//	@Accept			json
-//	@Produce		json
-//	@Success		204
-//	@Failure		422	{object}	responses.ValidationErrorResponse
-//	@Failure		404	{object}	responses.GenericErrorResponse
-//	@Failure		400	{object}	responses.GenericErrorResponse
-//	@Failure		500	{object}	responses.GenericErrorResponse
-//	@Router			/v1/organisations/{id} [delete]
-//	@Param			id	path	string	true	"The Organisation ID"
+// @Summary		Delete an organisation
+// @Tags			Organisations
+// @Accept			json
+// @Produce		json
+// @Success		204
+// @Failure		422	{object}	responses.ValidationErrorResponse
+// @Failure		404	{object}	responses.GenericErrorResponse
+// @Failure		400	{object}	responses.GenericErrorResponse
+// @Failure		500	{object}	responses.GenericErrorResponse
+// @Router			/v1/organisations/{id} [delete]
+// @Param			id	path	string	true	"The Organisation ID"
 func (c *OrganisationsController) Delete(ctx echo.Context) error {
 	req := requests.DeleteOrganisationRequest{}
 
@@ -248,7 +247,7 @@ func (c *OrganisationsController) Delete(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
-	
+
 	ctx.NoContent(204)
 
 	return nil

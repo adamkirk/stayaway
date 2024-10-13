@@ -1,6 +1,5 @@
 package organisations
 
-
 type DeleteHandlerRepo interface {
 	Get(id string) (*Organisation, error)
 	Delete(*Organisation) error
@@ -14,7 +13,7 @@ type DeleteHandler struct {
 	repo DeleteHandlerRepo
 }
 
-func (h *DeleteHandler) Handle(cmd DeleteCommand) (error) {
+func (h *DeleteHandler) Handle(cmd DeleteCommand) error {
 	org, err := h.repo.Get(cmd.ID)
 
 	if err != nil {

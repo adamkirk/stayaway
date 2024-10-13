@@ -32,7 +32,6 @@ func (r *MongoDbVenueAccommodationTemplates) getCollection() (*mongo.Collection,
 	return coll, nil
 }
 
-
 func (r *MongoDbVenueAccommodationTemplates) getSortColumn(sortBy accommodations.SortBy) (string, error) {
 	switch sortBy {
 	case accommodations.SortByName:
@@ -88,17 +87,16 @@ func (r *MongoDbVenueAccommodationTemplates) Paginate(p accommodations.Paginatio
 		SetSkip(int64((p.Page - 1)) * int64(p.PerPage)).
 		SetSort(bson.D{{sortColumn, sortDir}})
 
-
 	filter := r.filterToBsonD(search)
 
-	// Consider estimated count, prefer it to be accurate though and once we use 
+	// Consider estimated count, prefer it to be accurate though and once we use
 	// filters this is no longer viable
 	total, err := coll.CountDocuments(context.TODO(), filter)
 
 	if err != nil {
 		return nil, common.PaginationResult{}, err
 	}
-	
+
 	cursor, err := coll.Find(context.TODO(), filter, opts)
 
 	vts := &accommodations.VenueTemplates{}
@@ -107,12 +105,12 @@ func (r *MongoDbVenueAccommodationTemplates) Paginate(p accommodations.Paginatio
 		return nil, common.PaginationResult{}, err
 	}
 
-	totalPages := int(math.Ceil(float64(total)/float64(p.PerPage)))
+	totalPages := int(math.Ceil(float64(total) / float64(p.PerPage)))
 
 	return *vts, common.PaginationResult{
-		Page: p.Page,
-		PerPage: p.PerPage,
-		Total: int(total),
+		Page:       p.Page,
+		PerPage:    p.PerPage,
+		Total:      int(total),
 		TotalPages: totalPages,
 	}, nil
 }
@@ -178,7 +176,7 @@ func (r *MongoDbVenueAccommodationTemplates) Save(templ *accommodations.VenueTem
 	return r.doUpdate(templ)
 }
 
-func (r *MongoDbVenueAccommodationTemplates) ByNameAndVenue(name string, venueId string)(*accommodations.VenueTemplate, error) {
+func (r *MongoDbVenueAccommodationTemplates) ByNameAndVenue(name string, venueId string) (*accommodations.VenueTemplate, error) {
 	coll, err := r.getCollection()
 
 	if err != nil {
@@ -199,7 +197,7 @@ func (r *MongoDbVenueAccommodationTemplates) ByNameAndVenue(name string, venueId
 	if res.Err() != nil && res.Err() == mongo.ErrNoDocuments {
 		return nil, common.ErrNotFound{
 			ResourceName: "venueaccommodationtemplate",
-			ID: fmt.Sprintf("name:%s,venue_id:%s", name, venueId),
+			ID:           fmt.Sprintf("name:%s,venue_id:%s", name, venueId),
 		}
 	}
 
@@ -221,7 +219,7 @@ func (r *MongoDbVenueAccommodationTemplates) Get(id string, venueId string) (*ac
 		slog.Warn("invalid id given", "id", id, "err", err)
 		return nil, common.ErrNotFound{
 			ResourceName: "venue",
-			ID: id,
+			ID:           id,
 		}
 	}
 
@@ -239,7 +237,7 @@ func (r *MongoDbVenueAccommodationTemplates) Get(id string, venueId string) (*ac
 	if res.Err() != nil && res.Err() == mongo.ErrNoDocuments {
 		return nil, common.ErrNotFound{
 			ResourceName: "venueaccommodationtemplate",
-			ID: fmt.Sprintf("id:%s,venue_id:%s", id, venueId),
+			ID:           fmt.Sprintf("id:%s,venue_id:%s", id, venueId),
 		}
 	}
 
@@ -248,7 +246,7 @@ func (r *MongoDbVenueAccommodationTemplates) Get(id string, venueId string) (*ac
 	return vt, err
 }
 
-func (r *MongoDbVenueAccommodationTemplates) Delete(v *accommodations.VenueTemplate) (error) {
+func (r *MongoDbVenueAccommodationTemplates) Delete(v *accommodations.VenueTemplate) error {
 	coll, err := r.getCollection()
 
 	if err != nil {
@@ -266,9 +264,8 @@ func (r *MongoDbVenueAccommodationTemplates) Delete(v *accommodations.VenueTempl
 	return err
 }
 
-func NewMongoDbVenueAccommodationTemplates(connector MongoDbConnector ) *MongoDbVenueAccommodationTemplates {
+func NewMongoDbVenueAccommodationTemplates(connector MongoDbConnector) *MongoDbVenueAccommodationTemplates {
 	return &MongoDbVenueAccommodationTemplates{
 		connector: connector,
 	}
 }
-

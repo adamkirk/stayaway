@@ -10,7 +10,6 @@ import (
 	"github.com/adamkirk-stayaway/organisations/internal/validation"
 )
 
-
 type UpdateHandlerRepo interface {
 	Get(id string) (*Organisation, error)
 	Save(org *Organisation) (*Organisation, error)
@@ -18,15 +17,15 @@ type UpdateHandlerRepo interface {
 }
 
 type UpdateCommand struct {
-	ID string
+	ID   string
 	Name *string `validate:"omitnil,min=3"`
 	Slug *string `validate:"omitnil,required,min=3,slug"`
 }
 
 type UpdateHandler struct {
-	repo UpdateHandlerRepo
+	repo      UpdateHandlerRepo
 	validator Validator
-	mutex DistributedMutex
+	mutex     DistributedMutex
 }
 
 func (h *UpdateHandler) Handle(cmd UpdateCommand) (*Organisation, error) {
@@ -41,21 +40,19 @@ func (h *UpdateHandler) Handle(cmd UpdateCommand) (*Organisation, error) {
 	if err != nil {
 		return nil, err
 	}
-	
 
-	
 	if cmd.Name != nil {
 		org.Name = *cmd.Name
 	}
-	
+
 	if cmd.Slug != nil {
 		orgBySlug, err := h.repo.BySlug(*cmd.Slug)
 
 		if orgBySlug != nil && orgBySlug.ID != org.ID {
 			return nil, validation.ValidationError{
-				Errs:[]validation.FieldError{
+				Errs: []validation.FieldError{
 					{
-						Key: "Slug",
+						Key:    "Slug",
 						Errors: []string{"must be unique"},
 					},
 				},
@@ -74,10 +71,10 @@ func (h *UpdateHandler) Handle(cmd UpdateCommand) (*Organisation, error) {
 	slugMutexKey := slugMutexKey(*cmd.Slug)
 	editLockKey := fmt.Sprintf("organisation_edit:%s", org.ID)
 
-	l, err := h.mutex.MultiClaimWithBackOff([]string{editLockKey, slugMutexKey}, 300 * time.Millisecond)
-	
+	l, err := h.mutex.MultiClaimWithBackOff([]string{editLockKey, slugMutexKey}, 300*time.Millisecond)
+
 	if err != nil {
-		if _, ok:= err.(mutex.ErrLockNotClaimed); ok {
+		if _, ok := err.(mutex.ErrLockNotClaimed); ok {
 			return nil, common.ErrConflict{
 				Message: "organisation is already being edited elsewhere",
 			}
@@ -92,13 +89,13 @@ func (h *UpdateHandler) Handle(cmd UpdateCommand) (*Organisation, error) {
 		}
 	}()
 
-	return h.repo.Save(org);
+	return h.repo.Save(org)
 }
 
 func NewUpdateHandler(repo UpdateHandlerRepo, validator Validator, mutex DistributedMutex) *UpdateHandler {
 	return &UpdateHandler{
-		repo: repo,
+		repo:      repo,
 		validator: validator,
-		mutex: mutex,
+		mutex:     mutex,
 	}
 }

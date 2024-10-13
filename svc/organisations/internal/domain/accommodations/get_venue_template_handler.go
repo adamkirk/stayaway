@@ -15,13 +15,13 @@ type GetVenueTemplateHandlerVenuesRepo interface {
 
 type GetVenueTemplateCommand struct {
 	OrganisationID string `validate:"required"`
-	VenueID string `validate:"required"`
-	ID string `validate:"required"`
+	VenueID        string `validate:"required"`
+	ID             string `validate:"required"`
 }
 
 type GetVenueTemplateHandler struct {
-	validator Validator
-	repo GetVenueTemplateHandlerRepo
+	validator  Validator
+	repo       GetVenueTemplateHandlerRepo
 	venuesRepo GetVenueTemplateHandlerVenuesRepo
 }
 
@@ -36,7 +36,7 @@ func (h *GetVenueTemplateHandler) Handle(cmd GetVenueTemplateCommand) (*VenueTem
 	// Then we include the venue id in the get query to ensure the template
 	// belongs to the given venue.
 	// Feel like generally there is a better pattern for this rather than
-	// keeping the full hierarchy of ids around, but this is simple enough 
+	// keeping the full hierarchy of ids around, but this is simple enough
 	// for now.
 	// Applies to other areas...
 	_, err = h.venuesRepo.Get(cmd.VenueID, cmd.OrganisationID)
@@ -53,13 +53,13 @@ func (h *GetVenueTemplateHandler) Handle(cmd GetVenueTemplateCommand) (*VenueTem
 }
 
 func NewGetVenueTemplateHandler(
-	validator Validator, 
+	validator Validator,
 	repo GetVenueTemplateHandlerRepo,
 	venuesRepo GetVenueTemplateHandlerVenuesRepo,
 ) *GetVenueTemplateHandler {
 	return &GetVenueTemplateHandler{
-		validator: validator,
-		repo: repo,
+		validator:  validator,
+		repo:       repo,
 		venuesRepo: venuesRepo,
 	}
 }

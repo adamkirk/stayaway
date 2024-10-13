@@ -25,20 +25,19 @@ type VenuesDeleteHandler interface {
 	Handle(cmd venues.DeleteCommand) error
 }
 
-
 type VenuesUpdateHandler interface {
 	Handle(cmd venues.UpdateCommand) (*venues.Venue, error)
 }
 
-type VenuesControllerConfig interface {}
+type VenuesControllerConfig interface{}
 
 type VenuesController struct {
-	cfg VenuesControllerConfig
-	get VenuesGetHandler
-	list VenuesListHandler
-	create VenuesCreateHandler
-	delete VenuesDeleteHandler
-	update VenuesUpdateHandler
+	cfg              VenuesControllerConfig
+	get              VenuesGetHandler
+	list             VenuesListHandler
+	create           VenuesCreateHandler
+	delete           VenuesDeleteHandler
+	update           VenuesUpdateHandler
 	validationMapper *validation.ValidationMapper
 }
 
@@ -61,28 +60,28 @@ func NewVenuesController(
 	update VenuesUpdateHandler,
 ) *VenuesController {
 	return &VenuesController{
-		cfg: cfg,
-		get: get,
-		list: list,
-		create: create,
-		delete: delete,
-		update: update,
+		cfg:              cfg,
+		get:              get,
+		list:             list,
+		create:           create,
+		delete:           delete,
+		update:           update,
 		validationMapper: validationMapper,
 	}
 }
 
-//	@Summary		List all venues for an organisation
-//	@Tags			Venues
-//	@Accept			json
-//	@Produce		json
-//	@Success		200	{object}	responses.ListVenuesResponse
-//	@Failure		422	{object}	responses.ValidationErrorResponse
-//	@Failure		404	{object}	responses.GenericErrorResponse
-//	@Failure		400	{object}	responses.GenericErrorResponse
-//	@Failure		500	{object}	responses.GenericErrorResponse
-//	@Router			/v1/organisations/{orgId}/venues [get]
-//	@Param			orgId	path	string	true	"The Organisations ID"
-//	@Param			request	query requests.ListVenuesRequest	true "Query params"
+// @Summary		List all venues for an organisation
+// @Tags			Venues
+// @Accept			json
+// @Produce		json
+// @Success		200	{object}	responses.ListVenuesResponse
+// @Failure		422	{object}	responses.ValidationErrorResponse
+// @Failure		404	{object}	responses.GenericErrorResponse
+// @Failure		400	{object}	responses.GenericErrorResponse
+// @Failure		500	{object}	responses.GenericErrorResponse
+// @Router			/v1/organisations/{orgId}/venues [get]
+// @Param			orgId	path	string	true	"The Organisations ID"
+// @Param			request	query requests.ListVenuesRequest	true "Query params"
 func (c *VenuesController) List(ctx echo.Context) error {
 	req := requests.ListVenuesRequest{}
 
@@ -97,17 +96,17 @@ func (c *VenuesController) List(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
-	
+
 	resp := responses.ListVenuesResponse{
 		Meta: responses.ListResponseMeta{
 			SortOptionsResponseMeta: responses.SortOptionsResponseMeta{
 				OrderDirection: string(cmd.OrderDirection),
-				OrderBy: string(cmd.OrderBy),
+				OrderBy:        string(cmd.OrderBy),
 			},
 			PaginationResponseMeta: responses.PaginationResponseMeta{
-				Page: pagination.Page,
-				PerPage: pagination.PerPage,
-				TotalPages: pagination.TotalPages,
+				Page:         pagination.Page,
+				PerPage:      pagination.PerPage,
+				TotalPages:   pagination.TotalPages,
 				TotalResults: pagination.Total,
 			},
 		},
@@ -119,18 +118,18 @@ func (c *VenuesController) List(ctx echo.Context) error {
 	return nil
 }
 
-//	@Summary		Create a venue for an organisation
-//	@Tags			Venues
-//	@Accept			json
-//	@Produce		json
-//	@Success		201	{object}	responses.PostVenueResponse
-//	@Failure		422	{object}	responses.ValidationErrorResponse
-//	@Failure		404	{object}	responses.GenericErrorResponse
-//	@Failure		400	{object}	responses.GenericErrorResponse
-//	@Failure		500	{object}	responses.GenericErrorResponse
-//	@Router			/v1/organisations/{orgId}/venues [post]
-//	@Param			orgId	path	string	true	"The Organisations ID"
-//	@Param			Venue	body		requests.PostVenueRequest	true	"Venue definition"
+// @Summary		Create a venue for an organisation
+// @Tags			Venues
+// @Accept			json
+// @Produce		json
+// @Success		201	{object}	responses.PostVenueResponse
+// @Failure		422	{object}	responses.ValidationErrorResponse
+// @Failure		404	{object}	responses.GenericErrorResponse
+// @Failure		400	{object}	responses.GenericErrorResponse
+// @Failure		500	{object}	responses.GenericErrorResponse
+// @Router			/v1/organisations/{orgId}/venues [post]
+// @Param			orgId	path	string	true	"The Organisations ID"
+// @Param			Venue	body		requests.PostVenueRequest	true	"Venue definition"
 func (c *VenuesController) Create(ctx echo.Context) error {
 	req := requests.PostVenueRequest{}
 
@@ -156,18 +155,18 @@ func (c *VenuesController) Create(ctx echo.Context) error {
 	return nil
 }
 
-//	@Summary		Get a venue for an organisation
-//	@Tags			Venues
-//	@Accept			json
-//	@Produce		json
-//	@Success		200	{object}	responses.PostVenueResponse
-//	@Failure		422	{object}	responses.ValidationErrorResponse
-//	@Failure		404	{object}	responses.GenericErrorResponse
-//	@Failure		400	{object}	responses.GenericErrorResponse
-//	@Failure		500	{object}	responses.GenericErrorResponse
-//	@Router			/v1/organisations/{orgId}/venues/{id} [get]
-//	@Param			orgId	path	string	true	"The Organisations ID"
-//	@Param			id	path	string	true	"The Venues ID"
+// @Summary		Get a venue for an organisation
+// @Tags			Venues
+// @Accept			json
+// @Produce		json
+// @Success		200	{object}	responses.PostVenueResponse
+// @Failure		422	{object}	responses.ValidationErrorResponse
+// @Failure		404	{object}	responses.GenericErrorResponse
+// @Failure		400	{object}	responses.GenericErrorResponse
+// @Failure		500	{object}	responses.GenericErrorResponse
+// @Router			/v1/organisations/{orgId}/venues/{id} [get]
+// @Param			orgId	path	string	true	"The Organisations ID"
+// @Param			id	path	string	true	"The Venues ID"
 func (c *VenuesController) Get(ctx echo.Context) error {
 	req := requests.GetVenueRequest{}
 
@@ -190,19 +189,19 @@ func (c *VenuesController) Get(ctx echo.Context) error {
 	return nil
 }
 
-//	@Summary		Update a venue for an organisation
-//	@Tags			Venues
-//	@Accept			json
-//	@Produce		json
-//	@Success		200	{object}	responses.PatchVenueResponse
-//	@Failure		422	{object}	responses.ValidationErrorResponse
-//	@Failure		404	{object}	responses.GenericErrorResponse
-//	@Failure		400	{object}	responses.GenericErrorResponse
-//	@Failure		500	{object}	responses.GenericErrorResponse
-//	@Router			/v1/organisations/{orgId}/venues/{id} [patch]
-//	@Param			orgId	path	string	true	"The Organisations ID"
-//	@Param			id	path	string	true	"The Venues ID"
-//	@Param			Changes	body		requests.PatchVenueRequest	true	"Venue changes"
+// @Summary		Update a venue for an organisation
+// @Tags			Venues
+// @Accept			json
+// @Produce		json
+// @Success		200	{object}	responses.PatchVenueResponse
+// @Failure		422	{object}	responses.ValidationErrorResponse
+// @Failure		404	{object}	responses.GenericErrorResponse
+// @Failure		400	{object}	responses.GenericErrorResponse
+// @Failure		500	{object}	responses.GenericErrorResponse
+// @Router			/v1/organisations/{orgId}/venues/{id} [patch]
+// @Param			orgId	path	string	true	"The Organisations ID"
+// @Param			id	path	string	true	"The Venues ID"
+// @Param			Changes	body		requests.PatchVenueRequest	true	"Venue changes"
 func (c *VenuesController) Patch(ctx echo.Context) error {
 	req := requests.PatchVenueRequest{}
 	if err := bindRequest(&req, ctx); err != nil {
@@ -224,18 +223,18 @@ func (c *VenuesController) Patch(ctx echo.Context) error {
 	return nil
 }
 
-//	@Summary		Delete a venue from an organisation
-//	@Tags			Venues
-//	@Accept			json
-//	@Produce		json
-//	@Success		204
-//	@Failure		422	{object}	responses.ValidationErrorResponse
-//	@Failure		404	{object}	responses.GenericErrorResponse
-//	@Failure		400	{object}	responses.GenericErrorResponse
-//	@Failure		500	{object}	responses.GenericErrorResponse
-//	@Router			/v1/organisations/{orgId}/venues/{id} [delete]
-//	@Param			orgId	path	string	true	"The Organisations ID"
-//	@Param			id	path	string	true	"The Venues ID"
+// @Summary		Delete a venue from an organisation
+// @Tags			Venues
+// @Accept			json
+// @Produce		json
+// @Success		204
+// @Failure		422	{object}	responses.ValidationErrorResponse
+// @Failure		404	{object}	responses.GenericErrorResponse
+// @Failure		400	{object}	responses.GenericErrorResponse
+// @Failure		500	{object}	responses.GenericErrorResponse
+// @Router			/v1/organisations/{orgId}/venues/{id} [delete]
+// @Param			orgId	path	string	true	"The Organisations ID"
+// @Param			id	path	string	true	"The Venues ID"
 func (c *VenuesController) Delete(ctx echo.Context) error {
 	req := requests.DeleteVenueRequest{}
 
@@ -248,7 +247,7 @@ func (c *VenuesController) Delete(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
-	
+
 	ctx.NoContent(204)
 
 	return nil

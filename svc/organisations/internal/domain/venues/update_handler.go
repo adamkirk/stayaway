@@ -12,23 +12,23 @@ type UpdateHandlerRepo interface {
 }
 
 type UpdateCommand struct {
-	ID *string `validate:"required"`
-	OrganisationID *string `validate:"required"`
-	Name *string `validate:"omitnil,min=3"`
-	Slug *string `validate:"omitnil,min=3,slug"`
-	Type *string `validate:"omitnil,venuetype"`
-	AddressLine1 *string `validate:"omitnil,min=1"`
-	AddressLine2 *string `validate:"omitnil,min=1"`
+	ID                  *string `validate:"required"`
+	OrganisationID      *string `validate:"required"`
+	Name                *string `validate:"omitnil,min=3"`
+	Slug                *string `validate:"omitnil,min=3,slug"`
+	Type                *string `validate:"omitnil,venuetype"`
+	AddressLine1        *string `validate:"omitnil,min=1"`
+	AddressLine2        *string `validate:"omitnil,min=1"`
 	NullifyAddressLine2 bool
-	Municipality *string `validate:"omitnil,min=1"`
-	PostCode *string `validate:"omitnil,postcode"`
-	Lat *float64 `validate:"omitnil,min=0"`
-	Long *float64 `validate:"omitnil,min=0"`
+	Municipality        *string  `validate:"omitnil,min=1"`
+	PostCode            *string  `validate:"omitnil,postcode"`
+	Lat                 *float64 `validate:"omitnil,min=0"`
+	Long                *float64 `validate:"omitnil,min=0"`
 }
 
 type UpdateHandler struct {
 	validator Validator
-	repo UpdateHandlerRepo
+	repo      UpdateHandlerRepo
 }
 
 func (h *UpdateHandler) Handle(cmd UpdateCommand) (*Venue, error) {
@@ -46,18 +46,18 @@ func (h *UpdateHandler) Handle(cmd UpdateCommand) (*Venue, error) {
 
 	if cmd.Slug != nil {
 		venueBySlug, err := h.repo.BySlugAndOrganisation(*cmd.Slug, *cmd.OrganisationID)
-	
+
 		if venueBySlug != nil && venueBySlug.ID != v.ID {
 			return nil, validation.ValidationError{
-				Errs:[]validation.FieldError{
+				Errs: []validation.FieldError{
 					{
-						Key: "Slug",
+						Key:    "Slug",
 						Errors: []string{"must be unique"},
 					},
 				},
 			}
 		}
-	
+
 		if err != nil {
 			if _, ok := err.(common.ErrNotFound); !ok {
 				return nil, err
@@ -107,6 +107,6 @@ func (h *UpdateHandler) Handle(cmd UpdateCommand) (*Venue, error) {
 func NewUpdateHandler(validator Validator, repo UpdateHandlerRepo) *UpdateHandler {
 	return &UpdateHandler{
 		validator: validator,
-		repo: repo,
+		repo:      repo,
 	}
 }

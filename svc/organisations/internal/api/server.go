@@ -67,7 +67,7 @@ func NewServer(v1Api *V1Api, cfg ApiServerConfig) *Server {
 	e.HidePort = true
 	e.Pre(middleware.RemoveTrailingSlash())
 	e.Use(middleware.RequestID())
-	
+
 	if cfg.ApiServerAccessLogEnabled() {
 		e.Use(buildLoggingMiddleware(cfg.ApiServerAccessLogFormat()))
 	}
@@ -77,7 +77,7 @@ func NewServer(v1Api *V1Api, cfg ApiServerConfig) *Server {
 	v1 := api.Group(fmt.Sprintf("/%s", v1Api.Version()))
 
 	v1.Use(v1Api.Middleware(cfg)...)
-	
+
 	for _, c := range v1Api.Controllers() {
 		c.RegisterRoutes(v1)
 	}

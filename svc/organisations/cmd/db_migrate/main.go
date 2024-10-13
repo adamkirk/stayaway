@@ -12,13 +12,13 @@ import (
 
 type Action struct {
 	migrator db.Migrator
-	sh fx.Shutdowner
-	cmd *cobra.Command
-	args []string
+	sh       fx.Shutdowner
+	cmd      *cobra.Command
+	args     []string
 }
 
 type ActionInput struct {
-	cmd *cobra.Command
+	cmd  *cobra.Command
 	args []string
 }
 
@@ -29,10 +29,10 @@ func newAction(
 	input *ActionInput,
 ) *Action {
 	act := &Action{
-		sh: sh,
+		sh:       sh,
 		migrator: migrator,
-		cmd: input.cmd,
-		args: input.args,
+		cmd:      input.cmd,
+		args:     input.args,
 	}
 
 	lc.Append(fx.Hook{
@@ -53,7 +53,7 @@ func (act *Action) stop(ctx context.Context) error {
 }
 
 func (act *Action) run() {
-	
+
 	var err error
 	var target = ""
 
@@ -77,14 +77,13 @@ func (act *Action) run() {
 	act.sh.Shutdown()
 }
 
-
 func Handler(opts []fx.Option, cmd *cobra.Command, args []string) {
 	opts = append(opts, []fx.Option{
 		// Prevents all the logging noise when building the service container
 		fx.NopLogger,
-		fx.Provide(func () *ActionInput {
+		fx.Provide(func() *ActionInput {
 			return &ActionInput{
-				cmd: cmd,
+				cmd:  cmd,
 				args: args,
 			}
 		}),
@@ -94,5 +93,5 @@ func Handler(opts []fx.Option, cmd *cobra.Command, args []string) {
 
 	fx.New(
 		opts...,
-	  ).Run()
+	).Run()
 }

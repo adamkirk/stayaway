@@ -5,11 +5,10 @@ import (
 	"github.com/adamkirk-stayaway/organisations/internal/domain/organisations"
 )
 
-
 type ListOrganisationsRequest struct {
 	// The direction to order the results by.
 	OrderDirection *string `query:"order_dir" json:"order_dir" validate:"optional" enums:"asc,desc"`
-	
+
 	// The field by which to order the results.
 	OrderBy *string `query:"order_by" json:"order_by" validate:"optional" enums:"name,slug"`
 
@@ -46,7 +45,7 @@ func (req ListOrganisationsRequest) ToCommand() organisations.ListCommand {
 type PostOrganisationRequest struct {
 	// The name of the organisation.
 	Name *string `json:"name" validationmap:"Name" validate:"required" minLength:"3"`
-	
+
 	// A slug that will be used in URI's.
 	// Must only contain alphanumeric and hyphen characters
 	Slug *string `json:"slug" validationmap:"Slug" validate:"required" minLength:"3"`
@@ -93,7 +92,7 @@ type PatchOrganisationRequest struct {
 
 func (req PatchOrganisationRequest) ToCommand() organisations.UpdateCommand {
 	return organisations.UpdateCommand{
-		ID: req.ID,
+		ID:   req.ID,
 		Name: req.Name,
 		Slug: req.Slug,
 	}

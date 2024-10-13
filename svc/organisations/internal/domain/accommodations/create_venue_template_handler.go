@@ -10,7 +10,7 @@ import (
 
 type CreateVenueTemplateHandlerRepo interface {
 	Save(org *VenueTemplate) (*VenueTemplate, error)
-	ByNameAndVenue(name string, venueId string)(*VenueTemplate, error)
+	ByNameAndVenue(name string, venueId string) (*VenueTemplate, error)
 }
 
 type CreateVenueTemplateHandlerVenuesRepo interface {
@@ -19,18 +19,18 @@ type CreateVenueTemplateHandlerVenuesRepo interface {
 
 type CreateVenueTemplateCommand struct {
 	OrganisationID *string `validate:"required"`
-	VenueID *string `validate:"required"`
-	Name *string `validate:"required,min=3"`
-	Type *string `validate:"required,accommodationtype"`
-	MinOccupancy *int `validate:"required,min=1"`
+	VenueID        *string `validate:"required"`
+	Name           *string `validate:"required,min=3"`
+	Type           *string `validate:"required,accommodationtype"`
+	MinOccupancy   *int    `validate:"required,min=1"`
 	// 100 seems an appropriate max
-	MaxOccupancy *int `validate:"omitnil,gtefield=MinOccupancy"`
-	Description *string `validate:"required,min=10"`
+	MaxOccupancy *int    `validate:"omitnil,gtefield=MinOccupancy"`
+	Description  *string `validate:"required,min=10"`
 }
 
 type CreateVenueTemplateHandler struct {
-	validator Validator
-	repo CreateVenueTemplateHandlerRepo
+	validator  Validator
+	repo       CreateVenueTemplateHandlerRepo
 	venuesRepo CreateVenueTemplateHandlerVenuesRepo
 }
 
@@ -57,17 +57,17 @@ func (h *CreateVenueTemplateHandler) Handle(cmd CreateVenueTemplateCommand) (*Ve
 
 	if err == nil {
 		return nil, validation.ValidationError{
-			Errs:[]validation.FieldError{
+			Errs: []validation.FieldError{
 				{
-					Key: "Name",
+					Key:    "Name",
 					Errors: []string{"must be unique"},
 				},
 			},
 		}
 	} else {
-		_, ok := err.(common.ErrNotFound);
+		_, ok := err.(common.ErrNotFound)
 
-		if ! ok {
+		if !ok {
 			return nil, err
 		}
 	}
@@ -75,11 +75,11 @@ func (h *CreateVenueTemplateHandler) Handle(cmd CreateVenueTemplateCommand) (*Ve
 	vt := &VenueTemplate{
 		VenueID: *cmd.VenueID,
 		Template: Template{
-			Name: *cmd.Name,
+			Name:         *cmd.Name,
 			MinOccupancy: *cmd.MinOccupancy,
 			MaxOccupancy: cmd.MaxOccupancy,
-			Description: *cmd.Description,
-			Type: Type(*cmd.Type),
+			Description:  *cmd.Description,
+			Type:         Type(*cmd.Type),
 		},
 	}
 
@@ -87,13 +87,13 @@ func (h *CreateVenueTemplateHandler) Handle(cmd CreateVenueTemplateCommand) (*Ve
 }
 
 func NewCreateVenueTemplateHandler(
-	validator Validator, 
+	validator Validator,
 	repo CreateVenueTemplateHandlerRepo,
 	venuesRepo CreateVenueTemplateHandlerVenuesRepo,
 ) *CreateVenueTemplateHandler {
 	return &CreateVenueTemplateHandler{
-		validator: validator,
-		repo: repo,
+		validator:  validator,
+		repo:       repo,
 		venuesRepo: venuesRepo,
 	}
 }

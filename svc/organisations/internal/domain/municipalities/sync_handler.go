@@ -19,14 +19,14 @@ type SyncHandlerRepo interface {
 }
 
 type SyncHandler struct {
-	fs afero.Fs
+	fs   afero.Fs
 	repo SyncHandlerRepo
-	cfg SyncHandlerConfig
+	cfg  SyncHandlerConfig
 }
 
 type MunicipalityBatch struct {
 	Number int
-	Rows []Municipality
+	Rows   []Municipality
 }
 
 type SyncCommand struct {
@@ -35,10 +35,10 @@ type SyncCommand struct {
 
 type batchResult struct {
 	SyncedRecords int
-	Error error
+	Error         error
 }
 
-type processorFunc func (rows MunicipalityBatch, wg *sync.WaitGroup, sem processorSemaphore, resChan chan<- batchResult) 
+type processorFunc func(rows MunicipalityBatch, wg *sync.WaitGroup, sem processorSemaphore, resChan chan<- batchResult)
 
 type processorSemaphore chan MunicipalityBatch
 
@@ -61,7 +61,6 @@ func (h *SyncHandler) processBatches(path string, processor processorFunc) ([]ba
 	}
 	defer f.Close()
 
-
 	rows := []Municipality{}
 
 	if err := gocsv.Unmarshal(f, &rows); err != nil {
@@ -70,11 +69,10 @@ func (h *SyncHandler) processBatches(path string, processor processorFunc) ([]ba
 
 	batchSize := h.cfg.MunicipalitiesSyncBatchSize()
 	batches := [][]Municipality{}
-	
 
 	batch := []Municipality{}
 	for _, row := range rows {
-		if ! h.shouldIncludeRow(row) {
+		if !h.shouldIncludeRow(row) {
 			continue
 		}
 
@@ -99,7 +97,7 @@ func (h *SyncHandler) processBatches(path string, processor processorFunc) ([]ba
 		wg.Add(1)
 		go processor(MunicipalityBatch{
 			Number: i,
-			Rows: batch,
+			Rows:   batch,
 		}, &wg, sem, resultsChannel)
 	}
 
@@ -107,7 +105,7 @@ func (h *SyncHandler) processBatches(path string, processor processorFunc) ([]ba
 	close(resultsChannel)
 
 	results := []batchResult{}
-	
+
 	for res := range resultsChannel {
 		results = append(results, res)
 	}
@@ -126,7 +124,7 @@ func (h *SyncHandler) syncBatch(batch MunicipalityBatch, wg *sync.WaitGroup, sem
 
 	res := batchResult{
 		SyncedRecords: updateResult.Created + updateResult.Updated,
-		Error: err,
+		Error:         err,
 	}
 
 	resChan <- res
@@ -157,14 +155,14 @@ func (h *SyncHandler) Handle(cmd SyncCommand) (SyncResult, error) {
 
 	return SyncResult{
 		Processed: totalProcessed,
-		Path: cmd.SourceCsvPath,
+		Path:      cmd.SourceCsvPath,
 	}, nil
 }
 
 func NewSyncHandler(fs afero.Fs, cfg SyncHandlerConfig, repo SyncHandlerRepo) *SyncHandler {
 	return &SyncHandler{
-		fs: fs,
+		fs:   fs,
 		repo: repo,
-		cfg: cfg,
+		cfg:  cfg,
 	}
 }

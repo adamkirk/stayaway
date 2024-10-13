@@ -23,7 +23,7 @@ func (p *MongoDbPinger) Ping() error {
 
 	var result bson.M
 
-	return db.RunCommand(context.TODO(), bson.D{{"ping", 1}}).Decode(&result);
+	return db.RunCommand(context.TODO(), bson.D{{"ping", 1}}).Decode(&result)
 }
 
 func NewMongoDbPinger(connector *MongoDbConnector) Pinger {

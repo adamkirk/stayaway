@@ -13,15 +13,15 @@ const (
 )
 
 type SearchFilter struct {
-	VenueID []string
+	VenueID    []string
 	NamePrefix *string
 }
 
 type PaginationFilter struct {
-	OrderBy SortBy
+	OrderBy  SortBy
 	OrderDir common.SortDirection
-	Page int
-	PerPage int
+	Page     int
+	PerPage  int
 }
 
 type Type string
@@ -51,17 +51,17 @@ func (vt Type) IsValid() bool {
 // Template is a generic type resource because we might assign a template to
 // multiple things.
 type Template struct {
-	Name string `bson:"name"`
-	MinOccupancy int `bson:"min_occupancy"`
-	MaxOccupancy *int `bson:"max_occupancy"`
-	Description string `bson:"description"`
-	Type Type `bson:"type"`
+	Name         string `bson:"name"`
+	MinOccupancy int    `bson:"min_occupancy"`
+	MaxOccupancy *int   `bson:"max_occupancy"`
+	Description  string `bson:"description"`
+	Type         Type   `bson:"type"`
 }
 
 type VenueTemplate struct {
 	Template `bson:"template"`
-	ID string `bson:"_id,omitempty"`
-	VenueID string `bson:"venue_id"`
+	ID       string `bson:"_id,omitempty"`
+	VenueID  string `bson:"venue_id"`
 }
 
 type Templates []Template
@@ -69,9 +69,9 @@ type Templates []Template
 type VenueTemplates []*VenueTemplate
 
 type AccommodationGroup struct {
-	TemplateID string
-	Name string
-	Slots int
+	TemplateID  string
+	Name        string
+	Slots       int
 	Description string
 }
 

@@ -15,10 +15,10 @@ type MongoConfig interface {
 }
 
 type MongoDbConnector struct {
-	orgsDb *mongo.Database
-	client *mongo.Client
-	uri string
-	dbName string
+	orgsDb            *mongo.Database
+	client            *mongo.Client
+	uri               string
+	dbName            string
 	connectionRetries int
 }
 
@@ -32,13 +32,13 @@ func (c *MongoDbConnector) connect() (*mongo.Client, error) {
 	for i := range c.connectionRetries {
 		serverAPI := options.ServerAPI(options.ServerAPIVersion1)
 		opts := options.Client().ApplyURI(c.uri).SetServerAPIOptions(serverAPI)
-	
+
 		// Create a new client and connect to the server
 		client, err = mongo.Connect(context.TODO(), opts)
-		
+
 		if err != nil {
 			slog.Warn("failed to connect to mongo", "attempt", i+1, "error", err)
-			continue;
+			continue
 		}
 	}
 
@@ -69,8 +69,8 @@ func (c *MongoDbConnector) GetOrganisationsDb() (*mongo.Database, error) {
 
 func NewMongoDbConnector(cfg MongoConfig) *MongoDbConnector {
 	return &MongoDbConnector{
-		uri: cfg.MongoDbUri(),
-		dbName: cfg.MongoDbDatabase(),
+		uri:               cfg.MongoDbUri(),
+		dbName:            cfg.MongoDbDatabase(),
 		connectionRetries: cfg.MongoDbConnectionRetries(),
 	}
 }

@@ -34,7 +34,7 @@ const docTemplate = `{
                 "tags": [
                     "Municipalities"
                 ],
-                "summary": "List all venues for an organisation",
+                "summary": "List all municipalities that can be used",
                 "parameters": [
                     {
                         "type": "array",
@@ -750,9 +750,419 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/v1/organisations/{orgId}/venues/{venueId}/accommodation-templates": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AccommodationTemplates"
+                ],
+                "summary": "List all accommodation templates for a venue",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The Organisations ID",
+                        "name": "orgId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The Venues ID",
+                        "name": "venueId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "enum": [
+                            "name"
+                        ],
+                        "type": "string",
+                        "description": "The field by which to order the results.",
+                        "name": "order_by",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "asc",
+                            "desc"
+                        ],
+                        "type": "string",
+                        "description": "The direction to order the results by.",
+                        "name": "order_dir",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "The page to display.\nAn empty list may be returned if going beyond the last page of results.",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "The amount of results to display per page.",
+                        "name": "per_page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Characters to use as a prefix in searching by the name.\nUseful for a \"typeahead\" widget.",
+                        "name": "prefix",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.ListVenueAccommodationTemplates"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Invalid"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AccommodationTemplates"
+                ],
+                "summary": "Create a venue accommodation template for an organisation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The Organisations ID",
+                        "name": "orgId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The Venues ID",
+                        "name": "venueId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Venue Accommodation Template definition",
+                        "name": "VenueAccommodationTemplate",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/V1.Request.CreateAccommodationVenueTemplate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.PostVenueAccommodationTemplate"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Invalid"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/organisations/{orgId}/venues/{venueId}/accommodation-templates/{id}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AccommodationTemplates"
+                ],
+                "summary": "Get a venue accommodation template",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The Organisations ID",
+                        "name": "orgId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The Venues ID",
+                        "name": "venueId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The ID of the template",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.GetVenueAccommodationTemplate"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Invalid"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AccommodationTemplates"
+                ],
+                "summary": "Delete a venue accommodation template",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The Organisations ID",
+                        "name": "orgId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The Venues ID",
+                        "name": "venueId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The template ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Invalid"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AccommodationTemplates"
+                ],
+                "summary": "Update a venue accommodation template",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The Organisations ID",
+                        "name": "orgId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The Venues ID",
+                        "name": "venueId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The ID of the template",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Venue changes",
+                        "name": "Changes",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/V1.Request.UpdateAccommodationVenueTemplate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.PatchVenueAccommodationTemplate"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Invalid"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "V1.Request.CreateAccommodationVenueTemplate": {
+            "type": "object",
+            "required": [
+                "description",
+                "name",
+                "occupancy",
+                "type"
+            ],
+            "properties": {
+                "description": {
+                    "description": "Description of the accommodation that this applies to.",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "The name of the template.",
+                    "type": "string",
+                    "minLength": 3
+                },
+                "occupancy": {
+                    "$ref": "#/definitions/V1.Request[Model].VenueAccommodationTemplateOccupancyCreate"
+                },
+                "type": {
+                    "description": "The type of accommodation that this template is for.\nCurrently only supports 'room'",
+                    "type": "string",
+                    "enum": [
+                        "room"
+                    ]
+                }
+            }
+        },
         "V1.Request.CreateOrganisation": {
             "type": "object",
             "required": [
@@ -785,7 +1195,7 @@ const docTemplate = `{
                     "description": "The address of the venue.",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/V1.Request[Model].VenueAddress"
+                            "$ref": "#/definitions/V1.Request[Model].VenueAddressCreate"
                         }
                     ]
                 },
@@ -805,6 +1215,39 @@ const docTemplate = `{
                     "enum": [
                         "hotel"
                     ]
+                }
+            }
+        },
+        "V1.Request.UpdateAccommodationVenueTemplate": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "description": "Description of the accommodation that this applies to.",
+                    "type": "string",
+                    "minLength": 10,
+                    "x-nullable": true
+                },
+                "name": {
+                    "description": "The name of the template.",
+                    "type": "string",
+                    "minLength": 3,
+                    "x-nullable": true
+                },
+                "occupancy": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/V1.Request[Model].VenueAccommodationTemplateOccupancyUpdate"
+                        }
+                    ],
+                    "x-nullable": true
+                },
+                "type": {
+                    "description": "The type of accommodation that this template is for.\nCurrently only supports 'room'",
+                    "type": "string",
+                    "enum": [
+                        "room"
+                    ],
+                    "x-nullable": true
                 }
             }
         },
@@ -832,7 +1275,7 @@ const docTemplate = `{
                     "description": "The address of the venue.",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/V1.Request[Model].VenueAddress"
+                            "$ref": "#/definitions/V1.Request[Model].VenueAddressUpdate"
                         }
                     ],
                     "x-nullable": true
@@ -859,7 +1302,85 @@ const docTemplate = `{
                 }
             }
         },
-        "V1.Request[Model].VenueAddress": {
+        "V1.Request[Model].VenueAccommodationTemplateOccupancyCreate": {
+            "type": "object",
+            "required": [
+                "min"
+            ],
+            "properties": {
+                "max": {
+                    "description": "The maximum amount of people that must occupy the accommodation.\nIf null or blank there will be no limit.\nIf provided, it must be greater than the min occupancy.",
+                    "type": "integer",
+                    "minimum": 1,
+                    "x-nullable": true
+                },
+                "min": {
+                    "description": "The minimum amount of people that must occupy the accommodation.",
+                    "type": "integer",
+                    "minimum": 1
+                }
+            }
+        },
+        "V1.Request[Model].VenueAccommodationTemplateOccupancyUpdate": {
+            "type": "object",
+            "properties": {
+                "max": {
+                    "description": "The maximum amount of people that must occupy the accommodation.\nIf null or blank there will be no limit.\nIf provided, it must be greater than the min occupancy.",
+                    "type": "integer",
+                    "minimum": 1,
+                    "x-nullable": true
+                },
+                "min": {
+                    "description": "The minimum amount of people that must occupy the accommodation.",
+                    "type": "integer",
+                    "minimum": 1,
+                    "x-nullable": true
+                }
+            }
+        },
+        "V1.Request[Model].VenueAddressCreate": {
+            "type": "object",
+            "required": [
+                "lat",
+                "line_1",
+                "long",
+                "municipality",
+                "postcode"
+            ],
+            "properties": {
+                "lat": {
+                    "description": "Latitude of the venue.",
+                    "type": "number",
+                    "minimum": 0
+                },
+                "line_1": {
+                    "description": "Line 1 of the address, typically number/name and street.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "line_2": {
+                    "description": "Line 2, extra information for the address if needed, optional.",
+                    "type": "string",
+                    "minLength": 1,
+                    "x-nullable": true
+                },
+                "long": {
+                    "description": "Longitude of the venue.",
+                    "type": "number",
+                    "minimum": 0
+                },
+                "municipality": {
+                    "description": "The town/city/village that the venue is in.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "postcode": {
+                    "description": "A valid UK postcode, following standard formats.",
+                    "type": "string"
+                }
+            }
+        },
+        "V1.Request[Model].VenueAddressUpdate": {
             "description": "The changes to apply to the venue. Only include fields to change.",
             "type": "object",
             "properties": {
@@ -925,6 +1446,14 @@ const docTemplate = `{
                 }
             }
         },
+        "V1.Response.GetVenueAccommodationTemplate": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/V1.Response[Model].VenueAccommodationTemplate"
+                }
+            }
+        },
         "V1.Response.Invalid": {
             "type": "object",
             "properties": {
@@ -968,6 +1497,20 @@ const docTemplate = `{
                 }
             }
         },
+        "V1.Response.ListVenueAccommodationTemplates": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/V1.Response[Model].VenueAccommodationTemplate"
+                    }
+                },
+                "meta": {
+                    "$ref": "#/definitions/V1.Response[Meta].List"
+                }
+            }
+        },
         "V1.Response.ListVenues": {
             "type": "object",
             "properties": {
@@ -998,11 +1541,27 @@ const docTemplate = `{
                 }
             }
         },
+        "V1.Response.PatchVenueAccommodationTemplate": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/V1.Response[Model].VenueAccommodationTemplate"
+                }
+            }
+        },
         "V1.Response.PostVenue": {
             "type": "object",
             "properties": {
                 "data": {
                     "$ref": "#/definitions/V1.Response[Model].Venue"
+                }
+            }
+        },
+        "V1.Response.PostVenueAccommodationTemplate": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/V1.Response[Model].VenueAccommodationTemplate"
                 }
             }
         },
@@ -1131,6 +1690,52 @@ const docTemplate = `{
                 "type": {
                     "description": "The type of venue this is.\nCurrently only 'hotel' is supported.",
                     "type": "string"
+                }
+            }
+        },
+        "V1.Response[Model].VenueAccommodationTemplate": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "description": "A description about the accommodation.",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "The ID of the template.",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "The name of the template.",
+                    "type": "string"
+                },
+                "occupancy": {
+                    "description": "The settings for occupancy.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/V1.Response[Model].VenueAccommodationTemplateOccupancy"
+                        }
+                    ]
+                },
+                "type": {
+                    "description": "The type of accommodation this is.\nCurrently only 'room' is supported.",
+                    "type": "string"
+                },
+                "venue_id": {
+                    "description": "The ID of the venue this template exists in.",
+                    "type": "string"
+                }
+            }
+        },
+        "V1.Response[Model].VenueAccommodationTemplateOccupancy": {
+            "type": "object",
+            "properties": {
+                "max": {
+                    "description": "The maximum occupancy for any accommodations using this template.\nNull means there is no maximum.",
+                    "type": "integer"
+                },
+                "min": {
+                    "description": "The minimum occupancy for any accommodations using this template.",
+                    "type": "integer"
                 }
             }
         },

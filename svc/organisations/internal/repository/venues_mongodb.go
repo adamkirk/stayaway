@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"math"
 
 	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
@@ -126,7 +127,11 @@ func (r *MongoDbVenues) Get(id string, orgId string) (*venues.Venue, error) {
 	objID, err := primitive.ObjectIDFromHex(id)
 
 	if err != nil {
-		return nil, err
+		slog.Warn("invalid id given", "id", id)
+		return nil, common.ErrNotFound{
+			ResourceName: "venue",
+			ID: id,
+		}
 	}
 
 	org := &venues.Venue{}

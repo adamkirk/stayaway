@@ -39,7 +39,7 @@ func NewMunicipalitiesController(
 	}
 }
 
-//	@Summary		List all venues for an organisation
+//	@Summary		List all municipalities that can be used
 //	@Tags			Municipalities
 //	@Accept			json
 //	@Produce		json

@@ -75,11 +75,11 @@ func NewOrganisationsController(
 //	@Tags			Organisations
 //	@Accept			json
 //	@Produce		json
-//	@Success		200	{object}	ListOrganisationsResponse
-//	@Failure		422	{object}	ValidationErrorResponse
-//	@Failure		404	{object}	GenericErrorResponse
-//	@Failure		400	{object}	GenericErrorResponse
-//	@Failure		500	{object}	GenericErrorResponse
+//	@Success		200	{object}	responses.ListOrganisationsResponse
+//	@Failure		422	{object}	responses.ValidationErrorResponse
+//	@Failure		404	{object}	responses.GenericErrorResponse
+//	@Failure		400	{object}	responses.GenericErrorResponse
+//	@Failure		500	{object}	responses.GenericErrorResponse
 //	@Router			/v1/organisations [get]
 //	@Param			request	query	requests.ListOrganisationsRequest	true "Query params"
 func (c *OrganisationsController) List(ctx echo.Context) error {

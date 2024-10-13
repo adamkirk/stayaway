@@ -56,7 +56,7 @@ type PostVenueAddress struct {
 
 	//Longitude of the venue.
 	Long *float64 `json:"long" validationmap:"Long" validate:"required" minimum:"0"`
-} // @name	V1.Request[Model].VenueAddress
+} // @name	V1.Request[Model].VenueAddressCreate
 
 type PostVenueRequest struct {
 	OrganisationID string `param:"organisationId" swaggerignore:"true"`
@@ -135,7 +135,7 @@ type PatchVenueAddress struct {
 	
 	//Longitude of the venue.
 	Long *float64 `json:"long" validationmap:"Long" validate:"optional" minimum:"0" extensions:"x-nullable"`
-} // @name	V1.Request[Model].VenueAddress
+} // @name	V1.Request[Model].VenueAddressUpdate
 
 type PatchVenueRequest struct {
 	raw map[string]any

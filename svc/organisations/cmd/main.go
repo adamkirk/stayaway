@@ -14,6 +14,7 @@ import (
 	v1 "github.com/adamkirk-stayaway/organisations/internal/api/v1"
 	"github.com/adamkirk-stayaway/organisations/internal/config"
 	"github.com/adamkirk-stayaway/organisations/internal/db"
+	"github.com/adamkirk-stayaway/organisations/internal/domain/accommodations"
 	"github.com/adamkirk-stayaway/organisations/internal/domain/municipalities"
 	"github.com/adamkirk-stayaway/organisations/internal/domain/organisations"
 	"github.com/adamkirk-stayaway/organisations/internal/domain/venues"
@@ -142,6 +143,13 @@ func sharedOpts() []fx.Option {
 		),
 		fx.Provide(
 			fx.Annotate(
+				v1.NewVenueAccommodationTemplatesController,
+				fx.As(new(api.Controller)),
+				fx.ResultTags(`group:"api.v1.controllers"`),
+			),
+		),
+		fx.Provide(
+			fx.Annotate(
 				organisations.NewGetHandler,
 				fx.As(new(v1.OrganisationsGetHandler)),
 			),
@@ -176,12 +184,20 @@ func sharedOpts() []fx.Option {
 				fx.As(new(organisations.Validator)),
 				fx.As(new(venues.Validator)),
 				fx.As(new(municipalities.Validator)),
+				fx.As(new(accommodations.Validator)),
 				fx.ParamTags(`group:"validationExtensions"`),
 			),
 		),
 		fx.Provide(
 			fx.Annotate(
 				venues.NewValidationExtension,
+				fx.As(new(validation.Extension)),
+				fx.ResultTags(`group:"validationExtensions"`),
+			),
+		),
+		fx.Provide(
+			fx.Annotate(
+				accommodations.NewValidationExtension,
 				fx.As(new(validation.Extension)),
 				fx.ResultTags(`group:"validationExtensions"`),
 			),
@@ -221,6 +237,36 @@ func sharedOpts() []fx.Option {
 			fx.Annotate(
 				municipalities.NewListHandler,
 				fx.As(new(v1.MunicipalitiesListHandler)),
+			),
+		),
+		fx.Provide(
+			fx.Annotate(
+				accommodations.NewCreateVenueTemplateHandler,
+				fx.As(new(v1.VenueAccommodationTemplateCreateHandler)),
+			),
+		),
+		fx.Provide(
+			fx.Annotate(
+				accommodations.NewGetVenueTemplateHandler,
+				fx.As(new(v1.VenueAccommodationTemplateGetHandler)),
+			),
+		),
+		fx.Provide(
+			fx.Annotate(
+				accommodations.NewListVenueTemplatesHandler,
+				fx.As(new(v1.VenueAccommodationTemplatesListHandler)),
+			),
+		),
+		fx.Provide(
+			fx.Annotate(
+				accommodations.NewDeleteVenueTemplateHandler,
+				fx.As(new(v1.VenueAccommodationTemplateDeleteHandler)),
+			),
+		),
+		fx.Provide(
+			fx.Annotate(
+				accommodations.NewUpdateVenueTemplateHandler,
+				fx.As(new(v1.VenueAccommodationTemplateUpdateHandler)),
 			),
 		),
 		fx.Provide(
@@ -294,6 +340,11 @@ func sharedOpts() []fx.Option {
 					fx.As(new(venues.GetHandlerRepo)),
 					fx.As(new(venues.DeleteHandlerRepo)),
 					fx.As(new(venues.UpdateHandlerRepo)),
+					fx.As(new(accommodations.CreateVenueTemplateHandlerVenuesRepo)),
+					fx.As(new(accommodations.GetVenueTemplateHandlerVenuesRepo)),
+					fx.As(new(accommodations.DeleteVenueTemplateHandlerVenuesRepo)),
+					fx.As(new(accommodations.ListVenueTemplatesHandlerVenuesRepo)),
+					fx.As(new(accommodations.UpdateVenueTemplateHandlerVenuesRepo)),
 				),
 			),
 			fx.Provide(
@@ -301,6 +352,16 @@ func sharedOpts() []fx.Option {
 					repository.NewMongoDbMunicipalities,
 					fx.As(new(municipalities.SyncHandlerRepo)),
 					fx.As(new(municipalities.ListHandlerRepo)),
+				),
+			),
+			fx.Provide(
+				fx.Annotate(
+					repository.NewMongoDbVenueAccommodationTemplates,
+					fx.As(new(accommodations.CreateVenueTemplateHandlerRepo)),
+					fx.As(new(accommodations.GetVenueTemplateHandlerRepo)),
+					fx.As(new(accommodations.DeleteVenueTemplateHandlerRepo)),
+					fx.As(new(accommodations.ListVenueTemplatesHandlerRepo)),
+					fx.As(new(accommodations.UpdateVenueTemplateHandlerRepo)),
 				),
 			),
 		}...)

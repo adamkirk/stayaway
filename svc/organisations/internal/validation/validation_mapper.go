@@ -68,7 +68,7 @@ func mapJsonFieldsToMapTags(t reflect.Type) (StructMapMeta) {
 
 	for i := 0; i < t.NumField(); i++ {
 		f := t.Field(i)
-		
+		slog.Debug("parsing validationmap", "struct", t.Name(), "field", f.Name)
 		validationMap := f.Tag.Get("validationmap")
 		jsonName := getJsonNameForField(f)
 
@@ -98,6 +98,8 @@ func (vm *ValidationMapper) Map(err ValidationError, req any) ValidationError {
 
 	// TODO cache these results
 	meta := mapJsonFieldsToMapTags(t)
+
+	fmt.Printf("%#v\n\n", meta)
 
 	for _, err := range err.Errs {
 		k, found := meta.ByFieldPath(err.Key)

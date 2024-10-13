@@ -1,5 +1,29 @@
 basePath: /api
 definitions:
+  V1.Request.CreateAccommodationVenueTemplate:
+    properties:
+      description:
+        description: Description of the accommodation that this applies to.
+        type: string
+      name:
+        description: The name of the template.
+        minLength: 3
+        type: string
+      occupancy:
+        $ref: '#/definitions/V1.Request[Model].VenueAccommodationTemplateOccupancyCreate'
+      type:
+        description: |-
+          The type of accommodation that this template is for.
+          Currently only supports 'room'
+        enum:
+        - room
+        type: string
+    required:
+    - description
+    - name
+    - occupancy
+    - type
+    type: object
   V1.Request.CreateOrganisation:
     properties:
       name:
@@ -20,7 +44,7 @@ definitions:
     properties:
       address:
         allOf:
-        - $ref: '#/definitions/V1.Request[Model].VenueAddress'
+        - $ref: '#/definitions/V1.Request[Model].VenueAddressCreate'
         description: The address of the venue.
       name:
         description: The name of the venue.
@@ -46,6 +70,31 @@ definitions:
     - slug
     - type
     type: object
+  V1.Request.UpdateAccommodationVenueTemplate:
+    properties:
+      description:
+        description: Description of the accommodation that this applies to.
+        minLength: 10
+        type: string
+        x-nullable: true
+      name:
+        description: The name of the template.
+        minLength: 3
+        type: string
+        x-nullable: true
+      occupancy:
+        allOf:
+        - $ref: '#/definitions/V1.Request[Model].VenueAccommodationTemplateOccupancyUpdate'
+        x-nullable: true
+      type:
+        description: |-
+          The type of accommodation that this template is for.
+          Currently only supports 'room'
+        enum:
+        - room
+        type: string
+        x-nullable: true
+    type: object
   V1.Request.UpdateOrganisation:
     properties:
       name:
@@ -66,7 +115,7 @@ definitions:
     properties:
       address:
         allOf:
-        - $ref: '#/definitions/V1.Request[Model].VenueAddress'
+        - $ref: '#/definitions/V1.Request[Model].VenueAddressUpdate'
         description: The address of the venue.
         x-nullable: true
       name:
@@ -91,7 +140,73 @@ definitions:
         type: string
         x-nullable: true
     type: object
-  V1.Request[Model].VenueAddress:
+  V1.Request[Model].VenueAccommodationTemplateOccupancyCreate:
+    properties:
+      max:
+        description: |-
+          The maximum amount of people that must occupy the accommodation.
+          If null or blank there will be no limit.
+          If provided, it must be greater than the min occupancy.
+        minimum: 1
+        type: integer
+        x-nullable: true
+      min:
+        description: The minimum amount of people that must occupy the accommodation.
+        minimum: 1
+        type: integer
+    required:
+    - min
+    type: object
+  V1.Request[Model].VenueAccommodationTemplateOccupancyUpdate:
+    properties:
+      max:
+        description: |-
+          The maximum amount of people that must occupy the accommodation.
+          If null or blank there will be no limit.
+          If provided, it must be greater than the min occupancy.
+        minimum: 1
+        type: integer
+        x-nullable: true
+      min:
+        description: The minimum amount of people that must occupy the accommodation.
+        minimum: 1
+        type: integer
+        x-nullable: true
+    type: object
+  V1.Request[Model].VenueAddressCreate:
+    properties:
+      lat:
+        description: Latitude of the venue.
+        minimum: 0
+        type: number
+      line_1:
+        description: Line 1 of the address, typically number/name and street.
+        minLength: 1
+        type: string
+      line_2:
+        description: Line 2, extra information for the address if needed, optional.
+        minLength: 1
+        type: string
+        x-nullable: true
+      long:
+        description: Longitude of the venue.
+        minimum: 0
+        type: number
+      municipality:
+        description: The town/city/village that the venue is in.
+        minLength: 1
+        type: string
+      postcode:
+        description: A valid UK postcode, following standard formats.
+        type: string
+    required:
+    - lat
+    - line_1
+    - long
+    - municipality
+    - postcode
+    type: object
+  V1.Request[Model].VenueAddressUpdate:
     description: The changes to apply to the venue. Only include fields to change.
     properties:
       lat:
@@ -140,6 +255,11 @@ definitions:
       data:
         $ref: '#/definitions/V1.Response[Model].Organisation'
     type: object
+  V1.Response.GetVenueAccommodationTemplate:
+    properties:
+      data:
+        $ref: '#/definitions/V1.Response[Model].VenueAccommodationTemplate'
+    type: object
   V1.Response.Invalid:
     properties:
       errors:
@@ -171,6 +291,15 @@ definitions:
       meta:
         $ref: '#/definitions/V1.Response[Meta].List'
     type: object
+  V1.Response.ListVenueAccommodationTemplates:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/V1.Response[Model].VenueAccommodationTemplate'
+        type: array
+      meta:
+        $ref: '#/definitions/V1.Response[Meta].List'
+    type: object
   V1.Response.ListVenues:
     properties:
       data:
@@ -190,10 +319,20 @@ definitions:
       data:
         $ref: '#/definitions/V1.Response[Model].Venue'
     type: object
+  V1.Response.PatchVenueAccommodationTemplate:
+    properties:
+      data:
+        $ref: '#/definitions/V1.Response[Model].VenueAccommodationTemplate'
+    type: object
   V1.Response.PostVenue:
     properties:
       data:
         $ref: '#/definitions/V1.Response[Model].Venue'
+    type: object
+  V1.Response.PostVenueAccommodationTemplate:
+    properties:
+      data:
+        $ref: '#/definitions/V1.Response[Model].VenueAccommodationTemplate'
     type: object
   V1.Response[Meta].List:
     properties:
@@ -285,6 +424,41 @@ definitions:
           The type of venue this is.
           Currently only 'hotel' is supported.
         type: string
+    type: object
+  V1.Response[Model].VenueAccommodationTemplate:
+    properties:
+      description:
+        description: A description about the accommodation.
+        type: string
+      id:
+        description: The ID of the template.
+        type: string
+      name:
+        description: The name of the template.
+        type: string
+      occupancy:
+        allOf:
+        - $ref: '#/definitions/V1.Response[Model].VenueAccommodationTemplateOccupancy'
+        description: The settings for occupancy.
+      type:
+        description: |-
+          The type of accommodation this is.
+          Currently only 'room' is supported.
+        type: string
+      venue_id:
+        description: The ID of the venue this template exists in.
+        type: string
+    type: object
+  V1.Response[Model].VenueAccommodationTemplateOccupancy:
+    properties:
+      max:
+        description: |-
+          The maximum occupancy for any accommodations using this template.
+          Null means there is no maximum.
+        type: integer
+      min:
+        description: The minimum occupancy for any accommodations using this template.
+        type: integer
     type: object
   V1.Response[Model].VenueAddress:
     properties:
@@ -389,7 +563,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/V1.Response.Error'
-      summary: List all venues for an organisation
+      summary: List all municipalities that can be used
       tags:
       - Municipalities
   /v1/organisations:
@@ -810,4 +984,263 @@ paths:
       summary: Update a venue for an organisation
       tags:
       - Venues
+  /v1/organisations/{orgId}/venues/{venueId}/accommodation-templates:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: The Organisations ID
+        in: path
+        name: orgId
+        required: true
+        type: string
+      - description: The Venues ID
+        in: path
+        name: venueId
+        required: true
+        type: string
+      - description: The field by which to order the results.
+        enum:
+        - name
+        in: query
+        name: order_by
+        type: string
+      - description: The direction to order the results by.
+        enum:
+        - asc
+        - desc
+        in: query
+        name: order_dir
+        type: string
+      - description: |-
+          The page to display.
+          An empty list may be returned if going beyond the last page of results.
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: The amount of results to display per page.
+        in: query
+        maximum: 100
+        minimum: 1
+        name: per_page
+        type: integer
+      - description: |-
+          Characters to use as a prefix in searching by the name.
+          Useful for a "typeahead" widget.
+        in: query
+        name: prefix
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/V1.Response.ListVenueAccommodationTemplates'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/V1.Response.Invalid'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+      summary: List all accommodation templates for a venue
+      tags:
+      - AccommodationTemplates
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: The Organisations ID
+        in: path
+        name: orgId
+        required: true
+        type: string
+      - description: The Venues ID
+        in: path
+        name: venueId
+        required: true
+        type: string
+      - description: Venue Accommodation Template definition
+        in: body
+        name: VenueAccommodationTemplate
+        required: true
+        schema:
+          $ref: '#/definitions/V1.Request.CreateAccommodationVenueTemplate'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/V1.Response.PostVenueAccommodationTemplate'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/V1.Response.Invalid'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+      summary: Create a venue accommodation template for an organisation
+      tags:
+      - AccommodationTemplates
+  /v1/organisations/{orgId}/venues/{venueId}/accommodation-templates/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: The Organisations ID
+        in: path
+        name: orgId
+        required: true
+        type: string
+      - description: The Venues ID
+        in: path
+        name: venueId
+        required: true
+        type: string
+      - description: The template ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/V1.Response.Invalid'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+      summary: Delete a venue accommodation template
+      tags:
+      - AccommodationTemplates
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: The Organisations ID
+        in: path
+        name: orgId
+        required: true
+        type: string
+      - description: The Venues ID
+        in: path
+        name: venueId
+        required: true
+        type: string
+      - description: The ID of the template
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/V1.Response.GetVenueAccommodationTemplate'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/V1.Response.Invalid'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+      summary: Get a venue accommodation template
+      tags:
+      - AccommodationTemplates
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: The Organisations ID
+        in: path
+        name: orgId
+        required: true
+        type: string
+      - description: The Venues ID
+        in: path
+        name: venueId
+        required: true
+        type: string
+      - description: The ID of the template
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Venue changes
+        in: body
+        name: Changes
+        required: true
+        schema:
+          $ref: '#/definitions/V1.Request.UpdateAccommodationVenueTemplate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/V1.Response.PatchVenueAccommodationTemplate'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/V1.Response.Invalid'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+      summary: Update a venue accommodation template
+      tags:
+      - AccommodationTemplates
 swagger: "2.0"

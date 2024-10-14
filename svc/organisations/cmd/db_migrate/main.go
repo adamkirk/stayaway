@@ -5,13 +5,17 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/adamkirk-stayaway/organisations/internal/db"
 	"github.com/spf13/cobra"
 	"go.uber.org/fx"
 )
 
+type Migrator interface {
+	Up(to string) error
+	Down(to string) error
+}
+
 type Action struct {
-	migrator db.Migrator
+	migrator Migrator
 	sh       fx.Shutdowner
 	cmd      *cobra.Command
 	args     []string
@@ -25,7 +29,7 @@ type ActionInput struct {
 func newAction(
 	lc fx.Lifecycle,
 	sh fx.Shutdowner,
-	migrator db.Migrator,
+	migrator Migrator,
 	input *ActionInput,
 ) *Action {
 	act := &Action{

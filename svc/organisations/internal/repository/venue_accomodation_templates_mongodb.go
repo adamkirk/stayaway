@@ -9,7 +9,7 @@ import (
 
 	"github.com/adamkirk-stayaway/organisations/internal/domain/accommodations"
 	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
-	"github.com/adamkirk-stayaway/organisations/internal/repository/mongodb"
+	"github.com/adamkirk-stayaway/organisations/pkg/mongodb"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -17,17 +17,18 @@ import (
 )
 
 type MongoDbVenueAccommodationTemplates struct {
-	connector MongoDbConnector
+	connector *mongodb.Connector
+	cfg MongoDBRepositoryConfig
 }
 
 func (r *MongoDbVenueAccommodationTemplates) getCollection() (*mongo.Collection, error) {
-	db, err := r.connector.GetOrganisationsDb()
+	db, err := r.connector.GetDB(r.cfg.MongoDbDatabase())
 
 	if err != nil {
 		return nil, err
 	}
 
-	coll := db.Collection(mongodb.AccommodationVenueTemplates)
+	coll := db.Collection(MongoDBCollections.AccommodationVenueTemplates)
 
 	return coll, nil
 }
@@ -264,8 +265,9 @@ func (r *MongoDbVenueAccommodationTemplates) Delete(v *accommodations.VenueTempl
 	return err
 }
 
-func NewMongoDbVenueAccommodationTemplates(connector MongoDbConnector) *MongoDbVenueAccommodationTemplates {
+func NewMongoDbVenueAccommodationTemplates(connector *mongodb.Connector, cfg MongoDBRepositoryConfig) *MongoDbVenueAccommodationTemplates {
 	return &MongoDbVenueAccommodationTemplates{
 		connector: connector,
+		cfg: cfg,
 	}
 }

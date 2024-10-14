@@ -9,7 +9,7 @@ import (
 
 	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
 	"github.com/adamkirk-stayaway/organisations/internal/domain/venues"
-	"github.com/adamkirk-stayaway/organisations/internal/repository/mongodb"
+	"github.com/adamkirk-stayaway/organisations/pkg/mongodb"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -17,17 +17,18 @@ import (
 )
 
 type MongoDbVenues struct {
-	connector MongoDbConnector
+	connector *mongodb.Connector
+	cfg MongoDBRepositoryConfig
 }
 
 func (r *MongoDbVenues) getCollection() (*mongo.Collection, error) {
-	db, err := r.connector.GetOrganisationsDb()
+	db, err := r.connector.GetDB(r.cfg.MongoDbDatabase())
 
 	if err != nil {
 		return nil, err
 	}
 
-	coll := db.Collection(mongodb.Venues)
+	coll := db.Collection(MongoDBCollections.Venues)
 
 	return coll, nil
 }
@@ -264,8 +265,9 @@ func (r *MongoDbVenues) Save(org *venues.Venue) (*venues.Venue, error) {
 
 }
 
-func NewMongoDbVenues(connector MongoDbConnector) *MongoDbVenues {
+func NewMongoDbVenues(connector *mongodb.Connector, cfg MongoDBRepositoryConfig) *MongoDbVenues {
 	return &MongoDbVenues{
 		connector: connector,
+		cfg: cfg,
 	}
 }

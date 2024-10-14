@@ -8,7 +8,7 @@ import (
 
 	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
 	"github.com/adamkirk-stayaway/organisations/internal/domain/organisations"
-	"github.com/adamkirk-stayaway/organisations/internal/repository/mongodb"
+	"github.com/adamkirk-stayaway/organisations/pkg/mongodb"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -16,17 +16,18 @@ import (
 )
 
 type MongoDbOrganisations struct {
-	connector MongoDbConnector
+	connector *mongodb.Connector
+	cfg MongoDBRepositoryConfig
 }
 
 func (r *MongoDbOrganisations) getCollection() (*mongo.Collection, error) {
-	db, err := r.connector.GetOrganisationsDb()
+	db, err := r.connector.GetDB(r.cfg.MongoDbDatabase())
 
 	if err != nil {
 		return nil, err
 	}
 
-	coll := db.Collection(mongodb.Organisations)
+	coll := db.Collection(MongoDBCollections.Organisations)
 
 	return coll, nil
 }
@@ -194,8 +195,9 @@ func (r *MongoDbOrganisations) Save(org *organisations.Organisation) (*organisat
 
 }
 
-func NewMongoDbOrganisations(connector MongoDbConnector) *MongoDbOrganisations {
+func NewMongoDbOrganisations(connector *mongodb.Connector, cfg MongoDBRepositoryConfig) *MongoDbOrganisations {
 	return &MongoDbOrganisations{
 		connector: connector,
+		cfg: cfg,
 	}
 }

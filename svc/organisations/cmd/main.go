@@ -21,9 +21,11 @@ import (
 	"github.com/adamkirk-stayaway/organisations/internal/mutex"
 	"github.com/adamkirk-stayaway/organisations/internal/repository"
 	"github.com/adamkirk-stayaway/organisations/internal/validation"
+	"github.com/adamkirk-stayaway/organisations/pkg/mongodb"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.uber.org/fx"
 )
 
@@ -99,6 +101,7 @@ func newFs() afero.Fs {
 
 func sharedOpts() []fx.Option {
 	opts := []fx.Option{
+		fx.Provide(buildConfig),
 		fx.Provide(
 			fx.Annotate(
 				buildConfig,
@@ -106,10 +109,9 @@ func sharedOpts() []fx.Option {
 				fx.As(new(v1.OrganisationsControllerConfig)),
 				fx.As(new(v1.VenuesControllerConfig)),
 				fx.As(new(v1.MunicipalitiesControllerConfig)),
-				fx.As(new(db.MongoConfig)),
-				fx.As(new(db.MongoDbMigratorConfig)),
 				fx.As(new(municipalities.SyncHandlerConfig)),
 				fx.As(new(db.RedisConnectorConfig)),
+				fx.As(new(repository.MongoDBRepositoryConfig)),
 			),
 		),
 		fx.Provide(api.NewServer),
@@ -302,23 +304,34 @@ func sharedOpts() []fx.Option {
 	// Register difference implementations based on configured driver
 	if appCfg.DbDriver().IsMongoDb() {
 		opts = append(opts, []fx.Option{
-			fx.Provide(db.NewMongoDbConnector),
+			fx.Provide(
+				func(cfg *config.Config) *mongodb.Connector {
+					serverAPI := options.ServerAPI(options.ServerAPIVersion1)
+					opts := options.Client().ApplyURI(cfg.MongoDbUri()).SetServerAPIOptions(serverAPI)
+
+					return mongodb.NewConnector(opts, mongodb.WithAttempts(cfg.MongoDbConnectionRetries()))
+				},
+			),
 			fx.Provide(
 				fx.Annotate(
-					db.NewMongoDbConnector,
-					fx.As(new(repository.MongoDbConnector)),
+					func(cfg *config.Config, c *mongodb.Connector) *mongodb.Pinger {
+						return mongodb.NewPinger(c, cfg.MongoDbDatabase())
+					},
+					fx.As(new(dbping.Pinger)),
 				),
 			),
 			fx.Provide(
 				fx.Annotate(
-					db.NewMongoDbPinger,
-					fx.As(new(db.Pinger)),
-				),
-			),
-			fx.Provide(
-				fx.Annotate(
-					db.NewMongoDbMigrator,
-					fx.As(new(db.Migrator)),
+					func(cfg *config.Config, c *mongodb.Connector) *mongodb.Migrator {
+						return mongodb.NewMigrator(
+							c,
+							cfg.MongoDbMigrationsDatabase(),
+							repository.AllMongoDBMigrations(cfg.MongoDbDatabase()),
+							mongodb.WithInfoChannel(os.Stdout),
+							mongodb.WithErrorChannel(os.Stderr),
+						)
+					},
+					fx.As(new(dbmigrate.Migrator)),
 				),
 			),
 			fx.Provide(

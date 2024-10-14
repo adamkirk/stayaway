@@ -5,20 +5,23 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/adamkirk-stayaway/organisations/internal/db"
 	"github.com/spf13/cobra"
 	"go.uber.org/fx"
 )
 
+type Pinger interface {
+	Ping() error
+}
+
 type Action struct {
-	pinger db.Pinger
+	pinger Pinger
 	sh     fx.Shutdowner
 }
 
 func newAction(
 	lc fx.Lifecycle,
 	sh fx.Shutdowner,
-	pinger db.Pinger,
+	pinger Pinger,
 ) *Action {
 	act := &Action{
 		sh:     sh,

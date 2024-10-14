@@ -7,7 +7,7 @@ import (
 
 	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
 	"github.com/adamkirk-stayaway/organisations/internal/domain/municipalities"
-	"github.com/adamkirk-stayaway/organisations/internal/repository/mongodb"
+	"github.com/adamkirk-stayaway/organisations/pkg/mongodb"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -15,17 +15,18 @@ import (
 )
 
 type MongoDbMunicipalities struct {
-	connector MongoDbConnector
+	connector *mongodb.Connector
+	cfg MongoDBRepositoryConfig
 }
 
 func (r *MongoDbMunicipalities) getCollection() (*mongo.Collection, error) {
-	db, err := r.connector.GetOrganisationsDb()
+	db, err := r.connector.GetDB(r.cfg.MongoDbDatabase())
 
 	if err != nil {
 		return nil, err
 	}
 
-	coll := db.Collection(mongodb.Municipalities)
+	coll := db.Collection(MongoDBCollections.Municipalities)
 
 	return coll, nil
 }
@@ -115,60 +116,6 @@ func (r *MongoDbMunicipalities) Paginate(p municipalities.PaginationFilter, sear
 	}, nil
 }
 
-// func (r *MongoDbMunicipalities) Get(id string, orgId string) (*municipalities.Venue, error) {
-// 	coll, err := r.getCollection()
-
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	objID, err := primitive.ObjectIDFromHex(id)
-
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	org := &municipalities.Venue{}
-
-// 	filter := bson.D{{
-// 		"$and", bson.A{
-// 			bson.D{{"_id", objID}},
-// 			bson.D{{"organisation_id", orgId}},
-// 		},
-// 	}}
-
-// 	res := coll.FindOne(context.TODO(), filter)
-
-// 	if res.Err() != nil && res.Err() == mongo.ErrNoDocuments {
-// 		return nil, municipalities.ErrNotFound{
-// 			ResourceName: "venue",
-// 			ID: id,
-// 		}
-// 	}
-
-// 	err = res.Decode(org)
-
-// 	return org, err
-// }
-
-// func (r *MongoDbMunicipalities) Delete(v *municipalities.Venue) (error) {
-// 	coll, err := r.getCollection()
-
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	objID, err := primitive.ObjectIDFromHex(v.ID)
-
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	_, err = coll.DeleteOne(context.TODO(), bson.D{{"_id", objID}})
-
-// 	return err
-// }
-
 func (r *MongoDbMunicipalities) UpdateBatch(batch []municipalities.Municipality) (municipalities.BatchUpdateResult, error) {
 
 	coll, err := r.getCollection()
@@ -195,8 +142,9 @@ func (r *MongoDbMunicipalities) UpdateBatch(batch []municipalities.Municipality)
 
 }
 
-func NewMongoDbMunicipalities(connector MongoDbConnector) *MongoDbMunicipalities {
+func NewMongoDbMunicipalities(connector *mongodb.Connector, cfg MongoDBRepositoryConfig) *MongoDbMunicipalities {
 	return &MongoDbMunicipalities{
 		connector: connector,
+		cfg: cfg,
 	}
 }

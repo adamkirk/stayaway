@@ -15,6 +15,7 @@ import (
 	"github.com/adamkirk-stayaway/organisations/internal/config"
 	"github.com/adamkirk-stayaway/organisations/internal/db"
 	"github.com/adamkirk-stayaway/organisations/internal/domain/accommodations"
+	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
 	"github.com/adamkirk-stayaway/organisations/internal/domain/municipalities"
 	"github.com/adamkirk-stayaway/organisations/internal/domain/organisations"
 	"github.com/adamkirk-stayaway/organisations/internal/domain/venues"
@@ -227,6 +228,12 @@ func sharedOpts() []fx.Option {
 	// Register difference implementations based on configured driver
 	if appCfg.DbDriver().IsMongoDb() {
 		opts = append(opts, []fx.Option{
+			fx.Provide(
+				fx.Annotate(
+					mongodb.NewPrimitiveObjectIDGenerator,
+					fx.As(new(common.IDGenerator)),
+				),
+			),
 			fx.Provide(
 				func(cfg *config.Config) *mongodb.Connector {
 					serverAPI := options.ServerAPI(options.ServerAPIVersion1)

@@ -45,16 +45,19 @@ type OrganisationsRepo interface {
 	Paginate(orderBy SortBy, orderDir common.SortDirection, page int, perPage int) (Organisations, common.PaginationResult, error)
 }
 
+
 type Service struct {
 	repo OrganisationsRepo
 	validator Validator
 	mutex DistributedMutex
+	idGen common.IDGenerator
 }
 
-func NewService(repo OrganisationsRepo, v Validator, mutex DistributedMutex) *Service {
+func NewService(repo OrganisationsRepo, v Validator, mutex DistributedMutex, idGen common.IDGenerator) *Service {
 	return &Service{
 		repo: repo,
 		validator: v,
 		mutex: mutex,
+		idGen: idGen,
 	}
 }

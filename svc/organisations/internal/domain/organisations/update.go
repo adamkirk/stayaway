@@ -33,6 +33,9 @@ func (svc *Service) Update(cmd UpdateCommand) (*Organisation, error) {
 		org.Name = *cmd.Name
 	}
 
+	editLockKey := fmt.Sprintf("organisation_edit:%s", org.ID)
+	mutexKeys := []string{editLockKey}
+
 	if cmd.Slug != nil {
 		orgBySlug, err := svc.repo.BySlug(*cmd.Slug)
 
@@ -54,12 +57,10 @@ func (svc *Service) Update(cmd UpdateCommand) (*Organisation, error) {
 		}
 
 		org.Slug = *cmd.Slug
+		mutexKeys = append(mutexKeys, slugMutexKey(*cmd.Slug))
 	}
 
-	slugMutexKey := slugMutexKey(*cmd.Slug)
-	editLockKey := fmt.Sprintf("organisation_edit:%s", org.ID)
-
-	l, err := svc.mutex.MultiClaimWithBackOff([]string{editLockKey, slugMutexKey}, 300*time.Millisecond)
+	l, err := svc.mutex.MultiClaimWithBackOff(mutexKeys, 300*time.Millisecond)
 
 	if err != nil {
 		if _, ok := err.(mutex.ErrLockNotClaimed); ok {

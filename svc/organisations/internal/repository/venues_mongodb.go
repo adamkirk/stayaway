@@ -2,13 +2,13 @@ package repository
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 	"math"
 
 	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
 	"github.com/adamkirk-stayaway/organisations/internal/domain/venues"
+	"github.com/adamkirk-stayaway/organisations/internal/util"
 	"github.com/adamkirk-stayaway/organisations/pkg/mongodb"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -203,66 +203,32 @@ func (r *MongoDbVenues) Delete(v *venues.Venue) error {
 	return err
 }
 
-func (r *MongoDbVenues) doInsert(org *venues.Venue) (*venues.Venue, error) {
+func (r *MongoDbVenues) Save(v *venues.Venue) (*venues.Venue, error) {
 	coll, err := r.getCollection()
 
 	if err != nil {
 		return nil, err
 	}
 
-	result, err := coll.InsertOne(context.TODO(), org)
+	objID, err := primitive.ObjectIDFromHex(v.ID)
 
 	if err != nil {
 		return nil, err
 	}
 
-	if oid, ok := result.InsertedID.(primitive.ObjectID); ok {
-		org.ID = oid.Hex()
-	} else {
-		return nil, errors.New("failed to get generated id for document")
-	}
-
-	return org, nil
-}
-
-func (r *MongoDbVenues) doUpdate(org *venues.Venue) (*venues.Venue, error) {
-	coll, err := r.getCollection()
-
-	if err != nil {
-		return nil, err
-	}
-
-	objID, err := primitive.ObjectIDFromHex(org.ID)
-
-	if err != nil {
-		return nil, err
-	}
-
-	// copy the value, and strip its id
-	// Maybe i can do something with the bson conversion somewhere, but otherwise
-	// cause the ID is a string it needs to be cast to primitive.ObjectID, and i
-	// don't really wanna do that in the model itself, so that it can be agnostic
-	// to db driver
-	// This seems the simpler option.
-	update := *org
+	update := *v
 	update.ID = ""
 
-	_, err = coll.ReplaceOne(context.TODO(), bson.D{{"_id", objID}}, update)
+	_, err = coll.ReplaceOne(context.TODO(), bson.D{{"_id", objID}}, update, &options.ReplaceOptions{
+		Upsert: util.PointTo(true),
+	})
+
 
 	if err != nil {
 		return nil, err
 	}
 
-	return org, nil
-}
-
-func (r *MongoDbVenues) Save(org *venues.Venue) (*venues.Venue, error) {
-	if org.ID == "" {
-		return r.doInsert(org)
-	}
-
-	return r.doUpdate(org)
-
+	return v, nil
 }
 
 func NewMongoDbVenues(connector *mongodb.Connector, cfg MongoDBRepositoryConfig) *MongoDbVenues {

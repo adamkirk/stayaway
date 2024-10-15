@@ -58,7 +58,7 @@ type Template struct {
 }
 
 type VenueTemplate struct {
-	Template `bson:"template"`
+	Template `bson:"inline,template"`
 	ID       string `bson:"_id,omitempty"`
 	VenueID  string `bson:"venue_id"`
 }
@@ -96,12 +96,14 @@ type VenueTemplatesService struct {
 	repo VenueTemplatesRepo
 	venuesRepo VenuesRepo
 	validator Validator
+	idGen common.IDGenerator
 }
 
-func NewVenueTemplatesService(repo VenueTemplatesRepo, venuesRepo VenuesRepo, v Validator) *VenueTemplatesService {
+func NewVenueTemplatesService(repo VenueTemplatesRepo, venuesRepo VenuesRepo, v Validator, idGen common.IDGenerator) *VenueTemplatesService {
 	return &VenueTemplatesService{
 		repo: repo,
 		venuesRepo: venuesRepo,
 		validator: v,
+		idGen: idGen,
 	}
 }

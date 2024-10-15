@@ -84,11 +84,13 @@ type VenuesRepo interface {
 type Service struct {
 	repo VenuesRepo
 	validator Validator
+	idGen common.IDGenerator
 }
 
-func NewService(repo VenuesRepo, v Validator) *Service {
+func NewService(repo VenuesRepo, v Validator, idGen common.IDGenerator) *Service {
 	return &Service{
 		repo: repo,
 		validator: v,
+		idGen: idGen,
 	}
 }

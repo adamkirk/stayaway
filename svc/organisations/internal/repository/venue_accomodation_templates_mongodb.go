@@ -2,13 +2,13 @@ package repository
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 	"math"
 
 	"github.com/adamkirk-stayaway/organisations/internal/domain/accommodations"
 	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
+	"github.com/adamkirk-stayaway/organisations/internal/util"
 	"github.com/adamkirk-stayaway/organisations/pkg/mongodb"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -116,66 +116,34 @@ func (r *MongoDbVenueAccommodationTemplates) Paginate(p accommodations.Paginatio
 	}, nil
 }
 
-func (r *MongoDbVenueAccommodationTemplates) doInsert(templ *accommodations.VenueTemplate) (*accommodations.VenueTemplate, error) {
+func (r *MongoDbVenueAccommodationTemplates) Save(vt *accommodations.VenueTemplate) (*accommodations.VenueTemplate, error) {
 	coll, err := r.getCollection()
 
 	if err != nil {
 		return nil, err
 	}
 
-	result, err := coll.InsertOne(context.TODO(), templ)
+	objID, err := primitive.ObjectIDFromHex(vt.ID)
 
 	if err != nil {
 		return nil, err
 	}
 
-	if oid, ok := result.InsertedID.(primitive.ObjectID); ok {
-		templ.ID = oid.Hex()
-	} else {
-		return nil, errors.New("failed to get generated id for document")
-	}
-
-	return templ, nil
-}
-
-func (r *MongoDbVenueAccommodationTemplates) doUpdate(templ *accommodations.VenueTemplate) (*accommodations.VenueTemplate, error) {
-	coll, err := r.getCollection()
-
-	if err != nil {
-		return nil, err
-	}
-
-	objID, err := primitive.ObjectIDFromHex(templ.ID)
-
-	if err != nil {
-		return nil, err
-	}
-
-	// copy the value, and strip its id
-	// Maybe i can do something with the bson conversion somewhere, but otherwise
-	// cause the ID is a string it needs to be cast to primitive.ObjectID, and i
-	// don't really wanna do that in the model itself, so that it can be agnostic
-	// to db driver
-	// This seems the simpler option.
-	update := *templ
+	update := *vt
 	update.ID = ""
 
-	_, err = coll.ReplaceOne(context.TODO(), bson.D{{"_id", objID}}, update)
+	_, err = coll.ReplaceOne(context.TODO(), bson.D{{"_id", objID}}, update, &options.ReplaceOptions{
+		Upsert: util.PointTo(true),
+	})
+
 
 	if err != nil {
 		return nil, err
 	}
 
-	return templ, nil
+	return vt, nil
 }
 
-func (r *MongoDbVenueAccommodationTemplates) Save(templ *accommodations.VenueTemplate) (*accommodations.VenueTemplate, error) {
-	if templ.ID == "" {
-		return r.doInsert(templ)
-	}
-
-	return r.doUpdate(templ)
-}
 
 func (r *MongoDbVenueAccommodationTemplates) ByNameAndVenue(name string, venueId string) (*accommodations.VenueTemplate, error) {
 	coll, err := r.getCollection()

@@ -61,6 +61,7 @@ func (svc *Service) Create(cmd CreateCommand) (*Organisation, error) {
 	}()
 
 	org := &Organisation{
+		ID: svc.idGen.Generate(),
 		Name: *cmd.Name,
 		Slug: *cmd.Slug,
 	}

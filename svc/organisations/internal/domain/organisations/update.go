@@ -10,32 +10,20 @@ import (
 	"github.com/adamkirk-stayaway/organisations/internal/validation"
 )
 
-type UpdateHandlerRepo interface {
-	Get(id string) (*Organisation, error)
-	Save(org *Organisation) (*Organisation, error)
-	BySlug(slug string) (*Organisation, error)
-}
-
 type UpdateCommand struct {
 	ID   string
 	Name *string `validate:"omitnil,min=3"`
 	Slug *string `validate:"omitnil,required,min=3,slug"`
 }
 
-type UpdateHandler struct {
-	repo      UpdateHandlerRepo
-	validator Validator
-	mutex     DistributedMutex
-}
-
-func (h *UpdateHandler) Handle(cmd UpdateCommand) (*Organisation, error) {
-	err := h.validator.Validate(cmd)
+func (svc *Service) Update(cmd UpdateCommand) (*Organisation, error) {
+	err := svc.validator.Validate(cmd)
 
 	if err != nil {
 		return nil, err
 	}
 
-	org, err := h.repo.Get(cmd.ID)
+	org, err := svc.repo.Get(cmd.ID)
 
 	if err != nil {
 		return nil, err
@@ -46,7 +34,7 @@ func (h *UpdateHandler) Handle(cmd UpdateCommand) (*Organisation, error) {
 	}
 
 	if cmd.Slug != nil {
-		orgBySlug, err := h.repo.BySlug(*cmd.Slug)
+		orgBySlug, err := svc.repo.BySlug(*cmd.Slug)
 
 		if orgBySlug != nil && orgBySlug.ID != org.ID {
 			return nil, validation.ValidationError{
@@ -71,7 +59,7 @@ func (h *UpdateHandler) Handle(cmd UpdateCommand) (*Organisation, error) {
 	slugMutexKey := slugMutexKey(*cmd.Slug)
 	editLockKey := fmt.Sprintf("organisation_edit:%s", org.ID)
 
-	l, err := h.mutex.MultiClaimWithBackOff([]string{editLockKey, slugMutexKey}, 300*time.Millisecond)
+	l, err := svc.mutex.MultiClaimWithBackOff([]string{editLockKey, slugMutexKey}, 300*time.Millisecond)
 
 	if err != nil {
 		if _, ok := err.(mutex.ErrLockNotClaimed); ok {
@@ -89,13 +77,5 @@ func (h *UpdateHandler) Handle(cmd UpdateCommand) (*Organisation, error) {
 		}
 	}()
 
-	return h.repo.Save(org)
-}
-
-func NewUpdateHandler(repo UpdateHandlerRepo, validator Validator, mutex DistributedMutex) *UpdateHandler {
-	return &UpdateHandler{
-		repo:      repo,
-		validator: validator,
-		mutex:     mutex,
-	}
+	return svc.repo.Save(org)
 }

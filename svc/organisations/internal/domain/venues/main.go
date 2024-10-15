@@ -2,10 +2,6 @@ package venues
 
 import "github.com/adamkirk-stayaway/organisations/internal/domain/common"
 
-type Validator interface {
-	Validate(any) error
-}
-
 type SortBy string
 
 const (
@@ -71,3 +67,28 @@ type Venue struct {
 }
 
 type Venues []*Venue
+
+
+type Validator interface {
+	Validate(any) error
+}
+
+type VenuesRepo interface {
+	Save(org *Venue) (*Venue, error)
+	BySlugAndOrganisation(slug string, orgId string) (*Venue, error)
+	Get(id string, orgId string) (*Venue, error)
+	Delete(v *Venue) error
+	Paginate(p PaginationFilter, search SearchFilter) (Venues, common.PaginationResult, error)
+}
+
+type Service struct {
+	repo VenuesRepo
+	validator Validator
+}
+
+func NewService(repo VenuesRepo, v Validator) *Service {
+	return &Service{
+		repo: repo,
+		validator: v,
+	}
+}

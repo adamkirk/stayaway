@@ -5,24 +5,7 @@ import (
 
 	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
 	"github.com/gocarina/gocsv"
-	"github.com/spf13/afero"
 )
-
-type SyncHandlerConfig interface {
-	MunicipalitiesSyncBatchSize() int
-	MunicipalitiesSyncMaxProcesses() int
-	MunicipalitiesSyncCountries() []string
-}
-
-type SyncHandlerRepo interface {
-	UpdateBatch(batch []Municipality) (BatchUpdateResult, error)
-}
-
-type SyncHandler struct {
-	fs   afero.Fs
-	repo SyncHandlerRepo
-	cfg  SyncHandlerConfig
-}
 
 type MunicipalityBatch struct {
 	Number int
@@ -42,8 +25,8 @@ type processorFunc func(rows MunicipalityBatch, wg *sync.WaitGroup, sem processo
 
 type processorSemaphore chan MunicipalityBatch
 
-func (h *SyncHandler) shouldIncludeRow(row Municipality) bool {
-	for _, c := range h.cfg.MunicipalitiesSyncCountries() {
+func (svc *Service) shouldIncludeRow(row Municipality) bool {
+	for _, c := range svc.cfg.MunicipalitiesSyncCountries() {
 		if c == row.Country {
 			return true
 		}
@@ -52,9 +35,9 @@ func (h *SyncHandler) shouldIncludeRow(row Municipality) bool {
 	return false
 }
 
-func (h *SyncHandler) processBatches(path string, processor processorFunc) ([]batchResult, error) {
+func (svc *Service) processBatches(path string, processor processorFunc) ([]batchResult, error) {
 
-	f, err := h.fs.Open(path)
+	f, err := svc.fs.Open(path)
 
 	if err != nil {
 		return nil, err
@@ -67,12 +50,12 @@ func (h *SyncHandler) processBatches(path string, processor processorFunc) ([]ba
 		return nil, err
 	}
 
-	batchSize := h.cfg.MunicipalitiesSyncBatchSize()
+	batchSize := svc.cfg.MunicipalitiesSyncBatchSize()
 	batches := [][]Municipality{}
 
 	batch := []Municipality{}
 	for _, row := range rows {
-		if !h.shouldIncludeRow(row) {
+		if !svc.shouldIncludeRow(row) {
 			continue
 		}
 
@@ -91,7 +74,7 @@ func (h *SyncHandler) processBatches(path string, processor processorFunc) ([]ba
 
 	resultsChannel := make(chan batchResult, len(batches))
 	var wg sync.WaitGroup
-	sem := make(processorSemaphore, h.cfg.MunicipalitiesSyncMaxProcesses()) // Semaphore to limit to X concurrent processes
+	sem := make(processorSemaphore, svc.cfg.MunicipalitiesSyncMaxProcesses()) // Semaphore to limit to X concurrent processes
 
 	for i, batch := range batches {
 		wg.Add(1)
@@ -113,14 +96,14 @@ func (h *SyncHandler) processBatches(path string, processor processorFunc) ([]ba
 	return results, nil
 }
 
-func (h *SyncHandler) syncBatch(batch MunicipalityBatch, wg *sync.WaitGroup, sem processorSemaphore, resChan chan<- batchResult) {
+func (svc *Service) syncBatch(batch MunicipalityBatch, wg *sync.WaitGroup, sem processorSemaphore, resChan chan<- batchResult) {
 	defer wg.Done()
 
 	sem <- batch // Acquire semaphore
 
 	defer func() { <-sem }() // Release semaphore
 
-	updateResult, err := h.repo.UpdateBatch(batch.Rows)
+	updateResult, err := svc.repo.UpdateBatch(batch.Rows)
 
 	res := batchResult{
 		SyncedRecords: updateResult.Created + updateResult.Updated,
@@ -130,8 +113,8 @@ func (h *SyncHandler) syncBatch(batch MunicipalityBatch, wg *sync.WaitGroup, sem
 	resChan <- res
 }
 
-func (h *SyncHandler) Handle(cmd SyncCommand) (SyncResult, error) {
-	res, err := h.processBatches(cmd.SourceCsvPath, h.syncBatch)
+func (svc *Service) Sync(cmd SyncCommand) (SyncResult, error) {
+	res, err := svc.processBatches(cmd.SourceCsvPath, svc.syncBatch)
 
 	if err != nil {
 		return SyncResult{}, err
@@ -157,12 +140,4 @@ func (h *SyncHandler) Handle(cmd SyncCommand) (SyncResult, error) {
 		Processed: totalProcessed,
 		Path:      cmd.SourceCsvPath,
 	}, nil
-}
-
-func NewSyncHandler(fs afero.Fs, cfg SyncHandlerConfig, repo SyncHandlerRepo) *SyncHandler {
-	return &SyncHandler{
-		fs:   fs,
-		repo: repo,
-		cfg:  cfg,
-	}
 }

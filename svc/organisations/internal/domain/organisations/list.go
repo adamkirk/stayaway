@@ -2,10 +2,6 @@ package organisations
 
 import "github.com/adamkirk-stayaway/organisations/internal/domain/common"
 
-type ListHandlerRepo interface {
-	Paginate(orderBy SortBy, orderDir common.SortDirection, page int, perPage int) (Organisations, common.PaginationResult, error)
-}
-
 type ListCommand struct {
 	OrderDirection common.SortDirection
 	OrderBy        SortBy
@@ -22,21 +18,11 @@ func NewListCommand() ListCommand {
 	}
 }
 
-type ListHandler struct {
-	repo ListHandlerRepo
-}
-
-func (h *ListHandler) Handle(cmd ListCommand) (Organisations, common.PaginationResult, error) {
-	return h.repo.Paginate(
+func (svc *Service) List(cmd ListCommand) (Organisations, common.PaginationResult, error) {
+	return svc.repo.Paginate(
 		cmd.OrderBy,
 		cmd.OrderDirection,
 		cmd.Page,
 		cmd.PerPage,
 	)
-}
-
-func NewListHandler(repo ListHandlerRepo) *ListHandler {
-	return &ListHandler{
-		repo: repo,
-	}
 }

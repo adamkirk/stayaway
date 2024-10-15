@@ -10,30 +10,19 @@ import (
 	"github.com/adamkirk-stayaway/organisations/internal/validation"
 )
 
-type CreateHandlerRepo interface {
-	Save(org *Organisation) (*Organisation, error)
-	BySlug(slug string) (*Organisation, error)
-}
-
 type CreateCommand struct {
 	Name *string `validate:"required,min=3"`
 	Slug *string `validate:"required,min=3,slug"`
 }
 
-type CreateHandler struct {
-	repo      CreateHandlerRepo
-	validator Validator
-	mutex     DistributedMutex
-}
-
-func (h *CreateHandler) Handle(cmd CreateCommand) (*Organisation, error) {
-	err := h.validator.Validate(cmd)
+func (svc *Service) Create(cmd CreateCommand) (*Organisation, error) {
+	err := svc.validator.Validate(cmd)
 
 	if err != nil {
 		return nil, err
 	}
 
-	orgBySlug, err := h.repo.BySlug(*cmd.Slug)
+	orgBySlug, err := svc.repo.BySlug(*cmd.Slug)
 
 	if orgBySlug != nil {
 		return nil, validation.ValidationError{
@@ -53,7 +42,7 @@ func (h *CreateHandler) Handle(cmd CreateCommand) (*Organisation, error) {
 	}
 
 	slugMutexKey := fmt.Sprintf("organisation_slug:%s", *cmd.Slug)
-	l, err := h.mutex.ClaimWithBackOff(slugMutexKey, 300*time.Millisecond)
+	l, err := svc.mutex.ClaimWithBackOff(slugMutexKey, 300*time.Millisecond)
 
 	if err != nil {
 		if _, ok := err.(mutex.ErrLockNotClaimed); ok {
@@ -76,13 +65,5 @@ func (h *CreateHandler) Handle(cmd CreateCommand) (*Organisation, error) {
 		Slug: *cmd.Slug,
 	}
 
-	return h.repo.Save(org)
-}
-
-func NewCreateHandler(repo CreateHandlerRepo, validator Validator, mutex DistributedMutex) *CreateHandler {
-	return &CreateHandler{
-		repo:      repo,
-		validator: validator,
-		mutex:     mutex,
-	}
+	return svc.repo.Save(org)
 }

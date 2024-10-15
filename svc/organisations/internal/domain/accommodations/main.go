@@ -1,10 +1,9 @@
 package accommodations
 
-import "github.com/adamkirk-stayaway/organisations/internal/domain/common"
-
-type Validator interface {
-	Validate(any) error
-}
+import (
+	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
+	"github.com/adamkirk-stayaway/organisations/internal/domain/venues"
+)
 
 type SortBy string
 
@@ -76,3 +75,33 @@ type AccommodationGroup struct {
 }
 
 type AccommodationGroups []AccommodationGroup
+
+type Validator interface {
+	Validate(any) error
+}
+
+type VenueTemplatesRepo interface {
+	Save(org *VenueTemplate) (*VenueTemplate, error)
+	ByNameAndVenue(name string, venueId string) (*VenueTemplate, error)
+	Get(id string, venueId string) (*VenueTemplate, error)
+	Delete(*VenueTemplate) error
+	Paginate(p PaginationFilter, search SearchFilter) (VenueTemplates, common.PaginationResult, error)
+}
+
+type VenuesRepo interface {
+	Get(id string, orgId string) (*venues.Venue, error)
+}
+
+type VenueTemplatesService struct {
+	repo VenueTemplatesRepo
+	venuesRepo VenuesRepo
+	validator Validator
+}
+
+func NewVenueTemplatesService(repo VenueTemplatesRepo, venuesRepo VenuesRepo, v Validator) *VenueTemplatesService {
+	return &VenueTemplatesService{
+		repo: repo,
+		venuesRepo: venuesRepo,
+		validator: v,
+	}
+}

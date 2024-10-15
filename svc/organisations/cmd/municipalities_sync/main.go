@@ -10,13 +10,17 @@ import (
 	"go.uber.org/fx"
 )
 
+type SyncService interface {
+	Sync(cmd municipalities.SyncCommand) (municipalities.SyncResult, error)
+}
+
 type ActionInput struct {
 	cmd  *cobra.Command
 	args []string
 }
 
 type Action struct {
-	handler *municipalities.SyncHandler
+	handler SyncService
 	sh      fx.Shutdowner
 	cmd     *cobra.Command
 	args    []string
@@ -25,7 +29,7 @@ type Action struct {
 func newAction(
 	lc fx.Lifecycle,
 	sh fx.Shutdowner,
-	handler *municipalities.SyncHandler,
+	handler SyncService,
 	input *ActionInput,
 ) *Action {
 	act := &Action{
@@ -55,7 +59,7 @@ func (act *Action) stop(ctx context.Context) error {
 func (act *Action) run() {
 
 	fmt.Println("Syncing municipalities...")
-	res, err := act.handler.Handle(municipalities.SyncCommand{
+	res, err := act.handler.Sync(municipalities.SyncCommand{
 		SourceCsvPath: act.args[0],
 	})
 

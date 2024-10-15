@@ -4,10 +4,6 @@ import (
 	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
 )
 
-type ListHandlerRepo interface {
-	Paginate(p PaginationFilter, search SearchFilter) (Municipalities, common.PaginationResult, error)
-}
-
 type ListCommand struct {
 	OrderDirection common.SortDirection `validate:"required"`
 	OrderBy        SortBy               `validate:"required"`
@@ -27,19 +23,15 @@ func NewListCommand() ListCommand {
 	}
 }
 
-type ListHandler struct {
-	repo      ListHandlerRepo
-	validator Validator
-}
 
-func (h *ListHandler) Handle(cmd ListCommand) (Municipalities, common.PaginationResult, error) {
-	err := h.validator.Validate(cmd)
+func (svc *Service) List(cmd ListCommand) (Municipalities, common.PaginationResult, error) {
+	err := svc.validator.Validate(cmd)
 
 	if err != nil {
 		return nil, common.PaginationResult{}, err
 	}
 
-	return h.repo.Paginate(
+	return svc.repo.Paginate(
 		PaginationFilter{
 			Page:     cmd.Page,
 			PerPage:  cmd.PerPage,
@@ -51,11 +43,4 @@ func (h *ListHandler) Handle(cmd ListCommand) (Municipalities, common.Pagination
 			NamePrefix: cmd.NamePrefix,
 		},
 	)
-}
-
-func NewListHandler(validator Validator, repo ListHandlerRepo) *ListHandler {
-	return &ListHandler{
-		repo:      repo,
-		validator: validator,
-	}
 }

@@ -9,35 +9,20 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type OrganisationsGetHandler interface {
-	Handle(organisations.GetCommand) (*organisations.Organisation, error)
-}
-
-type OrganisationsListHandler interface {
-	Handle(cmd organisations.ListCommand) (organisations.Organisations, common.PaginationResult, error)
-}
-
-type OrganisationsCreateHandler interface {
-	Handle(cmd organisations.CreateCommand) (*organisations.Organisation, error)
-}
-
-type OrganisationsDeleteHandler interface {
-	Handle(cmd organisations.DeleteCommand) error
-}
-
-type OrganisationsUpdateHandler interface {
-	Handle(cmd organisations.UpdateCommand) (*organisations.Organisation, error)
+type OrganisationsService interface {
+	Get(organisations.GetCommand) (*organisations.Organisation, error)
+	Create(cmd organisations.CreateCommand) (*organisations.Organisation, error)
+	Delete(cmd organisations.DeleteCommand) error
+	List(cmd organisations.ListCommand) (organisations.Organisations, common.PaginationResult, error)
+	Update(cmd organisations.UpdateCommand) (*organisations.Organisation, error)
+	
 }
 
 type OrganisationsControllerConfig interface{}
 
 type OrganisationsController struct {
 	cfg              OrganisationsControllerConfig
-	get              OrganisationsGetHandler
-	list             OrganisationsListHandler
-	create           OrganisationsCreateHandler
-	delete           OrganisationsDeleteHandler
-	update           OrganisationsUpdateHandler
+	svc              OrganisationsService
 	validationMapper *validation.ValidationMapper
 }
 
@@ -52,20 +37,12 @@ func (c *OrganisationsController) RegisterRoutes(api *echo.Group) {
 
 func NewOrganisationsController(
 	cfg OrganisationsControllerConfig,
-	get OrganisationsGetHandler,
-	list OrganisationsListHandler,
-	create OrganisationsCreateHandler,
-	delete OrganisationsDeleteHandler,
-	update OrganisationsUpdateHandler,
+	svc              OrganisationsService,
 	validationMapper *validation.ValidationMapper,
 ) *OrganisationsController {
 	return &OrganisationsController{
 		cfg:              cfg,
-		get:              get,
-		list:             list,
-		create:           create,
-		delete:           delete,
-		update:           update,
+		svc: svc,
 		validationMapper: validationMapper,
 	}
 }
@@ -90,7 +67,7 @@ func (c *OrganisationsController) List(ctx echo.Context) error {
 
 	cmd := req.ToCommand()
 
-	results, pagination, err := c.list.Handle(cmd)
+	results, pagination, err := c.svc.List(cmd)
 
 	if err != nil {
 		return err
@@ -135,7 +112,7 @@ func (c *OrganisationsController) Create(ctx echo.Context) error {
 		return err
 	}
 
-	org, err := c.create.Handle(req.ToCommand())
+	org, err := c.svc.Create(req.ToCommand())
 
 	if err != nil {
 		if err, ok := err.(validation.ValidationError); ok {
@@ -171,7 +148,7 @@ func (c *OrganisationsController) Get(ctx echo.Context) error {
 		return err
 	}
 
-	org, err := c.get.Handle(req.ToCommand())
+	org, err := c.svc.Get(req.ToCommand())
 
 	if err != nil {
 		return err
@@ -205,7 +182,7 @@ func (c *OrganisationsController) Patch(ctx echo.Context) error {
 		return err
 	}
 
-	org, err := c.update.Handle(req.ToCommand())
+	org, err := c.svc.Update(req.ToCommand())
 
 	if err != nil {
 		if err, ok := err.(validation.ValidationError); ok {
@@ -242,7 +219,7 @@ func (c *OrganisationsController) Delete(ctx echo.Context) error {
 		return err
 	}
 
-	err := c.delete.Handle(req.ToCommand())
+	err := c.svc.Delete(req.ToCommand())
 
 	if err != nil {
 		return err

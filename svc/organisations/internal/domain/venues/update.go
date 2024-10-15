@@ -5,12 +5,6 @@ import (
 	"github.com/adamkirk-stayaway/organisations/internal/validation"
 )
 
-type UpdateHandlerRepo interface {
-	Save(org *Venue) (*Venue, error)
-	Get(id string, orgId string) (*Venue, error)
-	BySlugAndOrganisation(slug string, orgId string) (*Venue, error)
-}
-
 type UpdateCommand struct {
 	ID                  *string `validate:"required"`
 	OrganisationID      *string `validate:"required"`
@@ -26,26 +20,21 @@ type UpdateCommand struct {
 	Long                *float64 `validate:"omitnil,min=0"`
 }
 
-type UpdateHandler struct {
-	validator Validator
-	repo      UpdateHandlerRepo
-}
-
-func (h *UpdateHandler) Handle(cmd UpdateCommand) (*Venue, error) {
-	err := h.validator.Validate(cmd)
+func (svc *Service) Update(cmd UpdateCommand) (*Venue, error) {
+	err := svc.validator.Validate(cmd)
 
 	if err != nil {
 		return nil, err
 	}
 
-	v, err := h.repo.Get(*cmd.ID, *cmd.OrganisationID)
+	v, err := svc.repo.Get(*cmd.ID, *cmd.OrganisationID)
 
 	if err != nil {
 		return nil, err
 	}
 
 	if cmd.Slug != nil {
-		venueBySlug, err := h.repo.BySlugAndOrganisation(*cmd.Slug, *cmd.OrganisationID)
+		venueBySlug, err := svc.repo.BySlugAndOrganisation(*cmd.Slug, *cmd.OrganisationID)
 
 		if venueBySlug != nil && venueBySlug.ID != v.ID {
 			return nil, validation.ValidationError{
@@ -101,12 +90,5 @@ func (h *UpdateHandler) Handle(cmd UpdateCommand) (*Venue, error) {
 		v.Address.Coordinates.Long = *cmd.Long
 	}
 
-	return h.repo.Save(v)
-}
-
-func NewUpdateHandler(validator Validator, repo UpdateHandlerRepo) *UpdateHandler {
-	return &UpdateHandler{
-		validator: validator,
-		repo:      repo,
-	}
+	return svc.repo.Save(v)
 }

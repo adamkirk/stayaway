@@ -1,10 +1,9 @@
 package municipalities
 
-import "github.com/adamkirk-stayaway/organisations/internal/domain/common"
-
-type Validator interface {
-	Validate(any) error
-}
+import (
+	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
+	"github.com/spf13/afero"
+)
 
 type SortBy string
 
@@ -47,4 +46,36 @@ type BatchUpdateResult struct {
 type SyncResult struct {
 	Processed int
 	Path      string
+}
+
+type MunicipalitiesRepo interface {
+	Paginate(p PaginationFilter, search SearchFilter) (Municipalities, common.PaginationResult, error)
+	UpdateBatch(batch []Municipality) (BatchUpdateResult, error)
+}
+
+type Config interface {
+	MunicipalitiesSyncBatchSize() int
+	MunicipalitiesSyncMaxProcesses() int
+	MunicipalitiesSyncCountries() []string
+}
+
+
+type Validator interface {
+	Validate(any) error
+}
+
+type Service struct {
+	repo MunicipalitiesRepo
+	validator Validator
+	cfg Config
+	fs   afero.Fs
+}
+
+func NewService(repo MunicipalitiesRepo, v Validator, cfg Config, fs afero.Fs) *Service {
+	return &Service{
+		repo: repo,
+		validator: v,
+		cfg: cfg,
+		fs: fs,
+	}
 }

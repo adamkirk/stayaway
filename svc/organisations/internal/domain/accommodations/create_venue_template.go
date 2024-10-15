@@ -4,18 +4,8 @@ import (
 	"log/slog"
 
 	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
-	"github.com/adamkirk-stayaway/organisations/internal/domain/venues"
 	"github.com/adamkirk-stayaway/organisations/internal/validation"
 )
-
-type CreateVenueTemplateHandlerRepo interface {
-	Save(org *VenueTemplate) (*VenueTemplate, error)
-	ByNameAndVenue(name string, venueId string) (*VenueTemplate, error)
-}
-
-type CreateVenueTemplateHandlerVenuesRepo interface {
-	Get(id string, orgId string) (*venues.Venue, error)
-}
 
 type CreateVenueTemplateCommand struct {
 	OrganisationID *string `validate:"required"`
@@ -28,20 +18,14 @@ type CreateVenueTemplateCommand struct {
 	Description  *string `validate:"required,min=10"`
 }
 
-type CreateVenueTemplateHandler struct {
-	validator  Validator
-	repo       CreateVenueTemplateHandlerRepo
-	venuesRepo CreateVenueTemplateHandlerVenuesRepo
-}
-
-func (h *CreateVenueTemplateHandler) Handle(cmd CreateVenueTemplateCommand) (*VenueTemplate, error) {
-	err := h.validator.Validate(cmd)
+func (svc *VenueTemplatesService) Create(cmd CreateVenueTemplateCommand) (*VenueTemplate, error) {
+	err := svc.validator.Validate(cmd)
 
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = h.venuesRepo.Get(*cmd.VenueID, *cmd.OrganisationID)
+	_, err = svc.venuesRepo.Get(*cmd.VenueID, *cmd.OrganisationID)
 
 	if err != nil {
 		if _, ok := err.(common.ErrNotFound); ok {
@@ -51,7 +35,7 @@ func (h *CreateVenueTemplateHandler) Handle(cmd CreateVenueTemplateCommand) (*Ve
 		return nil, err
 	}
 
-	blah, err := h.repo.ByNameAndVenue(*cmd.Name, *cmd.VenueID)
+	blah, err := svc.repo.ByNameAndVenue(*cmd.Name, *cmd.VenueID)
 
 	slog.Debug("found", "vt", blah, "err", err)
 
@@ -83,17 +67,5 @@ func (h *CreateVenueTemplateHandler) Handle(cmd CreateVenueTemplateCommand) (*Ve
 		},
 	}
 
-	return h.repo.Save(vt)
-}
-
-func NewCreateVenueTemplateHandler(
-	validator Validator,
-	repo CreateVenueTemplateHandlerRepo,
-	venuesRepo CreateVenueTemplateHandlerVenuesRepo,
-) *CreateVenueTemplateHandler {
-	return &CreateVenueTemplateHandler{
-		validator:  validator,
-		repo:       repo,
-		venuesRepo: venuesRepo,
-	}
+	return svc.repo.Save(vt)
 }

@@ -108,8 +108,7 @@ func sharedOpts() []fx.Option {
 				fx.As(new(api.ApiServerConfig)),
 				fx.As(new(v1.OrganisationsControllerConfig)),
 				fx.As(new(v1.VenuesControllerConfig)),
-				fx.As(new(v1.MunicipalitiesControllerConfig)),
-				fx.As(new(municipalities.SyncHandlerConfig)),
+				fx.As(new(municipalities.Config)),
 				fx.As(new(db.RedisConnectorConfig)),
 				fx.As(new(repository.MongoDBRepositoryConfig)),
 			),
@@ -151,32 +150,8 @@ func sharedOpts() []fx.Option {
 		),
 		fx.Provide(
 			fx.Annotate(
-				organisations.NewGetHandler,
-				fx.As(new(v1.OrganisationsGetHandler)),
-			),
-		),
-		fx.Provide(
-			fx.Annotate(
-				organisations.NewListHandler,
-				fx.As(new(v1.OrganisationsListHandler)),
-			),
-		),
-		fx.Provide(
-			fx.Annotate(
-				organisations.NewCreateHandler,
-				fx.As(new(v1.OrganisationsCreateHandler)),
-			),
-		),
-		fx.Provide(
-			fx.Annotate(
-				organisations.NewDeleteHandler,
-				fx.As(new(v1.OrganisationsDeleteHandler)),
-			),
-		),
-		fx.Provide(
-			fx.Annotate(
-				organisations.NewUpdateHandler,
-				fx.As(new(v1.OrganisationsUpdateHandler)),
+				organisations.NewService,
+				fx.As(new(v1.OrganisationsService)),
 			),
 		),
 		fx.Provide(
@@ -205,74 +180,22 @@ func sharedOpts() []fx.Option {
 		),
 		fx.Provide(
 			fx.Annotate(
-				venues.NewCreateHandler,
-				fx.As(new(v1.VenuesCreateHandler)),
-			),
-		),
-		fx.Provide(
-			fx.Annotate(
-				venues.NewListHandler,
-				fx.As(new(v1.VenuesListHandler)),
-			),
-		),
-		fx.Provide(
-			fx.Annotate(
-				venues.NewGetHandler,
-				fx.As(new(v1.VenuesGetHandler)),
-			),
-		),
-		fx.Provide(
-			fx.Annotate(
-				venues.NewDeleteHandler,
-				fx.As(new(v1.VenuesDeleteHandler)),
-			),
-		),
-		fx.Provide(
-			fx.Annotate(
-				venues.NewUpdateHandler,
-				fx.As(new(v1.VenuesUpdateHandler)),
+				venues.NewService,
+				fx.As(new(v1.VenuesService)),
 			),
 		),
 
 		fx.Provide(
 			fx.Annotate(
-				municipalities.NewListHandler,
-				fx.As(new(v1.MunicipalitiesListHandler)),
+				municipalities.NewService,
+				fx.As(new(v1.MunicipalitiesService)),
+				fx.As(new(municipalitiessync.SyncService)),
 			),
 		),
 		fx.Provide(
 			fx.Annotate(
-				accommodations.NewCreateVenueTemplateHandler,
-				fx.As(new(v1.VenueAccommodationTemplateCreateHandler)),
-			),
-		),
-		fx.Provide(
-			fx.Annotate(
-				accommodations.NewGetVenueTemplateHandler,
-				fx.As(new(v1.VenueAccommodationTemplateGetHandler)),
-			),
-		),
-		fx.Provide(
-			fx.Annotate(
-				accommodations.NewListVenueTemplatesHandler,
-				fx.As(new(v1.VenueAccommodationTemplatesListHandler)),
-			),
-		),
-		fx.Provide(
-			fx.Annotate(
-				accommodations.NewDeleteVenueTemplateHandler,
-				fx.As(new(v1.VenueAccommodationTemplateDeleteHandler)),
-			),
-		),
-		fx.Provide(
-			fx.Annotate(
-				accommodations.NewUpdateVenueTemplateHandler,
-				fx.As(new(v1.VenueAccommodationTemplateUpdateHandler)),
-			),
-		),
-		fx.Provide(
-			fx.Annotate(
-				municipalities.NewSyncHandler,
+				accommodations.NewVenueTemplatesService,
+				fx.As(new(v1.VenueTemplatesService)),
 			),
 		),
 		fx.Provide(
@@ -337,43 +260,26 @@ func sharedOpts() []fx.Option {
 			fx.Provide(
 				fx.Annotate(
 					repository.NewMongoDbOrganisations,
-					fx.As(new(organisations.GetHandlerRepo)),
-					fx.As(new(organisations.ListHandlerRepo)),
-					fx.As(new(organisations.CreateHandlerRepo)),
-					fx.As(new(organisations.DeleteHandlerRepo)),
-					fx.As(new(organisations.UpdateHandlerRepo)),
+					fx.As(new(organisations.OrganisationsRepo)),
 				),
 			),
 			fx.Provide(
 				fx.Annotate(
 					repository.NewMongoDbVenues,
-					fx.As(new(venues.CreateHandlerRepo)),
-					fx.As(new(venues.ListHandlerRepo)),
-					fx.As(new(venues.GetHandlerRepo)),
-					fx.As(new(venues.DeleteHandlerRepo)),
-					fx.As(new(venues.UpdateHandlerRepo)),
-					fx.As(new(accommodations.CreateVenueTemplateHandlerVenuesRepo)),
-					fx.As(new(accommodations.GetVenueTemplateHandlerVenuesRepo)),
-					fx.As(new(accommodations.DeleteVenueTemplateHandlerVenuesRepo)),
-					fx.As(new(accommodations.ListVenueTemplatesHandlerVenuesRepo)),
-					fx.As(new(accommodations.UpdateVenueTemplateHandlerVenuesRepo)),
+					fx.As(new(venues.VenuesRepo)),
+					fx.As(new(accommodations.VenuesRepo)),
 				),
 			),
 			fx.Provide(
 				fx.Annotate(
 					repository.NewMongoDbMunicipalities,
-					fx.As(new(municipalities.SyncHandlerRepo)),
-					fx.As(new(municipalities.ListHandlerRepo)),
+					fx.As(new(municipalities.MunicipalitiesRepo)),
 				),
 			),
 			fx.Provide(
 				fx.Annotate(
 					repository.NewMongoDbVenueAccommodationTemplates,
-					fx.As(new(accommodations.CreateVenueTemplateHandlerRepo)),
-					fx.As(new(accommodations.GetVenueTemplateHandlerRepo)),
-					fx.As(new(accommodations.DeleteVenueTemplateHandlerRepo)),
-					fx.As(new(accommodations.ListVenueTemplatesHandlerRepo)),
-					fx.As(new(accommodations.UpdateVenueTemplateHandlerRepo)),
+					fx.As(new(accommodations.VenueTemplatesRepo)),
 				),
 			),
 		}...)

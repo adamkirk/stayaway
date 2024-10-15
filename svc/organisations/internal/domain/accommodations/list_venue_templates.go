@@ -2,16 +2,7 @@ package accommodations
 
 import (
 	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
-	"github.com/adamkirk-stayaway/organisations/internal/domain/venues"
 )
-
-type ListVenueTemplatesHandlerRepo interface {
-	Paginate(p PaginationFilter, search SearchFilter) (VenueTemplates, common.PaginationResult, error)
-}
-
-type ListVenueTemplatesHandlerVenuesRepo interface {
-	Get(id string, orgId string) (*venues.Venue, error)
-}
 
 type ListVenueTemplatesCommand struct {
 	OrganisationID string               `validate:"required"`
@@ -32,14 +23,8 @@ func NewListVenueTemplatesCommand() ListVenueTemplatesCommand {
 	}
 }
 
-type ListVenueTemplatesHandler struct {
-	validator  Validator
-	repo       ListVenueTemplatesHandlerRepo
-	venuesRepo ListVenueTemplatesHandlerVenuesRepo
-}
-
-func (h *ListVenueTemplatesHandler) Handle(cmd ListVenueTemplatesCommand) (VenueTemplates, common.PaginationResult, error) {
-	err := h.validator.Validate(cmd)
+func (svc *VenueTemplatesService) List(cmd ListVenueTemplatesCommand) (VenueTemplates, common.PaginationResult, error) {
+	err := svc.validator.Validate(cmd)
 
 	if err != nil {
 		return nil, common.PaginationResult{}, err
@@ -52,7 +37,7 @@ func (h *ListVenueTemplatesHandler) Handle(cmd ListVenueTemplatesCommand) (Venue
 	// keeping the full hierarchy of ids around, but this is simple enough
 	// for now.
 	// Applies to other areas...
-	_, err = h.venuesRepo.Get(cmd.VenueID, cmd.OrganisationID)
+	_, err = svc.venuesRepo.Get(cmd.VenueID, cmd.OrganisationID)
 
 	if err != nil {
 		if _, ok := err.(common.ErrNotFound); ok {
@@ -76,17 +61,5 @@ func (h *ListVenueTemplatesHandler) Handle(cmd ListVenueTemplatesCommand) (Venue
 		},
 	}
 
-	return h.repo.Paginate(p, s)
-}
-
-func NewListVenueTemplatesHandler(
-	validator Validator,
-	repo ListVenueTemplatesHandlerRepo,
-	venuesRepo ListVenueTemplatesHandlerVenuesRepo,
-) *ListVenueTemplatesHandler {
-	return &ListVenueTemplatesHandler{
-		validator:  validator,
-		repo:       repo,
-		venuesRepo: venuesRepo,
-	}
+	return svc.repo.Paginate(p, s)
 }

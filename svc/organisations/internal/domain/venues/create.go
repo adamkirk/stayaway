@@ -5,11 +5,6 @@ import (
 	"github.com/adamkirk-stayaway/organisations/internal/validation"
 )
 
-type CreateHandlerRepo interface {
-	Save(org *Venue) (*Venue, error)
-	BySlugAndOrganisation(slug string, orgId string) (*Venue, error)
-}
-
 type CreateCommand struct {
 	OrganisationID *string  `validate:"required"`
 	Name           *string  `validate:"required,min=3"`
@@ -23,19 +18,15 @@ type CreateCommand struct {
 	Long           *float64 `validate:"required,min=0"`
 }
 
-type CreateHandler struct {
-	validator Validator
-	repo      CreateHandlerRepo
-}
 
-func (h *CreateHandler) Handle(cmd CreateCommand) (*Venue, error) {
-	err := h.validator.Validate(cmd)
+func (svc *Service) Create(cmd CreateCommand) (*Venue, error) {
+	err := svc.validator.Validate(cmd)
 
 	if err != nil {
 		return nil, err
 	}
 
-	venueBySlug, err := h.repo.BySlugAndOrganisation(*cmd.Slug, *cmd.OrganisationID)
+	venueBySlug, err := svc.repo.BySlugAndOrganisation(*cmd.Slug, *cmd.OrganisationID)
 
 	if venueBySlug != nil {
 		return nil, validation.ValidationError{
@@ -71,12 +62,5 @@ func (h *CreateHandler) Handle(cmd CreateCommand) (*Venue, error) {
 		},
 	}
 
-	return h.repo.Save(v)
-}
-
-func NewCreateHandler(validator Validator, repo CreateHandlerRepo) *CreateHandler {
-	return &CreateHandler{
-		validator: validator,
-		repo:      repo,
-	}
+	return svc.repo.Save(v)
 }

@@ -9,35 +9,19 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type VenueAccommodationTemplateCreateHandler interface {
-	Handle(cmd accommodations.CreateVenueTemplateCommand) (*accommodations.VenueTemplate, error)
-}
-
-type VenueAccommodationTemplateGetHandler interface {
-	Handle(cmd accommodations.GetVenueTemplateCommand) (*accommodations.VenueTemplate, error)
-}
-
-type VenueAccommodationTemplatesListHandler interface {
-	Handle(cmd accommodations.ListVenueTemplatesCommand) (accommodations.VenueTemplates, common.PaginationResult, error)
-}
-
-type VenueAccommodationTemplateDeleteHandler interface {
-	Handle(cmd accommodations.DeleteVenueTemplateCommand) error
-}
-
-type VenueAccommodationTemplateUpdateHandler interface {
-	Handle(cmd accommodations.UpdateVenueTemplateCommand) (*accommodations.VenueTemplate, error)
+type VenueTemplatesService interface {
+	Create(cmd accommodations.CreateVenueTemplateCommand) (*accommodations.VenueTemplate, error)
+	Get(cmd accommodations.GetVenueTemplateCommand) (*accommodations.VenueTemplate, error)
+	List(cmd accommodations.ListVenueTemplatesCommand) (accommodations.VenueTemplates, common.PaginationResult, error)
+	Delete(cmd accommodations.DeleteVenueTemplateCommand) error
+	Update(cmd accommodations.UpdateVenueTemplateCommand) (*accommodations.VenueTemplate, error)
 }
 
 type VenueAccommodationTemplatesControllerConfig interface{}
 
 type VenueAccommodationTemplatesController struct {
 	cfg              VenuesControllerConfig
-	create           VenueAccommodationTemplateCreateHandler
-	get              VenueAccommodationTemplateGetHandler
-	delete           VenueAccommodationTemplateDeleteHandler
-	update           VenueAccommodationTemplateUpdateHandler
-	list             VenueAccommodationTemplatesListHandler
+	svc           VenueTemplatesService
 	validationMapper *validation.ValidationMapper
 }
 
@@ -52,20 +36,12 @@ func (c *VenueAccommodationTemplatesController) RegisterRoutes(api *echo.Group) 
 
 func NewVenueAccommodationTemplatesController(
 	cfg VenuesControllerConfig,
-	create VenueAccommodationTemplateCreateHandler,
-	get VenueAccommodationTemplateGetHandler,
-	list VenueAccommodationTemplatesListHandler,
-	delete VenueAccommodationTemplateDeleteHandler,
-	update VenueAccommodationTemplateUpdateHandler,
+	svc VenueTemplatesService,
 	validationMapper *validation.ValidationMapper,
 ) *VenueAccommodationTemplatesController {
 	return &VenueAccommodationTemplatesController{
 		cfg:              cfg,
-		create:           create,
-		list:             list,
-		get:              get,
-		delete:           delete,
-		update:           update,
+		svc: svc,
 		validationMapper: validationMapper,
 	}
 }
@@ -90,7 +66,7 @@ func (c *VenueAccommodationTemplatesController) Create(ctx echo.Context) error {
 		return err
 	}
 
-	v, err := c.create.Handle(req.ToCommand())
+	v, err := c.svc.Create(req.ToCommand())
 
 	if err != nil {
 		if err, ok := err.(validation.ValidationError); ok {
@@ -128,7 +104,7 @@ func (c *VenueAccommodationTemplatesController) Get(ctx echo.Context) error {
 		return err
 	}
 
-	vt, err := c.get.Handle(req.ToCommand())
+	vt, err := c.svc.Get(req.ToCommand())
 
 	if err != nil {
 		return err
@@ -164,7 +140,7 @@ func (c *VenueAccommodationTemplatesController) Patch(ctx echo.Context) error {
 		return err
 	}
 
-	vt, err := c.update.Handle(req.ToCommand())
+	vt, err := c.svc.Update(req.ToCommand())
 
 	if err != nil {
 		if err, ok := err.(validation.ValidationError); ok {
@@ -204,7 +180,7 @@ func (c *VenueAccommodationTemplatesController) List(ctx echo.Context) error {
 
 	cmd := req.ToCommand()
 
-	results, pagination, err := c.list.Handle(cmd)
+	results, pagination, err := c.svc.List(cmd)
 
 	if err != nil {
 		return err
@@ -251,7 +227,7 @@ func (c *VenueAccommodationTemplatesController) Delete(ctx echo.Context) error {
 		return err
 	}
 
-	err := c.delete.Handle(req.ToCommand())
+	err := c.svc.Delete(req.ToCommand())
 
 	if err != nil {
 		return err

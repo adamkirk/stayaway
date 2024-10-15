@@ -9,35 +9,19 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type VenuesGetHandler interface {
-	Handle(venues.GetCommand) (*venues.Venue, error)
-}
-
-type VenuesListHandler interface {
-	Handle(cmd venues.ListCommand) (venues.Venues, common.PaginationResult, error)
-}
-
-type VenuesCreateHandler interface {
-	Handle(cmd venues.CreateCommand) (*venues.Venue, error)
-}
-
-type VenuesDeleteHandler interface {
-	Handle(cmd venues.DeleteCommand) error
-}
-
-type VenuesUpdateHandler interface {
-	Handle(cmd venues.UpdateCommand) (*venues.Venue, error)
+type VenuesService interface {
+	Get(venues.GetCommand) (*venues.Venue, error)
+	Create(cmd venues.CreateCommand) (*venues.Venue, error)
+	Delete(cmd venues.DeleteCommand) error
+	List(cmd venues.ListCommand) (venues.Venues, common.PaginationResult, error)
+	Update(cmd venues.UpdateCommand) (*venues.Venue, error)
 }
 
 type VenuesControllerConfig interface{}
 
 type VenuesController struct {
 	cfg              VenuesControllerConfig
-	get              VenuesGetHandler
-	list             VenuesListHandler
-	create           VenuesCreateHandler
-	delete           VenuesDeleteHandler
-	update           VenuesUpdateHandler
+	svc           VenuesService
 	validationMapper *validation.ValidationMapper
 }
 
@@ -52,20 +36,12 @@ func (c *VenuesController) RegisterRoutes(api *echo.Group) {
 
 func NewVenuesController(
 	cfg VenuesControllerConfig,
-	create VenuesCreateHandler,
 	validationMapper *validation.ValidationMapper,
-	get VenuesGetHandler,
-	list VenuesListHandler,
-	delete VenuesDeleteHandler,
-	update VenuesUpdateHandler,
+	svc VenuesService,
 ) *VenuesController {
 	return &VenuesController{
 		cfg:              cfg,
-		get:              get,
-		list:             list,
-		create:           create,
-		delete:           delete,
-		update:           update,
+		svc:           svc,
 		validationMapper: validationMapper,
 	}
 }
@@ -91,7 +67,7 @@ func (c *VenuesController) List(ctx echo.Context) error {
 
 	cmd := req.ToCommand()
 
-	results, pagination, err := c.list.Handle(cmd)
+	results, pagination, err := c.svc.List(cmd)
 
 	if err != nil {
 		return err
@@ -137,7 +113,7 @@ func (c *VenuesController) Create(ctx echo.Context) error {
 		return err
 	}
 
-	v, err := c.create.Handle(req.ToCommand())
+	v, err := c.svc.Create(req.ToCommand())
 
 	if err != nil {
 		if err, ok := err.(validation.ValidationError); ok {
@@ -174,7 +150,7 @@ func (c *VenuesController) Get(ctx echo.Context) error {
 		return err
 	}
 
-	org, err := c.get.Handle(req.ToCommand())
+	org, err := c.svc.Get(req.ToCommand())
 
 	if err != nil {
 		return err
@@ -208,7 +184,7 @@ func (c *VenuesController) Patch(ctx echo.Context) error {
 		return err
 	}
 
-	venue, err := c.update.Handle(req.ToCommand())
+	venue, err := c.svc.Update(req.ToCommand())
 
 	if err != nil {
 		return err
@@ -242,7 +218,7 @@ func (c *VenuesController) Delete(ctx echo.Context) error {
 		return err
 	}
 
-	err := c.delete.Handle(req.ToCommand())
+	err := c.svc.Delete(req.ToCommand())
 
 	if err != nil {
 		return err

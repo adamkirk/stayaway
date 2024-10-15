@@ -9,15 +9,12 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type MunicipalitiesListHandler interface {
-	Handle(cmd municipalities.ListCommand) (municipalities.Municipalities, common.PaginationResult, error)
+type MunicipalitiesService interface {
+	List(cmd municipalities.ListCommand) (municipalities.Municipalities, common.PaginationResult, error)
 }
 
-type MunicipalitiesControllerConfig interface{}
-
 type MunicipalitiesController struct {
-	cfg              MunicipalitiesControllerConfig
-	list             MunicipalitiesListHandler
+	svc             MunicipalitiesService
 	validationMapper *validation.ValidationMapper
 }
 
@@ -27,13 +24,11 @@ func (c *MunicipalitiesController) RegisterRoutes(api *echo.Group) {
 }
 
 func NewMunicipalitiesController(
-	cfg MunicipalitiesControllerConfig,
 	validationMapper *validation.ValidationMapper,
-	list MunicipalitiesListHandler,
+	svc MunicipalitiesService,
 ) *MunicipalitiesController {
 	return &MunicipalitiesController{
-		cfg:              cfg,
-		list:             list,
+		svc:             svc,
 		validationMapper: validationMapper,
 	}
 }
@@ -58,7 +53,7 @@ func (c *MunicipalitiesController) List(ctx echo.Context) error {
 
 	cmd := req.ToCommand()
 
-	results, pagination, err := c.list.Handle(cmd)
+	results, pagination, err := c.svc.List(cmd)
 
 	if err != nil {
 		if err, ok := err.(validation.ValidationError); ok {

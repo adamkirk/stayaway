@@ -2,19 +2,8 @@ package accommodations
 
 import (
 	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
-	"github.com/adamkirk-stayaway/organisations/internal/domain/venues"
 	"github.com/adamkirk-stayaway/organisations/internal/validation"
 )
-
-type UpdateVenueTemplateHandlerRepo interface {
-	Save(org *VenueTemplate) (*VenueTemplate, error)
-	Get(id string, venueId string) (*VenueTemplate, error)
-	ByNameAndVenue(name string, venueId string) (*VenueTemplate, error)
-}
-
-type UpdateVenueTemplateHandlerVenuesRepo interface {
-	Get(id string, orgId string) (*venues.Venue, error)
-}
 
 type UpdateVenueTemplateCommand struct {
 	OrganisationID      string  `validate:"required"`
@@ -28,14 +17,8 @@ type UpdateVenueTemplateCommand struct {
 	Description         *string `validate:"omitnil,min=10"`
 }
 
-type UpdateVenueTemplateHandler struct {
-	validator  Validator
-	repo       UpdateVenueTemplateHandlerRepo
-	venuesRepo UpdateVenueTemplateHandlerVenuesRepo
-}
-
-func (h *UpdateVenueTemplateHandler) Handle(cmd UpdateVenueTemplateCommand) (*VenueTemplate, error) {
-	err := h.validator.Validate(cmd)
+func (svc *VenueTemplatesService) Update(cmd UpdateVenueTemplateCommand) (*VenueTemplate, error) {
+	err := svc.validator.Validate(cmd)
 
 	if err != nil {
 		return nil, err
@@ -48,7 +31,7 @@ func (h *UpdateVenueTemplateHandler) Handle(cmd UpdateVenueTemplateCommand) (*Ve
 	// keeping the full hierarchy of ids around, but this is simple enough
 	// for now.
 	// Applies to other areas...
-	_, err = h.venuesRepo.Get(cmd.VenueID, cmd.OrganisationID)
+	_, err = svc.venuesRepo.Get(cmd.VenueID, cmd.OrganisationID)
 
 	if err != nil {
 		if _, ok := err.(common.ErrNotFound); ok {
@@ -58,14 +41,14 @@ func (h *UpdateVenueTemplateHandler) Handle(cmd UpdateVenueTemplateCommand) (*Ve
 		return nil, err
 	}
 
-	vt, err := h.repo.Get(cmd.ID, cmd.VenueID)
+	vt, err := svc.repo.Get(cmd.ID, cmd.VenueID)
 
 	if err != nil {
 		return nil, err
 	}
 
 	if cmd.Name != nil {
-		byName, err := h.repo.ByNameAndVenue(*cmd.Name, cmd.VenueID)
+		byName, err := svc.repo.ByNameAndVenue(*cmd.Name, cmd.VenueID)
 
 		if byName != nil && byName.ID != vt.ID {
 			return nil, validation.ValidationError{
@@ -130,17 +113,5 @@ func (h *UpdateVenueTemplateHandler) Handle(cmd UpdateVenueTemplateCommand) (*Ve
 		vt.Description = *cmd.Description
 	}
 
-	return h.repo.Save(vt)
-}
-
-func NewUpdateVenueTemplateHandler(
-	validator Validator,
-	repo UpdateVenueTemplateHandlerRepo,
-	venuesRepo UpdateVenueTemplateHandlerVenuesRepo,
-) *UpdateVenueTemplateHandler {
-	return &UpdateVenueTemplateHandler{
-		validator:  validator,
-		repo:       repo,
-		venuesRepo: venuesRepo,
-	}
+	return svc.repo.Save(vt)
 }

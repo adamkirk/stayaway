@@ -22,12 +22,12 @@ func (meta StructMapMeta) ByFieldPath(search string) (string, bool) {
 	return search, false
 }
 
-type nullLogger struct {}
+type nullLogger struct{}
+
 func (il *nullLogger) Debug(msg string, args ...any) {}
-func (il *nullLogger) Warn(msg string, args ...any) {}
+func (il *nullLogger) Warn(msg string, args ...any)  {}
 func (il *nullLogger) Error(msg string, args ...any) {}
 
-//go:generate mockery --name ValidationMapperLogger
 type Logger interface {
 	Debug(msg string, args ...any)
 	Warn(msg string, args ...any)
@@ -40,13 +40,13 @@ type ValidationMapperOpt func(v *ValidationMapper)
 
 func WithTagFinder(f TagFinderFunc) ValidationMapperOpt {
 	return func(v *ValidationMapper) {
-		v.tagFinder = f 
+		v.tagFinder = f
 	}
 }
 
 func WithLogger(l Logger) ValidationMapperOpt {
 	return func(v *ValidationMapper) {
-		v.logger = l 
+		v.logger = l
 	}
 }
 
@@ -72,16 +72,16 @@ func (ic *internalCache) Add(key string, meta StructMapMeta) {
 func (ic *internalCache) Get(key string) (StructMapMeta, bool) {
 	v, found := ic.store[key]
 
-	if ! found {
+	if !found {
 		return StructMapMeta{}, false
 	}
 
 	return v, true
 }
 
-type ValidationMapper struct{
-	tagFinder TagFinderFunc
-	logger Logger
+type ValidationMapper struct {
+	tagFinder    TagFinderFunc
+	logger       Logger
 	cacheEnabled bool
 
 	cacher Cacher
@@ -98,7 +98,7 @@ func getJsonTagNameForField(f reflect.StructField) string {
 	return strings.Split(jsonTag, ",")[0]
 }
 
-func  (vm *ValidationMapper) getStructMap(t reflect.Type, useCache bool) StructMapMeta {
+func (vm *ValidationMapper) getStructMap(t reflect.Type, useCache bool) StructMapMeta {
 	cacheName := fmt.Sprintf("%s/%s", t.PkgPath(), t.Name())
 
 	if useCache {
@@ -114,17 +114,17 @@ func  (vm *ValidationMapper) getStructMap(t reflect.Type, useCache bool) StructM
 	for i := 0; i < t.NumField(); i++ {
 		f := t.Field(i)
 		validationMap := f.Tag.Get("validationmap")
-		jsonName := vm.tagFinder(f)
+		tagName := vm.tagFinder(f)
 
 		if f.Type.Kind() == reflect.Struct {
 			sub := vm.getStructMap(f.Type, false)
 			for k, v := range sub {
-				props[fmt.Sprintf("%s.%s", jsonName, k)] = v
+				props[fmt.Sprintf("%s.%s", tagName, k)] = v
 			}
 		}
 
 		if validationMap != "" {
-			props[jsonName] = validationMap
+			props[tagName] = validationMap
 		}
 
 	}
@@ -168,16 +168,16 @@ func (vm *ValidationMapper) Map(err ValidationError, in any) ValidationError {
 	}
 }
 
-func NewValidationMapper(opts... ValidationMapperOpt) *ValidationMapper {
+func NewValidationMapper(opts ...ValidationMapperOpt) *ValidationMapper {
 	v := &ValidationMapper{
 		tagFinder: getJsonTagNameForField,
-		logger: &nullLogger{},
+		logger:    &nullLogger{},
 		cacher: &internalCache{
 			store: map[string]StructMapMeta{},
 		},
 	}
 
-	for _, opt := range (opts) {
+	for _, opt := range opts {
 		opt(v)
 	}
 

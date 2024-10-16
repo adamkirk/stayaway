@@ -17,7 +17,7 @@ import (
 
 type MongoDbOrganisations struct {
 	connector *mongodb.Connector
-	cfg MongoDBRepositoryConfig
+	cfg       MongoDBRepositoryConfig
 }
 
 func (r *MongoDbOrganisations) getCollection() (*mongo.Collection, error) {
@@ -153,7 +153,6 @@ func (r *MongoDbOrganisations) Save(org *organisations.Organisation) (*organisat
 		Upsert: util.PointTo(true),
 	})
 
-
 	if err != nil {
 		return nil, err
 	}
@@ -164,6 +163,6 @@ func (r *MongoDbOrganisations) Save(org *organisations.Organisation) (*organisat
 func NewMongoDbOrganisations(connector *mongodb.Connector, cfg MongoDBRepositoryConfig) *MongoDbOrganisations {
 	return &MongoDbOrganisations{
 		connector: connector,
-		cfg: cfg,
+		cfg:       cfg,
 	}
 }

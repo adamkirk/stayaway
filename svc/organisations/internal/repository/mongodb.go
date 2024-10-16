@@ -15,14 +15,14 @@ type MongoDBRepositoryConfig interface {
 }
 
 var MongoDBCollections = struct {
-	Organisations string
-	Venues string
-	Municipalities string
+	Organisations               string
+	Venues                      string
+	Municipalities              string
 	AccommodationVenueTemplates string
 }{
-	Organisations: "organisations",
-	Venues: "venues",
-	Municipalities: "municipalities",
+	Organisations:               "organisations",
+	Venues:                      "venues",
+	Municipalities:              "municipalities",
 	AccommodationVenueTemplates: "accommodation_venue_templates",
 }
 
@@ -49,22 +49,22 @@ func AllMongoDBMigrations(dbName string) []mongodb.Migration {
 		Migration{
 			name: "create-unique-indexes-on-orgs-collections",
 			up: func(ctx mongodb.MigrationContext) error {
-				
+
 				coll := ctx.Client().Database(dbName).Collection(MongoDBCollections.Organisations)
-	
+
 				indexModel := mongo.IndexModel{
 					Keys:    bson.D{{"slug", -1}},
 					Options: options.Index().SetUnique(true).SetName("organisations-unique-slug"),
 				}
 				_, err := coll.Indexes().CreateOne(context.TODO(), indexModel)
-	
+
 				return err
 			},
 			down: func(ctx mongodb.MigrationContext) error {
 				coll := ctx.Client().Database(dbName).Collection(MongoDBCollections.Organisations)
-	
+
 				_, err := coll.Indexes().DropOne(context.TODO(), "organisations-unique-slug")
-	
+
 				return err
 			},
 		},
@@ -72,7 +72,7 @@ func AllMongoDBMigrations(dbName string) []mongodb.Migration {
 			name: "create-index-venues-unique-slug-per-org",
 			up: func(ctx mongodb.MigrationContext) error {
 				coll := ctx.Client().Database(dbName).Collection(MongoDBCollections.Venues)
-	
+
 				indexModel := mongo.IndexModel{
 					Keys: bson.D{
 						{"organisation_id", 1},
@@ -81,14 +81,14 @@ func AllMongoDBMigrations(dbName string) []mongodb.Migration {
 					Options: options.Index().SetUnique(true).SetName("venues-unique-slug-per-org"),
 				}
 				_, err := coll.Indexes().CreateOne(context.TODO(), indexModel)
-	
+
 				return err
 			},
 			down: func(ctx mongodb.MigrationContext) error {
 				coll := ctx.Client().Database(dbName).Collection(MongoDBCollections.Venues)
-	
+
 				_, err := coll.Indexes().DropOne(context.TODO(), "venues-unique-slug-per-org")
-	
+
 				return err
 			},
 		},

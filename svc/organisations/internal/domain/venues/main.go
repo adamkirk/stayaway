@@ -68,7 +68,6 @@ type Venue struct {
 
 type Venues []*Venue
 
-
 type Validator interface {
 	Validate(any) error
 }
@@ -82,15 +81,15 @@ type VenuesRepo interface {
 }
 
 type Service struct {
-	repo VenuesRepo
+	repo      VenuesRepo
 	validator Validator
-	idGen common.IDGenerator
+	idGen     common.IDGenerator
 }
 
 func NewService(repo VenuesRepo, v Validator, idGen common.IDGenerator) *Service {
 	return &Service{
-		repo: repo,
+		repo:      repo,
 		validator: v,
-		idGen: idGen,
+		idGen:     idGen,
 	}
 }

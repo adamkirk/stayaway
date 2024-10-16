@@ -18,7 +18,7 @@ import (
 
 type MongoDbVenueAccommodationTemplates struct {
 	connector *mongodb.Connector
-	cfg MongoDBRepositoryConfig
+	cfg       MongoDBRepositoryConfig
 }
 
 func (r *MongoDbVenueAccommodationTemplates) getCollection() (*mongo.Collection, error) {
@@ -136,14 +136,12 @@ func (r *MongoDbVenueAccommodationTemplates) Save(vt *accommodations.VenueTempla
 		Upsert: util.PointTo(true),
 	})
 
-
 	if err != nil {
 		return nil, err
 	}
 
 	return vt, nil
 }
-
 
 func (r *MongoDbVenueAccommodationTemplates) ByNameAndVenue(name string, venueId string) (*accommodations.VenueTemplate, error) {
 	coll, err := r.getCollection()
@@ -236,6 +234,6 @@ func (r *MongoDbVenueAccommodationTemplates) Delete(v *accommodations.VenueTempl
 func NewMongoDbVenueAccommodationTemplates(connector *mongodb.Connector, cfg MongoDBRepositoryConfig) *MongoDbVenueAccommodationTemplates {
 	return &MongoDbVenueAccommodationTemplates{
 		connector: connector,
-		cfg: cfg,
+		cfg:       cfg,
 	}
 }

@@ -59,23 +59,22 @@ type Config interface {
 	MunicipalitiesSyncCountries() []string
 }
 
-
 type Validator interface {
 	Validate(any) error
 }
 
 type Service struct {
-	repo MunicipalitiesRepo
+	repo      MunicipalitiesRepo
 	validator Validator
-	cfg Config
-	fs   afero.Fs
+	cfg       Config
+	fs        afero.Fs
 }
 
 func NewService(repo MunicipalitiesRepo, v Validator, cfg Config, fs afero.Fs) *Service {
 	return &Service{
-		repo: repo,
+		repo:      repo,
 		validator: v,
-		cfg: cfg,
-		fs: fs,
+		cfg:       cfg,
+		fs:        fs,
 	}
 }

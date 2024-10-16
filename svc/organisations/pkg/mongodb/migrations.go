@@ -9,7 +9,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-
 type MigrationContext interface {
 	Client() *mongo.Client
 	LogInfo(msg string) error
@@ -17,8 +16,8 @@ type MigrationContext interface {
 }
 
 type migrationContext struct {
-	client *mongo.Client
-	logInfo func(msg string) error
+	client   *mongo.Client
+	logInfo  func(msg string) error
 	logError func(msg string) error
 }
 
@@ -45,11 +44,11 @@ type Migration interface {
 }
 
 type Migrator struct {
-	connector *Connector
+	connector    *Connector
 	migrationsDB string
-	migrations []Migration
-	infoIo io.Writer
-	errorIo io.Writer
+	migrations   []Migration
+	infoIo       io.Writer
+	errorIo      io.Writer
 }
 
 func (m *Migrator) logInfo(msg string) error {
@@ -72,7 +71,7 @@ func (m *Migrator) logError(msg string) error {
 	return err
 }
 
-func(m *Migrator) migrationsToApply(target string) ([]Migration, error) {
+func (m *Migrator) migrationsToApply(target string) ([]Migration, error) {
 	before := []Migration{}
 
 	for _, mig := range m.migrations {
@@ -118,8 +117,8 @@ func (m *Migrator) Up(to string) error {
 	}
 
 	migCtx := &migrationContext{
-		client: client,
-		logInfo: m.logInfo,
+		client:   client,
+		logInfo:  m.logInfo,
 		logError: m.logError,
 	}
 
@@ -168,8 +167,8 @@ func (m *Migrator) Down(to string) error {
 	}
 
 	migCtx := &migrationContext{
-		client: client,
-		logInfo: m.logInfo,
+		client:   client,
+		logInfo:  m.logInfo,
 		logError: m.logError,
 	}
 
@@ -216,12 +215,12 @@ func NewMigrator(
 	connector *Connector,
 	migrationsDB string,
 	migrations []Migration,
-	opts... MigratorOpt,
+	opts ...MigratorOpt,
 ) *Migrator {
 	m := &Migrator{
-		connector: connector,
+		connector:    connector,
 		migrationsDB: migrationsDB,
-		migrations: migrations,
+		migrations:   migrations,
 	}
 
 	for _, opt := range opts {

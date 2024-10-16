@@ -15,7 +15,6 @@ type OrganisationsService interface {
 	Delete(cmd organisations.DeleteCommand) error
 	List(cmd organisations.ListCommand) (organisations.Organisations, common.PaginationResult, error)
 	Update(cmd organisations.UpdateCommand) (*organisations.Organisation, error)
-	
 }
 
 type OrganisationsControllerConfig interface{}
@@ -37,12 +36,12 @@ func (c *OrganisationsController) RegisterRoutes(api *echo.Group) {
 
 func NewOrganisationsController(
 	cfg OrganisationsControllerConfig,
-	svc              OrganisationsService,
+	svc OrganisationsService,
 	validationMapper *validation.ValidationMapper,
 ) *OrganisationsController {
 	return &OrganisationsController{
 		cfg:              cfg,
-		svc: svc,
+		svc:              svc,
 		validationMapper: validationMapper,
 	}
 }

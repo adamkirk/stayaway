@@ -18,7 +18,6 @@ type CreateCommand struct {
 	Long           *float64 `validate:"required,min=0"`
 }
 
-
 func (svc *Service) Create(cmd CreateCommand) (*Venue, error) {
 	err := svc.validator.Validate(cmd)
 
@@ -46,7 +45,7 @@ func (svc *Service) Create(cmd CreateCommand) (*Venue, error) {
 	}
 
 	v := &Venue{
-		ID: svc.idGen.Generate(),
+		ID:             svc.idGen.Generate(),
 		OrganisationID: *cmd.OrganisationID,
 		Name:           *cmd.Name,
 		Slug:           *cmd.Slug,

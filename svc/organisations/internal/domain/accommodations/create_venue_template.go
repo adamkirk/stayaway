@@ -57,7 +57,7 @@ func (svc *VenueTemplatesService) Create(cmd CreateVenueTemplateCommand) (*Venue
 	}
 
 	vt := &VenueTemplate{
-		ID: svc.idGen.Generate(),
+		ID:      svc.idGen.Generate(),
 		VenueID: *cmd.VenueID,
 		Template: Template{
 			Name:         *cmd.Name,

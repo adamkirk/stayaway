@@ -8,7 +8,7 @@ import (
 
 type Pinger struct {
 	connector *Connector
-	db string
+	db        string
 }
 
 func (p *Pinger) Ping() error {
@@ -26,6 +26,6 @@ func (p *Pinger) Ping() error {
 func NewPinger(connector *Connector, db string) *Pinger {
 	return &Pinger{
 		connector: connector,
-		db: db,
+		db:        db,
 	}
 }

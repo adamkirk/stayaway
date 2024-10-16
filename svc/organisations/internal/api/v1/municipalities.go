@@ -14,7 +14,7 @@ type MunicipalitiesService interface {
 }
 
 type MunicipalitiesController struct {
-	svc             MunicipalitiesService
+	svc              MunicipalitiesService
 	validationMapper *validation.ValidationMapper
 }
 
@@ -28,7 +28,7 @@ func NewMunicipalitiesController(
 	svc MunicipalitiesService,
 ) *MunicipalitiesController {
 	return &MunicipalitiesController{
-		svc:             svc,
+		svc:              svc,
 		validationMapper: validationMapper,
 	}
 }

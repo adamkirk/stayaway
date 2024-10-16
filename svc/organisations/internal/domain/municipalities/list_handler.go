@@ -23,7 +23,6 @@ func NewListCommand() ListCommand {
 	}
 }
 
-
 func (svc *Service) List(cmd ListCommand) (Municipalities, common.PaginationResult, error) {
 	err := svc.validator.Validate(cmd)
 

@@ -21,7 +21,7 @@ func (ve *ValidationExtension) Translations() []validation.Translation {
 			},
 			TranslateFunc: func(ut ut.Translator, fe validator.FieldError) string {
 				t, _ := ut.T("required")
-	
+
 				return t
 			},
 		},
@@ -32,7 +32,7 @@ func (ve *ValidationExtension) Translations() []validation.Translation {
 			},
 			TranslateFunc: func(ut ut.Translator, fe validator.FieldError) string {
 				t, _ := ut.T("slug")
-	
+
 				return t
 			},
 		},
@@ -44,7 +44,7 @@ func (ve *ValidationExtension) Translations() []validation.Translation {
 			},
 			TranslateFunc: func(ut ut.Translator, fe validator.FieldError) string {
 				t, _ := ut.T("postcode")
-	
+
 				return t
 			},
 		},
@@ -54,16 +54,16 @@ func (ve *ValidationExtension) Translations() []validation.Translation {
 				return ut.Add("min", "{0}", true)
 			},
 			TranslateFunc: func(ut ut.Translator, fe validator.FieldError) string {
-	
+
 				minValue := fe.Param()
 				var msg string
-	
+
 				k := fe.Type().Kind()
-	
+
 				if fe.Type().Kind() == reflect.Pointer {
 					k = fe.Type().Elem().Kind()
 				}
-	
+
 				switch k {
 				case reflect.Array, reflect.Slice:
 					msg = "must contain more than %s items"
@@ -84,9 +84,9 @@ func (ve *ValidationExtension) Translations() []validation.Translation {
 				case reflect.String:
 					msg = "must be more than %s characters long"
 				}
-	
+
 				t, _ := ut.T("min", fmt.Sprintf(msg, minValue))
-	
+
 				return t
 			},
 		},
@@ -96,16 +96,16 @@ func (ve *ValidationExtension) Translations() []validation.Translation {
 				return ut.Add("max", "{0}", true)
 			},
 			TranslateFunc: func(ut ut.Translator, fe validator.FieldError) string {
-	
+
 				minValue := fe.Param()
 				var msg string
-	
+
 				k := fe.Type().Kind()
-	
+
 				if fe.Type().Kind() == reflect.Pointer {
 					k = fe.Type().Elem().Kind()
 				}
-	
+
 				switch k {
 				case reflect.Array, reflect.Slice:
 					msg = "cannot contain more than %s items"
@@ -126,9 +126,9 @@ func (ve *ValidationExtension) Translations() []validation.Translation {
 				case reflect.String:
 					msg = "cannot be more than %s characters long"
 				}
-	
+
 				t, _ := ut.T("min", fmt.Sprintf(msg, minValue))
-	
+
 				return t
 			},
 		},
@@ -143,7 +143,7 @@ func (ve *ValidationExtension) Rules() []validation.CustomRule {
 			// also see about moving it somewhere so we can keep the compiled regex in memory
 			Handler: func(fl validator.FieldLevel) bool {
 				r, _ := regexp.Compile("^[a-z0-9]{1}[a-z0-9\\-]*$")
-	
+
 				return r.MatchString(fl.Field().String())
 			},
 		},
@@ -152,7 +152,7 @@ func (ve *ValidationExtension) Rules() []validation.CustomRule {
 			// Pretty basic but covers the standard format of a postcode
 			Handler: func(fl validator.FieldLevel) bool {
 				r, _ := regexp.Compile("(?i)^[a-z]{1,2}\\d[a-z\\d]?\\s*\\d[a-z]{2}$")
-	
+
 				return r.MatchString(fl.Field().String())
 			},
 		},

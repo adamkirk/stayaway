@@ -93,17 +93,17 @@ type VenuesRepo interface {
 }
 
 type VenueTemplatesService struct {
-	repo VenueTemplatesRepo
+	repo       VenueTemplatesRepo
 	venuesRepo VenuesRepo
-	validator Validator
-	idGen common.IDGenerator
+	validator  Validator
+	idGen      common.IDGenerator
 }
 
 func NewVenueTemplatesService(repo VenueTemplatesRepo, venuesRepo VenuesRepo, v Validator, idGen common.IDGenerator) *VenueTemplatesService {
 	return &VenueTemplatesService{
-		repo: repo,
+		repo:       repo,
 		venuesRepo: venuesRepo,
-		validator: v,
-		idGen: idGen,
+		validator:  v,
+		idGen:      idGen,
 	}
 }

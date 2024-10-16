@@ -32,7 +32,6 @@ type Organisation struct {
 
 type Organisations []*Organisation
 
-
 type Validator interface {
 	Validate(any) error
 }
@@ -45,19 +44,18 @@ type OrganisationsRepo interface {
 	Paginate(orderBy SortBy, orderDir common.SortDirection, page int, perPage int) (Organisations, common.PaginationResult, error)
 }
 
-
 type Service struct {
-	repo OrganisationsRepo
+	repo      OrganisationsRepo
 	validator Validator
-	mutex DistributedMutex
-	idGen common.IDGenerator
+	mutex     DistributedMutex
+	idGen     common.IDGenerator
 }
 
 func NewService(repo OrganisationsRepo, v Validator, mutex DistributedMutex, idGen common.IDGenerator) *Service {
 	return &Service{
-		repo: repo,
+		repo:      repo,
 		validator: v,
-		mutex: mutex,
-		idGen: idGen,
+		mutex:     mutex,
+		idGen:     idGen,
 	}
 }

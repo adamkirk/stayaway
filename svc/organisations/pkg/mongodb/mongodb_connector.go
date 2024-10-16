@@ -11,11 +11,11 @@ import (
 type cachedDBs map[string]*mongo.Database
 
 type Connector struct {
-	opts *options.ClientOptions
+	opts               *options.ClientOptions
 	connectionAttempts int
 
 	client *mongo.Client
-	dbs cachedDBs
+	dbs    cachedDBs
 }
 
 func (c *Connector) connect() (*mongo.Client, error) {
@@ -75,11 +75,11 @@ func WithAttempts(attempts int) ConnectorOpt {
 	}
 }
 
-func NewConnector(mongoOpts *options.ClientOptions, opts... ConnectorOpt) *Connector {
+func NewConnector(mongoOpts *options.ClientOptions, opts ...ConnectorOpt) *Connector {
 	c := &Connector{
-		opts: mongoOpts,
+		opts:               mongoOpts,
 		connectionAttempts: 1,
-		dbs: cachedDBs{},
+		dbs:                cachedDBs{},
 	}
 
 	for _, opt := range opts {

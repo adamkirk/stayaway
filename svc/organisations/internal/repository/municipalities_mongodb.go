@@ -16,7 +16,7 @@ import (
 
 type MongoDbMunicipalities struct {
 	connector *mongodb.Connector
-	cfg MongoDBRepositoryConfig
+	cfg       MongoDBRepositoryConfig
 }
 
 func (r *MongoDbMunicipalities) getCollection() (*mongo.Collection, error) {
@@ -145,6 +145,6 @@ func (r *MongoDbMunicipalities) UpdateBatch(batch []municipalities.Municipality)
 func NewMongoDbMunicipalities(connector *mongodb.Connector, cfg MongoDBRepositoryConfig) *MongoDbMunicipalities {
 	return &MongoDbMunicipalities{
 		connector: connector,
-		cfg: cfg,
+		cfg:       cfg,
 	}
 }

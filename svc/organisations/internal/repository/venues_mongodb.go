@@ -18,7 +18,7 @@ import (
 
 type MongoDbVenues struct {
 	connector *mongodb.Connector
-	cfg MongoDBRepositoryConfig
+	cfg       MongoDBRepositoryConfig
 }
 
 func (r *MongoDbVenues) getCollection() (*mongo.Collection, error) {
@@ -223,7 +223,6 @@ func (r *MongoDbVenues) Save(v *venues.Venue) (*venues.Venue, error) {
 		Upsert: util.PointTo(true),
 	})
 
-
 	if err != nil {
 		return nil, err
 	}
@@ -234,6 +233,6 @@ func (r *MongoDbVenues) Save(v *venues.Venue) (*venues.Venue, error) {
 func NewMongoDbVenues(connector *mongodb.Connector, cfg MongoDBRepositoryConfig) *MongoDbVenues {
 	return &MongoDbVenues{
 		connector: connector,
-		cfg: cfg,
+		cfg:       cfg,
 	}
 }

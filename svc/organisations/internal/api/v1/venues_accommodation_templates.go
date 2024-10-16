@@ -21,7 +21,7 @@ type VenueAccommodationTemplatesControllerConfig interface{}
 
 type VenueAccommodationTemplatesController struct {
 	cfg              VenuesControllerConfig
-	svc           VenueTemplatesService
+	svc              VenueTemplatesService
 	validationMapper *validation.ValidationMapper
 }
 
@@ -41,7 +41,7 @@ func NewVenueAccommodationTemplatesController(
 ) *VenueAccommodationTemplatesController {
 	return &VenueAccommodationTemplatesController{
 		cfg:              cfg,
-		svc: svc,
+		svc:              svc,
 		validationMapper: validationMapper,
 	}
 }

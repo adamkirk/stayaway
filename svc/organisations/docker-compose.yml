@@ -16,6 +16,10 @@ services:
     build:
       context: ${ORGANISATIONS_DIR}
       target: dev
+      x-bake:
+        platforms:
+          - linux/amd64
+          - linux/arm64
     environment:
       APP_COMMAND: organisations
       AIR_DEBUG: ${ORGANISATIONS_AIR_DEBUG}

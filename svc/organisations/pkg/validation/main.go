@@ -1,6 +1,7 @@
 package validation
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/go-playground/locales/en"
@@ -84,6 +85,7 @@ func (v *Validator) Validate(in any) error {
 }
 
 func NewValidator(extensions... Extension) *Validator {
+	fmt.Printf("\n\nlength %d\n\n", len(extensions))
 	en := en.New()
 	uni := ut.New(en, en)
 

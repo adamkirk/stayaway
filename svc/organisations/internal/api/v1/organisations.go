@@ -5,7 +5,7 @@ import (
 	"github.com/adamkirk-stayaway/organisations/internal/api/v1/responses"
 	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
 	"github.com/adamkirk-stayaway/organisations/internal/domain/organisations"
-	"github.com/adamkirk-stayaway/organisations/internal/validation"
+	"github.com/adamkirk-stayaway/organisations/pkg/validation"
 	"github.com/labstack/echo/v4"
 )
 
@@ -69,6 +69,9 @@ func (c *OrganisationsController) List(ctx echo.Context) error {
 	results, pagination, err := c.svc.List(cmd)
 
 	if err != nil {
+		if err, ok := err.(validation.ValidationError); ok {
+			return c.validationMapper.Map(err, req)
+		}
 		return err
 	}
 

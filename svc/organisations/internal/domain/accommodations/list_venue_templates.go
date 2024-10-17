@@ -8,10 +8,10 @@ type ListVenueTemplatesCommand struct {
 	OrganisationID string               `validate:"required"`
 	VenueID        string               `validate:"required"`
 	NamePrefix     *string              `validate:"omitnil,min=3"`
-	OrderDirection common.SortDirection `validate:"required"`
-	OrderBy        SortBy               `validate:"required"`
+	OrderDirection common.SortDirection `validate:"required,orderdir"`
+	OrderBy        SortBy               `validate:"required,accommodationtype_sortfield"`
 	Page           int                  `validate:"required,min=1"`
-	PerPage        int                  `validate:"required"`
+	PerPage        int                  `validate:"required,min=1"`
 }
 
 func NewListVenueTemplatesCommand() ListVenueTemplatesCommand {

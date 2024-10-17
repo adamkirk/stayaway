@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"regexp"
 
-	"github.com/adamkirk-stayaway/organisations/internal/validation"
+	"github.com/adamkirk-stayaway/organisations/pkg/validation"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 )
@@ -21,6 +21,17 @@ func (ve *ValidationExtension) Translations() []validation.Translation {
 			},
 			TranslateFunc: func(ut ut.Translator, fe validator.FieldError) string {
 				t, _ := ut.T("required")
+
+				return t
+			},
+		},
+		{
+			Rule: "orderdir",
+			RegisterFunc: func(ut ut.Translator) error {
+				return ut.Add("orderdir", fmt.Sprintf("must be '%s' OR '%s'", string(SortAsc), string(SortDesc)), true)
+			},
+			TranslateFunc: func(ut ut.Translator, fe validator.FieldError) string {
+				t, _ := ut.T("orderdir")
 
 				return t
 			},
@@ -154,6 +165,15 @@ func (ve *ValidationExtension) Rules() []validation.CustomRule {
 				r, _ := regexp.Compile("(?i)^[a-z]{1,2}\\d[a-z\\d]?\\s*\\d[a-z]{2}$")
 
 				return r.MatchString(fl.Field().String())
+			},
+		},
+		{
+			Rule: "orderdir",
+			// Pretty basic but covers the standard format of a postcode
+			Handler: func(fl validator.FieldLevel) bool {
+				val := fl.Field().String()
+
+				return val == string(SortAsc) || val == string(SortDesc)
 			},
 		},
 	}

@@ -2,7 +2,7 @@ package accommodations
 
 import (
 	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
-	"github.com/adamkirk-stayaway/organisations/internal/validation"
+	"github.com/adamkirk-stayaway/organisations/pkg/validation"
 )
 
 type UpdateVenueTemplateCommand struct {

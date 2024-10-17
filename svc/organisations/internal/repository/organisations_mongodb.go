@@ -32,6 +32,7 @@ func (r *MongoDbOrganisations) getCollection() (*mongo.Collection, error) {
 	return coll, nil
 }
 
+// TODO implement sorting
 func (r *MongoDbOrganisations) Paginate(orderBy organisations.SortBy, orderDir common.SortDirection, page int, perPage int) (organisations.Organisations, common.PaginationResult, error) {
 	coll, err := r.getCollection()
 

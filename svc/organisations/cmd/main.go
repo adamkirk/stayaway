@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"reflect"
 	"strings"
 
 	apicmd "github.com/adamkirk-stayaway/organisations/cmd/api"
@@ -21,8 +22,8 @@ import (
 	"github.com/adamkirk-stayaway/organisations/internal/domain/venues"
 	"github.com/adamkirk-stayaway/organisations/internal/mutex"
 	"github.com/adamkirk-stayaway/organisations/internal/repository"
-	"github.com/adamkirk-stayaway/organisations/internal/validation"
 	"github.com/adamkirk-stayaway/organisations/pkg/mongodb"
+	"github.com/adamkirk-stayaway/organisations/pkg/validation"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -181,6 +182,27 @@ func sharedOpts() []fx.Option {
 		),
 		fx.Provide(
 			fx.Annotate(
+				common.NewValidationExtension,
+				fx.As(new(validation.Extension)),
+				fx.ResultTags(`group:"validationExtensions"`),
+			),
+		),
+		fx.Provide(
+			fx.Annotate(
+				organisations.NewValidationExtension,
+				fx.As(new(validation.Extension)),
+				fx.ResultTags(`group:"validationExtensions"`),
+			),
+		),
+		fx.Provide(
+			fx.Annotate(
+				municipalities.NewValidationExtension,
+				fx.As(new(validation.Extension)),
+				fx.ResultTags(`group:"validationExtensions"`),
+			),
+		),
+		fx.Provide(
+			fx.Annotate(
 				venues.NewService,
 				fx.As(new(v1.VenuesService)),
 			),
@@ -217,7 +239,24 @@ func sharedOpts() []fx.Option {
 				fx.As(new(organisations.DistributedMutex)),
 			),
 		),
-		fx.Provide(validation.NewValidationMapper),
+		fx.Provide(func () *validation.ValidationMapper {
+			logger := slog.New(slog.Default().Handler())
+			return validation.NewValidationMapper(
+				validation.WithLogger(logger),
+				validation.WithTagFinder(func (f reflect.StructField) string {
+					if queryTag := f.Tag.Get("query"); queryTag != "" {
+						return strings.Split(queryTag, ",")[0]
+					}
+				
+					if jsonTag := f.Tag.Get("json"); jsonTag != "" {
+						return strings.Split(jsonTag, ",")[0]
+					}
+					
+					// Better than nothing
+					return f.Name
+				}),
+			)
+		}),
 	}
 
 	if !appCfg.DbDriver().IsKnown() {

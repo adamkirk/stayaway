@@ -8,10 +8,10 @@ import (
 
 type ListVenuesRequest struct {
 	OrganisationID *string `param:"organisationId" swaggerignore:"true"`
-	OrderDirection *string `query:"order_dir" json:"order_dir"`
-	OrderBy        *string `query:"order_by" json:"order_by"`
-	Page           *int    `query:"page" json:"page"`
-	PerPage        *int    `query:"per_page" json:"per_page"`
+	OrderDirection *string `query:"order_dir" json:"order_dir" validationmap:"OrderDirection"`
+	OrderBy        *string `query:"order_by" json:"order_by" validationmap:"OrderBy"`
+	Page           *int    `query:"page" json:"page" validationmap:"Page"`
+	PerPage        *int    `query:"per_page" json:"per_page" validationmap:"PerPage"`
 }
 
 func (req ListVenuesRequest) ToCommand() venues.ListCommand {

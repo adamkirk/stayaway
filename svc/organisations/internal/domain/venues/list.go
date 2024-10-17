@@ -4,10 +4,10 @@ import "github.com/adamkirk-stayaway/organisations/internal/domain/common"
 
 type ListCommand struct {
 	OrganisationID string               `validate:"required"`
-	OrderDirection common.SortDirection `validate:"required"`
-	OrderBy        SortBy               `validate:"required"`
+	OrderDirection common.SortDirection `validate:"required,orderdir"`
+	OrderBy        SortBy               `validate:"required,venues_sortfield"`
 	Page           int                  `validate:"required,min=1"`
-	PerPage        int                  `validate:"required"`
+	PerPage        int                  `validate:"required,min=1"`
 }
 
 func NewListCommand() ListCommand {

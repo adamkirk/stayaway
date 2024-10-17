@@ -4,7 +4,7 @@ import (
 	"log/slog"
 
 	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
-	"github.com/adamkirk-stayaway/organisations/internal/validation"
+	"github.com/adamkirk-stayaway/organisations/pkg/validation"
 )
 
 type CreateVenueTemplateCommand struct {

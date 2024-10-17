@@ -5,8 +5,8 @@ import (
 )
 
 type ListCommand struct {
-	OrderDirection common.SortDirection `validate:"required"`
-	OrderBy        SortBy               `validate:"required"`
+	OrderDirection common.SortDirection `validate:"required,orderdir"`
+	OrderBy        SortBy               `validate:"required,municipalities_sortfield"`
 	Page           int                  `validate:"required,min=1"`
 	PerPage        int                  `validate:"required,min=1,max=100"`
 	Country        []string

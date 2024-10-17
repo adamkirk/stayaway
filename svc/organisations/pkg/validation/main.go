@@ -1,7 +1,6 @@
 package validation
 
 import (
-	"errors"
 	"strings"
 
 	"github.com/go-playground/locales/en"
@@ -58,7 +57,7 @@ func (v *Validator) Validate(in any) error {
 	errs, ok := err.(validator.ValidationErrors)
 
 	if !ok {
-		return errors.New("unable to handle validation")
+		return err
 	}
 
 	// return err
@@ -84,7 +83,7 @@ func (v *Validator) Validate(in any) error {
 	}
 }
 
-func NewValidator(extensions []Extension) *Validator {
+func NewValidator(extensions... Extension) *Validator {
 	en := en.New()
 	uni := ut.New(en, en)
 

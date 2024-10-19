@@ -23,26 +23,16 @@ type PaginationFilter struct {
 	PerPage  int
 }
 
-
-
 type VenueTemplate struct {
-	common.AccommodationTemplate `bson:"inline,template"`
+	common.AccommodationConfig `bson:"inline,template"`
 	ID       string `bson:"_id,omitempty"`
 	VenueID  string `bson:"venue_id"`
+	Name string `bson:"name"`
 }
 
-type Templates []common.AccommodationTemplate
+type Templates []common.AccommodationConfig
 
 type VenueTemplates []*VenueTemplate
-
-type AccommodationGroup struct {
-	TemplateID  string
-	Name        string
-	Slots       int
-	Description string
-}
-
-type AccommodationGroups []AccommodationGroup
 
 type Validator interface {
 	Validate(any) error

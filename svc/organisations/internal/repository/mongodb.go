@@ -19,11 +19,13 @@ var MongoDBCollections = struct {
 	Venues                      string
 	Municipalities              string
 	AccommodationVenueTemplates string
+	VenueAccommodations string
 }{
 	Organisations:               "organisations",
 	Venues:                      "venues",
 	Municipalities:              "municipalities",
 	AccommodationVenueTemplates: "accommodation_venue_templates",
+	VenueAccommodations: "venue_accommodations",
 }
 
 type Migration struct {

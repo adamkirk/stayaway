@@ -1,21 +1,21 @@
 package common
 
-type AccommodationTemplateType string
+type AccommodationConfigType string
 
 const (
-	AccommodationTemplateTypeRoom AccommodationTemplateType = "room"
+	AccommodationConfigTypeRoom AccommodationConfigType = "room"
 )
 
-func AllAccommodationTemplateTypes() []string {
+func AllAccommodationConfigTypes() []string {
 	return []string{
-		string(AccommodationTemplateTypeRoom),
+		string(AccommodationConfigTypeRoom),
 	}
 }
 
-func (vt AccommodationTemplateType) IsValid() bool {
+func (vt AccommodationConfigType) IsValid() bool {
 	val := string(vt)
 
-	for _, test := range AllAccommodationTemplateTypes() {
+	for _, test := range AllAccommodationConfigTypes() {
 		if test == val {
 			return true
 		}
@@ -24,12 +24,30 @@ func (vt AccommodationTemplateType) IsValid() bool {
 	return false
 }
 
-// AccommodationTemplate is a generic type resource because we might assign a template to
+// AccommodationConfig is a generic type resource because we might assign a template to
 // multiple things.
-type AccommodationTemplate struct {
-	Name         string `bson:"name"`
-	MinOccupancy int    `bson:"min_occupancy"`
+type AccommodationConfig struct {
+	MinOccupancy int    `bson:"min_occupancy" validate:"required,min=1"`
+	MaxOccupancy *int   `bson:"max_occupancy" validate:"omitnil,gtefield=MinOccupancy"`
+	Description  string `bson:"description" validate:"omitnil,min=10"`
+	Type         AccommodationConfigType   `bson:"type" validate:"required,accommodationtype"`
+}
+
+// IsValid checks that all the fields in the config are compatible.
+// Will probably grow quite a lot, but for now, quite simple.
+func (ac *AccommodationConfig) IsValid() bool {
+	if ac.MaxOccupancy != nil && *ac.MaxOccupancy < ac.MinOccupancy {
+		return false
+	}
+
+	return true
+}
+
+// AccommodationConfigOverrides is exactly the same as AccommodationConfig except
+// all values are pointers as they are optional.
+type AccommodationConfigOverrides struct {
+	MinOccupancy *int    `bson:"min_occupancy"`
 	MaxOccupancy *int   `bson:"max_occupancy"`
-	Description  string `bson:"description"`
-	Type         AccommodationTemplateType   `bson:"type"`
+	Description  *string `bson:"description"`
+	Type         *AccommodationConfigType   `bson:"type"`
 }

@@ -10,6 +10,10 @@ import (
 
 type ValidationExtension struct{}
 
+func (ve *ValidationExtension) StructValidators() []validation.StructValidator {
+	return []validation.StructValidator{}
+}
+
 func (ve *ValidationExtension) Translations() []validation.Translation {
 	return []validation.Translation{
 		{

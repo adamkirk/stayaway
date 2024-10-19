@@ -25,6 +25,7 @@ type subjectWithCustomRule struct {
 type extensionProvider struct {
 	translations []validation.Translation
 	rules []validation.CustomRule
+	structValidators []validation.StructValidator
 }
 
 func (ep *extensionProvider) Translations() []validation.Translation {
@@ -33,6 +34,11 @@ func (ep *extensionProvider) Translations() []validation.Translation {
 
 func (ep *extensionProvider) Rules() []validation.CustomRule {
 	return ep.rules
+}
+
+// TODO Add some tests for these
+func (ep *extensionProvider) StructValidators() []validation.StructValidator {
+	return ep.structValidators
 }
 
 func TestValidationError(t *testing.T) {

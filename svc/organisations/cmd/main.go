@@ -19,6 +19,7 @@ import (
 	"github.com/adamkirk-stayaway/organisations/internal/domain/municipalities"
 	"github.com/adamkirk-stayaway/organisations/internal/domain/organisations"
 	"github.com/adamkirk-stayaway/organisations/internal/domain/venues"
+	"github.com/adamkirk-stayaway/organisations/internal/domain/venues/accommodations"
 	"github.com/adamkirk-stayaway/organisations/internal/domain/venues/templates"
 	"github.com/adamkirk-stayaway/organisations/internal/mutex"
 	"github.com/adamkirk-stayaway/organisations/internal/repository"
@@ -152,6 +153,13 @@ func sharedOpts() []fx.Option {
 		),
 		fx.Provide(
 			fx.Annotate(
+				v1.NewVenueAccommodationsController,
+				fx.As(new(api.Controller)),
+				fx.ResultTags(`group:"api.v1.controllers"`),
+			),
+		),
+		fx.Provide(
+			fx.Annotate(
 				organisations.NewService,
 				fx.As(new(v1.OrganisationsService)),
 			),
@@ -162,6 +170,7 @@ func sharedOpts() []fx.Option {
 				fx.As(new(organisations.Validator)),
 				fx.As(new(venues.Validator)),
 				fx.As(new(municipalities.Validator)),
+				fx.As(new(accommodations.Validator)),
 				fx.As(new(templates.Validator)),
 				fx.ParamTags(`group:"validationExtensions"`),
 			),
@@ -203,6 +212,13 @@ func sharedOpts() []fx.Option {
 		),
 		fx.Provide(
 			fx.Annotate(
+				accommodations.NewValidationExtension,
+				fx.As(new(validation.Extension)),
+				fx.ResultTags(`group:"validationExtensions"`),
+			),
+		),
+		fx.Provide(
+			fx.Annotate(
 				venues.NewService,
 				fx.As(new(v1.VenuesService)),
 			),
@@ -219,6 +235,12 @@ func sharedOpts() []fx.Option {
 			fx.Annotate(
 				templates.NewService,
 				fx.As(new(v1.VenueTemplatesService)),
+			),
+		),
+		fx.Provide(
+			fx.Annotate(
+				accommodations.NewService,
+				fx.As(new(v1.VenueAccommodationsService)),
 			),
 		),
 		fx.Provide(
@@ -326,6 +348,13 @@ func sharedOpts() []fx.Option {
 				fx.Annotate(
 					repository.NewMongoDbVenueAccommodationTemplates,
 					fx.As(new(templates.VenueTemplatesRepo)),
+					fx.As(new(accommodations.TemplatesRepo)),
+				),
+			),
+			fx.Provide(
+				fx.Annotate(
+					repository.NewMongoDbVenueAccommodations,
+					fx.As(new(accommodations.AccommodationsRepo)),
 				),
 			),
 		}...)

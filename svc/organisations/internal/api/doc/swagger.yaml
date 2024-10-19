@@ -70,6 +70,39 @@ definitions:
     - slug
     - type
     type: object
+  V1.Request.CreateVenueAccommodation:
+    properties:
+      description:
+        description: |-
+          Description of the accommodation that this applies to.
+          Or null if venue_template_id is supplied.
+        type: string
+      name:
+        description: |-
+          The name of the template.
+          Or null if venue_template_id is supplied.
+        minLength: 3
+        type: string
+        x-nullable: true
+      occupancy:
+        $ref: '#/definitions/V1.Request[Model].VenueAccommodationOccupancyCreate'
+      type:
+        description: |-
+          The type of accommodation that this template is for.
+          Currently only supports 'room'.
+          Or null if venue_template_id is supplied.
+        enum:
+        - room
+        type: string
+        x-nullable: true
+      venue_template_id:
+        type: string
+    required:
+    - description
+    - name
+    - occupancy
+    - type
+    type: object
   V1.Request.UpdateAccommodationVenueTemplate:
     properties:
       description:
@@ -139,6 +172,26 @@ definitions:
         - hotel
         type: string
         x-nullable: true
+    type: object
+  V1.Request[Model].VenueAccommodationOccupancyCreate:
+    properties:
+      max:
+        description: |-
+          The maximum amount of people that must occupy the accommodation.
+          If null or blank there will be no limit, or it will use the templates value.
+          If provided, it must be greater than the min occupancy.
+        minimum: 1
+        type: integer
+        x-nullable: true
+      min:
+        description: |-
+          The minimum amount of people that must occupy the accommodation.
+          Or null if venue_template_id is supplied.
+        minimum: 1
+        type: integer
+        x-nullable: true
+    required:
+    - min
     type: object
   V1.Request[Model].VenueAccommodationTemplateOccupancyCreate:
     properties:
@@ -329,6 +382,11 @@ definitions:
       data:
         $ref: '#/definitions/V1.Response[Model].Venue'
     type: object
+  V1.Response.PostVenueAccommodation:
+    properties:
+      data:
+        $ref: '#/definitions/V1.Response[Model].VenueAccommodation'
+    type: object
   V1.Response.PostVenueAccommodationTemplate:
     properties:
       data:
@@ -423,6 +481,75 @@ definitions:
         description: |-
           The type of venue this is.
           Currently only 'hotel' is supported.
+        type: string
+    type: object
+  V1.Response[Model].VenueAccommodation:
+    properties:
+      config:
+        allOf:
+        - $ref: '#/definitions/V1.Response[Model].VenueAccommodationConfig'
+        description: |-
+          The final configuration used by the accommodation. This is the result of
+          merging any configuration from the template and the overrides of this
+          accommodation. If there was no template, this is identical to the overrides.
+      id:
+        description: The ID of the template.
+        type: string
+      name:
+        type: string
+      overrides:
+        allOf:
+        - $ref: '#/definitions/V1.Response[Model].VenueAccommodationOverrides'
+        description: |-
+          The overrides that were supplied upon creation. These may all be set, or may
+          all be null. They may only be null if the accommodation uses a template.
+      venue_id:
+        description: The ID of the venue this template exists in.
+        type: string
+      venue_template_id:
+        description: The ID of the venue template used by this accommodation.
+        type: string
+    type: object
+  V1.Response[Model].VenueAccommodationConfig:
+    properties:
+      description:
+        type: string
+      occupancy:
+        $ref: '#/definitions/V1.Response[Model].VenueAccommodationOccupancy'
+      type:
+        type: string
+    type: object
+  V1.Response[Model].VenueAccommodationOccupancy:
+    properties:
+      max:
+        description: |-
+          The maximum occupancy for any templates using this template.
+          Null means there is no maximum.
+        type: integer
+      min:
+        description: The minimum occupancy for any templates using this template.
+        type: integer
+    type: object
+  V1.Response[Model].VenueAccommodationOccupancyOverrides:
+    properties:
+      max:
+        description: |-
+          The maximum occupancy for any templates using this template.
+          Null means there is no maximum.
+        type: integer
+      min:
+        description: |-
+          The minimum occupancy for any templates using this template.
+          Can be null if the accommodation has a template.
+        type: integer
+    type: object
+  V1.Response[Model].VenueAccommodationOverrides:
+    properties:
+      description:
+        type: string
+      occupancy:
+        $ref: '#/definitions/V1.Response[Model].VenueAccommodationOccupancyOverrides'
+      type:
         type: string
     type: object
   V1.Response[Model].VenueAccommodationTemplate:
@@ -1243,4 +1370,51 @@ paths:
       summary: Update a venue accommodation template
       tags:
       - AccommodationTemplates
+  /v1/organisations/{orgId}/venues/{venueId}/accommodations:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: The Organisations ID
+        in: path
+        name: orgId
+        required: true
+        type: string
+      - description: The Venues ID
+        in: path
+        name: venueId
+        required: true
+        type: string
+      - description: Venue Accommodation definition
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/V1.Request.CreateVenueAccommodation'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/V1.Response.PostVenueAccommodation'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/V1.Response.Invalid'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/V1.Response.Error'
+      summary: Create an accommodation for a venue
+      tags:
+      - Accommodations
 swagger: "2.0"

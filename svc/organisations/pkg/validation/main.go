@@ -18,8 +18,33 @@ type FieldError struct {
 	Errors []string
 }
 
+func (fE FieldError) PrefixAll(prefix string) FieldError {
+	prefixed := make([]string, len(fE.Errors))
+
+	for i, msg := range fE.Errors {
+		prefixed[i] = fmt.Sprintf("%s%s", prefix, msg)
+	}
+
+	return FieldError{
+		Key: fE.Key,
+		Errors: prefixed,
+	}
+}
+
 type ValidationError struct {
 	Errs []FieldError
+}
+
+func (vE ValidationError) PrefixAll(prefix string) ValidationError {
+	prefixed := make([]FieldError, len(vE.Errs))
+
+	for i, err := range vE.Errs {
+		prefixed[i] = err.PrefixAll(prefix)
+	}
+
+	return ValidationError{
+		Errs: prefixed,
+	}
 }
 
 func (err ValidationError) Error() string {
@@ -42,9 +67,15 @@ type CustomRule struct {
 	Handler func(fl validator.FieldLevel) bool
 }
 
+type StructValidator struct {
+	Struct    any
+	Validator validator.StructLevelFunc
+}
+
 type Extension interface {
 	Translations() []Translation
 	Rules() []CustomRule
+	StructValidators() []StructValidator
 }
 
 func (v *Validator) Validate(in any) error {
@@ -85,7 +116,6 @@ func (v *Validator) Validate(in any) error {
 }
 
 func NewValidator(extensions... Extension) *Validator {
-	fmt.Printf("\n\nlength %d\n\n", len(extensions))
 	en := en.New()
 	uni := ut.New(en, en)
 
@@ -106,6 +136,10 @@ func NewValidator(extensions... Extension) *Validator {
 				translation.RegisterFunc,
 				translation.TranslateFunc,
 			)
+		}
+
+		for _, sv := range ext.StructValidators() {
+			validate.RegisterStructValidation(sv.Validator, sv.Struct)
 		}
 	}
 

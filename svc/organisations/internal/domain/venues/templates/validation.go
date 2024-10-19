@@ -12,6 +12,10 @@ import (
 
 type ValidationExtension struct{}
 
+func (ve *ValidationExtension) StructValidators() []validation.StructValidator {
+	return []validation.StructValidator{}
+}
+
 func (ve *ValidationExtension) Translations() []validation.Translation {
 	return []validation.Translation{
 		{
@@ -19,7 +23,7 @@ func (ve *ValidationExtension) Translations() []validation.Translation {
 			RegisterFunc: func(ut ut.Translator) error {
 				msg := fmt.Sprintf(
 					"accommodationtype must be one of: '%s'",
-					strings.Join(common.AllAccommodationTemplateTypes(), "', '"),
+					strings.Join(common.AllAccommodationConfigTypes(), "', '"),
 				)
 				return ut.Add("accommodationtype", msg, true)
 			},
@@ -54,7 +58,7 @@ func (ve *ValidationExtension) Rules() []validation.CustomRule {
 			Handler: func(fl validator.FieldLevel) bool {
 				val := fl.Field().String()
 
-				return common.AccommodationTemplateType(val).IsValid()
+				return common.AccommodationConfigType(val).IsValid()
 			},
 		},
 		{

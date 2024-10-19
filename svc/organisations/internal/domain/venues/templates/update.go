@@ -71,7 +71,7 @@ func (svc *Service) Update(cmd UpdateVenueTemplateCommand) (*VenueTemplate, erro
 	}
 
 	if cmd.Type != nil {
-		vt.Type = common.AccommodationTemplateType(*cmd.Type)
+		vt.Type = common.AccommodationConfigType(*cmd.Type)
 	}
 
 	if cmd.NullifyMaxOccupancy {

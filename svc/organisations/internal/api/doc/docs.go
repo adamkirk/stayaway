@@ -1130,6 +1130,77 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/v1/organisations/{orgId}/venues/{venueId}/accommodations": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Accommodations"
+                ],
+                "summary": "Create an accommodation for a venue",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The Organisations ID",
+                        "name": "orgId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The Venues ID",
+                        "name": "venueId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Venue Accommodation definition",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/V1.Request.CreateVenueAccommodation"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.PostVenueAccommodation"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Invalid"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/V1.Response.Error"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1218,6 +1289,41 @@ const docTemplate = `{
                 }
             }
         },
+        "V1.Request.CreateVenueAccommodation": {
+            "type": "object",
+            "required": [
+                "description",
+                "name",
+                "occupancy",
+                "type"
+            ],
+            "properties": {
+                "description": {
+                    "description": "Description of the accommodation that this applies to.\nOr null if venue_template_id is supplied.",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "The name of the template.\nOr null if venue_template_id is supplied.",
+                    "type": "string",
+                    "minLength": 3,
+                    "x-nullable": true
+                },
+                "occupancy": {
+                    "$ref": "#/definitions/V1.Request[Model].VenueAccommodationOccupancyCreate"
+                },
+                "type": {
+                    "description": "The type of accommodation that this template is for.\nCurrently only supports 'room'.\nOr null if venue_template_id is supplied.",
+                    "type": "string",
+                    "enum": [
+                        "room"
+                    ],
+                    "x-nullable": true
+                },
+                "venue_template_id": {
+                    "type": "string"
+                }
+            }
+        },
         "V1.Request.UpdateAccommodationVenueTemplate": {
             "type": "object",
             "properties": {
@@ -1298,6 +1404,26 @@ const docTemplate = `{
                     "enum": [
                         "hotel"
                     ],
+                    "x-nullable": true
+                }
+            }
+        },
+        "V1.Request[Model].VenueAccommodationOccupancyCreate": {
+            "type": "object",
+            "required": [
+                "min"
+            ],
+            "properties": {
+                "max": {
+                    "description": "The maximum amount of people that must occupy the accommodation.\nIf null or blank there will be no limit, or it will use the templates value.\nIf provided, it must be greater than the min occupancy.",
+                    "type": "integer",
+                    "minimum": 1,
+                    "x-nullable": true
+                },
+                "min": {
+                    "description": "The minimum amount of people that must occupy the accommodation.\nOr null if venue_template_id is supplied.",
+                    "type": "integer",
+                    "minimum": 1,
                     "x-nullable": true
                 }
             }
@@ -1557,6 +1683,14 @@ const docTemplate = `{
                 }
             }
         },
+        "V1.Response.PostVenueAccommodation": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/V1.Response[Model].VenueAccommodation"
+                }
+            }
+        },
         "V1.Response.PostVenueAccommodationTemplate": {
             "type": "object",
             "properties": {
@@ -1689,6 +1823,96 @@ const docTemplate = `{
                 },
                 "type": {
                     "description": "The type of venue this is.\nCurrently only 'hotel' is supported.",
+                    "type": "string"
+                }
+            }
+        },
+        "V1.Response[Model].VenueAccommodation": {
+            "type": "object",
+            "properties": {
+                "config": {
+                    "description": "The final configuration used by the accommodation. This is the result of\nmerging any configuration from the template and the overrides of this\naccommodation. If there was no template, this is identical to the overrides.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/V1.Response[Model].VenueAccommodationConfig"
+                        }
+                    ]
+                },
+                "id": {
+                    "description": "The ID of the template.",
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "overrides": {
+                    "description": "The overrides that were supplied upon creation. These may all be set, or may\nall be null. They may only be null if the accommodation uses a template.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/V1.Response[Model].VenueAccommodationOverrides"
+                        }
+                    ]
+                },
+                "venue_id": {
+                    "description": "The ID of the venue this template exists in.",
+                    "type": "string"
+                },
+                "venue_template_id": {
+                    "description": "The ID of the venue template used by this accommodation.",
+                    "type": "string"
+                }
+            }
+        },
+        "V1.Response[Model].VenueAccommodationConfig": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "occupancy": {
+                    "$ref": "#/definitions/V1.Response[Model].VenueAccommodationOccupancy"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "V1.Response[Model].VenueAccommodationOccupancy": {
+            "type": "object",
+            "properties": {
+                "max": {
+                    "description": "The maximum occupancy for any templates using this template.\nNull means there is no maximum.",
+                    "type": "integer"
+                },
+                "min": {
+                    "description": "The minimum occupancy for any templates using this template.",
+                    "type": "integer"
+                }
+            }
+        },
+        "V1.Response[Model].VenueAccommodationOccupancyOverrides": {
+            "type": "object",
+            "properties": {
+                "max": {
+                    "description": "The maximum occupancy for any templates using this template.\nNull means there is no maximum.",
+                    "type": "integer"
+                },
+                "min": {
+                    "description": "The minimum occupancy for any templates using this template.\nCan be null if the accommodation has a template.",
+                    "type": "integer"
+                }
+            }
+        },
+        "V1.Response[Model].VenueAccommodationOverrides": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "occupancy": {
+                    "$ref": "#/definitions/V1.Response[Model].VenueAccommodationOccupancyOverrides"
+                },
+                "type": {
                     "type": "string"
                 }
             }

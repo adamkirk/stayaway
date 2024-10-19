@@ -59,12 +59,12 @@ func (svc *Service) Create(cmd CreateVenueTemplateCommand) (*VenueTemplate, erro
 	vt := &VenueTemplate{
 		ID:      svc.idGen.Generate(),
 		VenueID: *cmd.VenueID,
-		AccommodationTemplate: common.AccommodationTemplate{
-			Name:         *cmd.Name,
+		Name:         *cmd.Name,
+		AccommodationConfig: common.AccommodationConfig{
 			MinOccupancy: *cmd.MinOccupancy,
 			MaxOccupancy: cmd.MaxOccupancy,
 			Description:  *cmd.Description,
-			Type:         common.AccommodationTemplateType(*cmd.Type),
+			Type:         common.AccommodationConfigType(*cmd.Type),
 		},
 	}
 

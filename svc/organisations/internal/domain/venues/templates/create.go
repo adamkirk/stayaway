@@ -18,7 +18,7 @@ type CreateVenueTemplateCommand struct {
 	Description  *string `validate:"required,min=10"`
 }
 
-func (svc *VenueTemplatesService) Create(cmd CreateVenueTemplateCommand) (*VenueTemplate, error) {
+func (svc *Service) Create(cmd CreateVenueTemplateCommand) (*VenueTemplate, error) {
 	err := svc.validator.Validate(cmd)
 
 	if err != nil {

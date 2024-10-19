@@ -60,15 +60,15 @@ type VenuesRepo interface {
 	Get(id string, orgId string) (*venues.Venue, error)
 }
 
-type VenueTemplatesService struct {
+type Service struct {
 	repo       VenueTemplatesRepo
 	venuesRepo VenuesRepo
 	validator  Validator
 	idGen      common.IDGenerator
 }
 
-func NewVenueTemplatesService(repo VenueTemplatesRepo, venuesRepo VenuesRepo, v Validator, idGen common.IDGenerator) *VenueTemplatesService {
-	return &VenueTemplatesService{
+func NewService(repo VenueTemplatesRepo, venuesRepo VenuesRepo, v Validator, idGen common.IDGenerator) *Service {
+	return &Service{
 		repo:       repo,
 		venuesRepo: venuesRepo,
 		validator:  v,

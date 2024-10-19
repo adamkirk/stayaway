@@ -10,7 +10,7 @@ type DeleteVenueTemplateCommand struct {
 	ID             string `validate:"required"`
 }
 
-func (svc *VenueTemplatesService) Delete(cmd DeleteVenueTemplateCommand) error {
+func (svc *Service) Delete(cmd DeleteVenueTemplateCommand) error {
 	err := svc.validator.Validate(cmd)
 
 	if err != nil {

@@ -17,7 +17,7 @@ type UpdateVenueTemplateCommand struct {
 	Description         *string `validate:"omitnil,min=10"`
 }
 
-func (svc *VenueTemplatesService) Update(cmd UpdateVenueTemplateCommand) (*VenueTemplate, error) {
+func (svc *Service) Update(cmd UpdateVenueTemplateCommand) (*VenueTemplate, error) {
 	err := svc.validator.Validate(cmd)
 
 	if err != nil {

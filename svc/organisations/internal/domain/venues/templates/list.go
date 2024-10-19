@@ -23,7 +23,7 @@ func NewListVenueTemplatesCommand() ListVenueTemplatesCommand {
 	}
 }
 
-func (svc *VenueTemplatesService) List(cmd ListVenueTemplatesCommand) (VenueTemplates, common.PaginationResult, error) {
+func (svc *Service) List(cmd ListVenueTemplatesCommand) (VenueTemplates, common.PaginationResult, error) {
 	err := svc.validator.Validate(cmd)
 
 	if err != nil {

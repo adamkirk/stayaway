@@ -10,7 +10,7 @@ type GetVenueTemplateCommand struct {
 	ID             string `validate:"required"`
 }
 
-func (svc *VenueTemplatesService) Get(cmd GetVenueTemplateCommand) (*VenueTemplate, error) {
+func (svc *Service) Get(cmd GetVenueTemplateCommand) (*VenueTemplate, error) {
 	err := svc.validator.Validate(cmd)
 
 	if err != nil {

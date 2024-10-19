@@ -217,7 +217,7 @@ func sharedOpts() []fx.Option {
 		),
 		fx.Provide(
 			fx.Annotate(
-				templates.NewVenueTemplatesService,
+				templates.NewService,
 				fx.As(new(v1.VenueTemplatesService)),
 			),
 		),

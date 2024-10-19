@@ -6,8 +6,8 @@ import (
 	"log/slog"
 	"math"
 
-	"github.com/adamkirk-stayaway/organisations/internal/domain/accommodations"
 	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
+	"github.com/adamkirk-stayaway/organisations/internal/domain/venues/templates"
 	"github.com/adamkirk-stayaway/organisations/internal/util"
 	"github.com/adamkirk-stayaway/organisations/pkg/mongodb"
 	"go.mongodb.org/mongo-driver/bson"
@@ -33,9 +33,9 @@ func (r *MongoDbVenueAccommodationTemplates) getCollection() (*mongo.Collection,
 	return coll, nil
 }
 
-func (r *MongoDbVenueAccommodationTemplates) getSortColumn(sortBy accommodations.SortBy) (string, error) {
+func (r *MongoDbVenueAccommodationTemplates) getSortColumn(sortBy templates.SortBy) (string, error) {
 	switch sortBy {
-	case accommodations.SortByName:
+	case templates.SortByName:
 		return "name", nil
 	default:
 		return "", common.ErrInvalidSortBy{
@@ -44,7 +44,7 @@ func (r *MongoDbVenueAccommodationTemplates) getSortColumn(sortBy accommodations
 	}
 }
 
-func (r *MongoDbVenueAccommodationTemplates) filterToBsonD(search accommodations.SearchFilter) bson.D {
+func (r *MongoDbVenueAccommodationTemplates) filterToBsonD(search templates.SearchFilter) bson.D {
 	filters := []bson.D{}
 
 	if len(search.VenueID) > 0 {
@@ -64,7 +64,7 @@ func (r *MongoDbVenueAccommodationTemplates) filterToBsonD(search accommodations
 	return bson.D{{"$and", filters}}
 }
 
-func (r *MongoDbVenueAccommodationTemplates) Paginate(p accommodations.PaginationFilter, search accommodations.SearchFilter) (accommodations.VenueTemplates, common.PaginationResult, error) {
+func (r *MongoDbVenueAccommodationTemplates) Paginate(p templates.PaginationFilter, search templates.SearchFilter) (templates.VenueTemplates, common.PaginationResult, error) {
 	coll, err := r.getCollection()
 
 	if err != nil {
@@ -100,7 +100,7 @@ func (r *MongoDbVenueAccommodationTemplates) Paginate(p accommodations.Paginatio
 
 	cursor, err := coll.Find(context.TODO(), filter, opts)
 
-	vts := &accommodations.VenueTemplates{}
+	vts := &templates.VenueTemplates{}
 
 	if err := cursor.All(context.TODO(), vts); err != nil {
 		return nil, common.PaginationResult{}, err
@@ -116,7 +116,7 @@ func (r *MongoDbVenueAccommodationTemplates) Paginate(p accommodations.Paginatio
 	}, nil
 }
 
-func (r *MongoDbVenueAccommodationTemplates) Save(vt *accommodations.VenueTemplate) (*accommodations.VenueTemplate, error) {
+func (r *MongoDbVenueAccommodationTemplates) Save(vt *templates.VenueTemplate) (*templates.VenueTemplate, error) {
 	coll, err := r.getCollection()
 
 	if err != nil {
@@ -143,14 +143,14 @@ func (r *MongoDbVenueAccommodationTemplates) Save(vt *accommodations.VenueTempla
 	return vt, nil
 }
 
-func (r *MongoDbVenueAccommodationTemplates) ByNameAndVenue(name string, venueId string) (*accommodations.VenueTemplate, error) {
+func (r *MongoDbVenueAccommodationTemplates) ByNameAndVenue(name string, venueId string) (*templates.VenueTemplate, error) {
 	coll, err := r.getCollection()
 
 	if err != nil {
 		return nil, err
 	}
 
-	vt := &accommodations.VenueTemplate{}
+	vt := &templates.VenueTemplate{}
 
 	filter := bson.D{{
 		"$and", bson.A{
@@ -173,7 +173,7 @@ func (r *MongoDbVenueAccommodationTemplates) ByNameAndVenue(name string, venueId
 	return vt, err
 }
 
-func (r *MongoDbVenueAccommodationTemplates) Get(id string, venueId string) (*accommodations.VenueTemplate, error) {
+func (r *MongoDbVenueAccommodationTemplates) Get(id string, venueId string) (*templates.VenueTemplate, error) {
 	coll, err := r.getCollection()
 
 	if err != nil {
@@ -190,7 +190,7 @@ func (r *MongoDbVenueAccommodationTemplates) Get(id string, venueId string) (*ac
 		}
 	}
 
-	vt := &accommodations.VenueTemplate{}
+	vt := &templates.VenueTemplate{}
 
 	filter := bson.D{{
 		"$and", bson.A{
@@ -213,7 +213,7 @@ func (r *MongoDbVenueAccommodationTemplates) Get(id string, venueId string) (*ac
 	return vt, err
 }
 
-func (r *MongoDbVenueAccommodationTemplates) Delete(v *accommodations.VenueTemplate) error {
+func (r *MongoDbVenueAccommodationTemplates) Delete(v *templates.VenueTemplate) error {
 	coll, err := r.getCollection()
 
 	if err != nil {

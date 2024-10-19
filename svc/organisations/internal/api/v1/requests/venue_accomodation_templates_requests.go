@@ -1,8 +1,8 @@
 package requests
 
 import (
-	"github.com/adamkirk-stayaway/organisations/internal/domain/accommodations"
 	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
+	"github.com/adamkirk-stayaway/organisations/internal/domain/venues/templates"
 	"github.com/adamkirk-stayaway/organisations/internal/util"
 )
 
@@ -28,15 +28,15 @@ type ListVenueAccommodationTemplatesRequest struct {
 	VenueID        *string `param:"venueId" swaggerignore:"true"`
 }
 
-func (req ListVenueAccommodationTemplatesRequest) ToCommand() accommodations.ListVenueTemplatesCommand {
-	cmd := accommodations.NewListVenueTemplatesCommand()
+func (req ListVenueAccommodationTemplatesRequest) ToCommand() templates.ListVenueTemplatesCommand {
+	cmd := templates.NewListVenueTemplatesCommand()
 
 	if req.OrderDirection != nil {
 		cmd.OrderDirection = common.SortDirection(*req.OrderDirection)
 	}
 
 	if req.OrderBy != nil {
-		cmd.OrderBy = accommodations.SortBy(*req.OrderBy)
+		cmd.OrderBy = templates.SortBy(*req.OrderBy)
 	}
 
 	if req.Page != nil {
@@ -82,8 +82,8 @@ type PostVenueAccommodationTemplateRequest struct {
 	Occupancy PostVenueAccommodationTemplateOccupancy `json:"occupancy" validate:"required"`
 } // @name	V1.Request.CreateAccommodationVenueTemplate
 
-func (req PostVenueAccommodationTemplateRequest) ToCommand() accommodations.CreateVenueTemplateCommand {
-	return accommodations.CreateVenueTemplateCommand{
+func (req PostVenueAccommodationTemplateRequest) ToCommand() templates.CreateVenueTemplateCommand {
+	return templates.CreateVenueTemplateCommand{
 		OrganisationID: &req.OrganisationID,
 		VenueID:        &req.VenueID,
 		Name:           req.Name,
@@ -132,8 +132,8 @@ func (req *PatchVenueAccommodationTemplateRequest) FieldWasPresent(fld string) b
 	return util.KeyExistsInMap(req.raw, fld)
 }
 
-func (req PatchVenueAccommodationTemplateRequest) ToCommand() accommodations.UpdateVenueTemplateCommand {
-	return accommodations.UpdateVenueTemplateCommand{
+func (req PatchVenueAccommodationTemplateRequest) ToCommand() templates.UpdateVenueTemplateCommand {
+	return templates.UpdateVenueTemplateCommand{
 		OrganisationID:      req.OrganisationID,
 		VenueID:             req.VenueID,
 		ID:                  req.ID,
@@ -152,8 +152,8 @@ type GetVenueAccommodationTemplateRequest struct {
 	VenueID        string `param:"venueId"`
 }
 
-func (req GetVenueAccommodationTemplateRequest) ToCommand() accommodations.GetVenueTemplateCommand {
-	return accommodations.GetVenueTemplateCommand{
+func (req GetVenueAccommodationTemplateRequest) ToCommand() templates.GetVenueTemplateCommand {
+	return templates.GetVenueTemplateCommand{
 		ID:             req.ID,
 		OrganisationID: req.OrganisationID,
 		VenueID:        req.VenueID,
@@ -166,8 +166,8 @@ type DeleteVenueAccommodationTemplateRequest struct {
 	VenueID        string `param:"venueId"`
 }
 
-func (req DeleteVenueAccommodationTemplateRequest) ToCommand() accommodations.DeleteVenueTemplateCommand {
-	return accommodations.DeleteVenueTemplateCommand{
+func (req DeleteVenueAccommodationTemplateRequest) ToCommand() templates.DeleteVenueTemplateCommand {
+	return templates.DeleteVenueTemplateCommand{
 		ID:             req.ID,
 		OrganisationID: req.OrganisationID,
 		VenueID:        req.VenueID,

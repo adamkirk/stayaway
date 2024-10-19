@@ -1,9 +1,10 @@
-package accommodations
+package templates
 
 import (
 	"fmt"
 	"strings"
 
+	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
 	"github.com/adamkirk-stayaway/organisations/pkg/validation"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
@@ -18,7 +19,7 @@ func (ve *ValidationExtension) Translations() []validation.Translation {
 			RegisterFunc: func(ut ut.Translator) error {
 				msg := fmt.Sprintf(
 					"accommodationtype must be one of: '%s'",
-					strings.Join(AllTypes(), "', '"),
+					strings.Join(common.AllAccommodationTemplateTypes(), "', '"),
 				)
 				return ut.Add("accommodationtype", msg, true)
 			},
@@ -53,7 +54,7 @@ func (ve *ValidationExtension) Rules() []validation.CustomRule {
 			Handler: func(fl validator.FieldLevel) bool {
 				val := fl.Field().String()
 
-				return Type(val).IsValid()
+				return common.AccommodationTemplateType(val).IsValid()
 			},
 		},
 		{

@@ -1,4 +1,4 @@
-package accommodations
+package templates
 
 import (
 	"github.com/adamkirk-stayaway/organisations/internal/domain/common"

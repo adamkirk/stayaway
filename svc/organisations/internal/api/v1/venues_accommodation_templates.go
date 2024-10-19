@@ -3,18 +3,18 @@ package v1
 import (
 	"github.com/adamkirk-stayaway/organisations/internal/api/v1/requests"
 	"github.com/adamkirk-stayaway/organisations/internal/api/v1/responses"
-	"github.com/adamkirk-stayaway/organisations/internal/domain/accommodations"
 	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
+	"github.com/adamkirk-stayaway/organisations/internal/domain/venues/templates"
 	"github.com/adamkirk-stayaway/organisations/pkg/validation"
 	"github.com/labstack/echo/v4"
 )
 
 type VenueTemplatesService interface {
-	Create(cmd accommodations.CreateVenueTemplateCommand) (*accommodations.VenueTemplate, error)
-	Get(cmd accommodations.GetVenueTemplateCommand) (*accommodations.VenueTemplate, error)
-	List(cmd accommodations.ListVenueTemplatesCommand) (accommodations.VenueTemplates, common.PaginationResult, error)
-	Delete(cmd accommodations.DeleteVenueTemplateCommand) error
-	Update(cmd accommodations.UpdateVenueTemplateCommand) (*accommodations.VenueTemplate, error)
+	Create(cmd templates.CreateVenueTemplateCommand) (*templates.VenueTemplate, error)
+	Get(cmd templates.GetVenueTemplateCommand) (*templates.VenueTemplate, error)
+	List(cmd templates.ListVenueTemplatesCommand) (templates.VenueTemplates, common.PaginationResult, error)
+	Delete(cmd templates.DeleteVenueTemplateCommand) error
+	Update(cmd templates.UpdateVenueTemplateCommand) (*templates.VenueTemplate, error)
 }
 
 type VenueAccommodationTemplatesControllerConfig interface{}

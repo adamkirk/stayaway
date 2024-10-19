@@ -1,14 +1,14 @@
 package responses
 
 import (
-	"github.com/adamkirk-stayaway/organisations/internal/domain/accommodations"
+	"github.com/adamkirk-stayaway/organisations/internal/domain/venues/templates"
 )
 
 type VenueAccommodationTemplateOccupancy struct {
-	// The minimum occupancy for any accommodations using this template.
+	// The minimum occupancy for any templates using this template.
 	Min int `json:"min"`
 
-	// The maximum occupancy for any accommodations using this template.
+	// The maximum occupancy for any templates using this template.
 	// Null means there is no maximum.
 	Max *int `json:"max"`
 } // @name	V1.Response[Model].VenueAccommodationTemplateOccupancy
@@ -34,7 +34,7 @@ type VenueAccommodationTemplate struct {
 	Occupancy VenueAccommodationTemplateOccupancy `json:"occupancy"`
 } // @name	V1.Response[Model].VenueAccommodationTemplate
 
-func VenueAccommodationTemplateFromModel(v *accommodations.VenueTemplate) VenueAccommodationTemplate {
+func VenueAccommodationTemplateFromModel(v *templates.VenueTemplate) VenueAccommodationTemplate {
 
 	return VenueAccommodationTemplate{
 		ID:          v.ID,
@@ -51,7 +51,7 @@ func VenueAccommodationTemplateFromModel(v *accommodations.VenueTemplate) VenueA
 
 type VenueAccommodationTemplates []VenueAccommodationTemplate // @name	V1.Response[Model].VenueAccommodationTemplates
 
-func VenueAccommodationTemplatesFromModels(templates accommodations.VenueTemplates) VenueAccommodationTemplates {
+func VenueAccommodationTemplatesFromModels(templates templates.VenueTemplates) VenueAccommodationTemplates {
 	v1Orgs := make(VenueAccommodationTemplates, len(templates))
 
 	for i, t := range templates {

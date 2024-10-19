@@ -1,4 +1,4 @@
-package accommodations
+package templates
 
 import (
 	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
@@ -23,47 +23,15 @@ type PaginationFilter struct {
 	PerPage  int
 }
 
-type Type string
 
-const (
-	TypeRoom Type = "room"
-)
-
-func AllTypes() []string {
-	return []string{
-		string(TypeRoom),
-	}
-}
-
-func (vt Type) IsValid() bool {
-	val := string(vt)
-
-	for _, test := range AllTypes() {
-		if test == val {
-			return true
-		}
-	}
-
-	return false
-}
-
-// Template is a generic type resource because we might assign a template to
-// multiple things.
-type Template struct {
-	Name         string `bson:"name"`
-	MinOccupancy int    `bson:"min_occupancy"`
-	MaxOccupancy *int   `bson:"max_occupancy"`
-	Description  string `bson:"description"`
-	Type         Type   `bson:"type"`
-}
 
 type VenueTemplate struct {
-	Template `bson:"inline,template"`
+	common.AccommodationTemplate `bson:"inline,template"`
 	ID       string `bson:"_id,omitempty"`
 	VenueID  string `bson:"venue_id"`
 }
 
-type Templates []Template
+type Templates []common.AccommodationTemplate
 
 type VenueTemplates []*VenueTemplate
 

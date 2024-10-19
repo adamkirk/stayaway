@@ -1,4 +1,4 @@
-package accommodations
+package templates
 
 import (
 	"log/slog"
@@ -59,12 +59,12 @@ func (svc *VenueTemplatesService) Create(cmd CreateVenueTemplateCommand) (*Venue
 	vt := &VenueTemplate{
 		ID:      svc.idGen.Generate(),
 		VenueID: *cmd.VenueID,
-		Template: Template{
+		AccommodationTemplate: common.AccommodationTemplate{
 			Name:         *cmd.Name,
 			MinOccupancy: *cmd.MinOccupancy,
 			MaxOccupancy: cmd.MaxOccupancy,
 			Description:  *cmd.Description,
-			Type:         Type(*cmd.Type),
+			Type:         common.AccommodationTemplateType(*cmd.Type),
 		},
 	}
 

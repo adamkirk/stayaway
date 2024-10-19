@@ -1,4 +1,4 @@
-package accommodations
+package templates
 
 import (
 	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
@@ -71,7 +71,7 @@ func (svc *VenueTemplatesService) Update(cmd UpdateVenueTemplateCommand) (*Venue
 	}
 
 	if cmd.Type != nil {
-		vt.Type = Type(*cmd.Type)
+		vt.Type = common.AccommodationTemplateType(*cmd.Type)
 	}
 
 	if cmd.NullifyMaxOccupancy {

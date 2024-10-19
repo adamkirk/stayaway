@@ -1730,11 +1730,11 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "max": {
-                    "description": "The maximum occupancy for any accommodations using this template.\nNull means there is no maximum.",
+                    "description": "The maximum occupancy for any templates using this template.\nNull means there is no maximum.",
                     "type": "integer"
                 },
                 "min": {
-                    "description": "The minimum occupancy for any accommodations using this template.",
+                    "description": "The minimum occupancy for any templates using this template.",
                     "type": "integer"
                 }
             }

@@ -23,6 +23,31 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/v1/_probes/startup": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Probes"
+                ],
+                "summary": "Check is the app is listening",
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "502": {
+                        "description": "Bad Gateway"
+                    },
+                    "504": {
+                        "description": "Gateway Timeout"
+                    }
+                }
+            }
+        },
         "/v1/municipalities": {
             "get": {
                 "consumes": [

@@ -36,9 +36,9 @@ type ConfigApiServerAccessLog struct {
 }
 
 type ConfigApiServer struct {
-	DebugErrorsEnabled bool `mapstructure:"debug_errors_enabled"`
+	DebugErrorsEnabled bool `yaml:"debug_errors_enabled" mapstructure:"debug_errors_enabled"`
 	Port               int
-	AccessLog          ConfigApiServerAccessLog `mapstructure:"access_log"`
+	AccessLog          ConfigApiServerAccessLog `yaml:"access_log" mapstructure:"access_log"`
 }
 
 type ConfigApi struct {

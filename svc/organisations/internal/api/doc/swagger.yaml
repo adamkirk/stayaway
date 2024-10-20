@@ -700,6 +700,22 @@ info:
   title: Stayaway - Organisations
   version: "1.0"
 paths:
+  /v1/_probes/startup:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "502":
+          description: Bad Gateway
+        "504":
+          description: Gateway Timeout
+      summary: Check is the app is listening
+      tags:
+      - Probes
   /v1/municipalities:
     get:
       consumes:

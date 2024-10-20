@@ -49,7 +49,7 @@ var apiServeCmd = &cobra.Command{
 	Short: "Start the API server",
 	Long:  `Blah`,
 	Run: func(cmd *cobra.Command, args []string) {
-		apicmd.Handler(sharedOpts(), cmd, args)
+		apicmd.Handler(sharedOpts(appCfg), cmd, args)
 	},
 }
 
@@ -67,7 +67,7 @@ var municipalitiesSyncCmd = &cobra.Command{
 	Short: "Sync municipalities",
 	Long:  `Blah`,
 	Run: func(cmd *cobra.Command, args []string) {
-		municipalitiessync.Handler(sharedOpts(), cmd, args)
+		municipalitiessync.Handler(sharedOpts(appCfg), cmd, args)
 	},
 }
 
@@ -85,7 +85,7 @@ var dbInitCmd = &cobra.Command{
 	Short: "Ping the database",
 	Long:  `Blah`,
 	Run: func(cmd *cobra.Command, args []string) {
-		dbping.Handler(sharedOpts(), cmd, args)
+		dbping.Handler(sharedOpts(appCfg), cmd, args)
 	},
 }
 
@@ -94,7 +94,7 @@ var dbMigrateCmd = &cobra.Command{
 	Short: "Migrate the database",
 	Long:  `Blah`,
 	Run: func(cmd *cobra.Command, args []string) {
-		dbmigrate.Handler(sharedOpts(), cmd, args)
+		dbmigrate.Handler(sharedOpts(appCfg), cmd, args)
 	},
 }
 
@@ -102,7 +102,7 @@ func newFs() afero.Fs {
 	return afero.NewOsFs()
 }
 
-func sharedOpts() []fx.Option {
+func sharedOpts(cfg *config.Config) []fx.Option {
 	opts := []fx.Option{
 		fx.Provide(buildConfig),
 		fx.Provide(
@@ -154,6 +154,13 @@ func sharedOpts() []fx.Option {
 		fx.Provide(
 			fx.Annotate(
 				v1.NewVenueAccommodationsController,
+				fx.As(new(api.Controller)),
+				fx.ResultTags(`group:"api.v1.controllers"`),
+			),
+		),
+		fx.Provide(
+			fx.Annotate(
+				v1.NewProbesController,
 				fx.As(new(api.Controller)),
 				fx.ResultTags(`group:"api.v1.controllers"`),
 			),
@@ -281,13 +288,13 @@ func sharedOpts() []fx.Option {
 		}),
 	}
 
-	if !appCfg.DbDriver().IsKnown() {
+	if !cfg.DbDriver().IsKnown() {
 		slog.Error("Unknown db driver", "driver", string(appCfg.DbDriver()))
 		os.Exit(1)
 	}
 
 	// Register difference implementations based on configured driver
-	if appCfg.DbDriver().IsMongoDb() {
+	if cfg.DbDriver().IsMongoDb() {
 		opts = append(opts, []fx.Option{
 			fx.Provide(
 				fx.Annotate(

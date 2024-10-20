@@ -24,7 +24,7 @@ var MongoDBCollections = struct {
 	Organisations:               "organisations",
 	Venues:                      "venues",
 	Municipalities:              "municipalities",
-	AccommodationVenueTemplates: "accommodation_venue_templates",
+	AccommodationVenueTemplates: "venue_accommodation_templates",
 	VenueAccommodations: "venue_accommodations",
 }
 

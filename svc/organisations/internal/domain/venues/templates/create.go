@@ -14,7 +14,7 @@ type CreateVenueTemplateCommand struct {
 	Type           *string `validate:"required,accommodationtype"`
 	MinOccupancy   *int    `validate:"required,min=1"`
 	// 100 seems an appropriate max
-	MaxOccupancy *int    `validate:"omitnil,gtefield=MinOccupancy"`
+	MaxOccupancy *int    `validate:"required,min=1"`
 	Description  *string `validate:"required,min=10"`
 }
 
@@ -59,10 +59,10 @@ func (svc *Service) Create(cmd CreateVenueTemplateCommand) (*VenueTemplate, erro
 	vt := &VenueTemplate{
 		ID:      svc.idGen.Generate(),
 		VenueID: *cmd.VenueID,
-		Name:         *cmd.Name,
 		AccommodationConfig: common.AccommodationConfig{
+			Name:         *cmd.Name,
 			MinOccupancy: *cmd.MinOccupancy,
-			MaxOccupancy: cmd.MaxOccupancy,
+			MaxOccupancy: *cmd.MaxOccupancy,
 			Description:  *cmd.Description,
 			Type:         common.AccommodationConfigType(*cmd.Type),
 		},

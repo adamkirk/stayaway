@@ -9,7 +9,8 @@ import (
 type CreateCommand struct {
 	VenueID         *string `validate:"required"`
 	VenueTemplateID *string 
-	Name            *string `validate:"required,min=3"`
+	Reference            *string `validate:"required,min=3"`
+	Name *string `validate:"omitnil,min=3" validationmap:"Name"`
 	Type            *string `validate:"omitnil,accommodationtype" validationmap:"Type"`
 	MinOccupancy    *int    `validate:"omitnil,min=1" validationmap:"MinOccupancy"`
 	// 100 seems an appropriate max
@@ -35,13 +36,13 @@ func (svc *Service) Create(cmd CreateCommand) (*Accommodation, error) {
 		}
 	}
 
-	accByName, err := svc.repo.ByNameAndVenueID(*cmd.Name, *cmd.VenueID)
+	accByName, err := svc.repo.ByReferenceAndVenueID(*cmd.Reference, *cmd.VenueID)
 
 	if accByName != nil {
 		return nil, validation.ValidationError{
 			Errs: []validation.FieldError{
 				{
-					Key:    "Name",
+					Key:    "Reference",
 					Errors: []string{"must be unique"},
 				},
 			},
@@ -59,8 +60,9 @@ func (svc *Service) Create(cmd CreateCommand) (*Accommodation, error) {
 		ID:              svc.idGen.Generate(),
 		VenueID:         *cmd.VenueID,
 		VenueTemplateID: cmd.VenueTemplateID,
-		Name:         *cmd.Name,
+		Reference: *cmd.Reference,
 		Overrides: &common.AccommodationConfigOverrides{
+			Name:         cmd.Name,
 			MinOccupancy: cmd.MinOccupancy,
 			MaxOccupancy: cmd.MaxOccupancy,
 			Description:  cmd.Description,
@@ -80,6 +82,7 @@ func (svc *Service) Create(cmd CreateCommand) (*Accommodation, error) {
 		}
 		return nil, err
 	}
+	
 
 	a, err = svc.repo.Save(a)
 

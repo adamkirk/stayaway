@@ -64,6 +64,60 @@ func (r *MongoDbVenueAccommodationTemplates) filterToBsonD(search templates.Sear
 	return bson.D{{"$and", filters}}
 }
 
+func (r *MongoDbVenueAccommodationTemplates) ByID(ids []string, venueId string) (templates.VenueTemplates, error) {
+	coll, err := r.getCollection()
+
+	if err != nil {
+		return nil, err
+	}
+
+	sortColumn, err := r.getSortColumn(templates.SortByName)
+
+	if err != nil {
+		return nil, err
+	}
+
+	sortDir, err := getSortDirection(common.SortAsc)
+
+	if err != nil {
+		return nil, err
+	}
+
+	opts := options.Find().SetSort(bson.D{{sortColumn, sortDir}})
+
+	objIDs := []primitive.ObjectID{}
+
+	for _, id := range ids {
+		objID, err := primitive.ObjectIDFromHex(id)
+
+		if err != nil {
+			return nil, err
+		}
+
+		objIDs = append(objIDs, objID)
+	}
+
+	filter := bson.D{{
+		"$and",
+		[]bson.D{
+			{{"_id", bson.D{{"$in", objIDs}}}},
+			bson.D{{"venue_id", venueId}},
+		},
+	}}
+
+	cursor, err := coll.Find(context.TODO(), filter, opts)
+
+	vts := &templates.VenueTemplates{}
+
+	if err := cursor.All(context.TODO(), vts); err != nil {
+		return nil, err
+	}
+
+	return *vts, nil
+}
+
+
+
 func (r *MongoDbVenueAccommodationTemplates) Paginate(p templates.PaginationFilter, search templates.SearchFilter) (templates.VenueTemplates, common.PaginationResult, error) {
 	coll, err := r.getCollection()
 

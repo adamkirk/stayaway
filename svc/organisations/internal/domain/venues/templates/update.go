@@ -12,8 +12,7 @@ type UpdateVenueTemplateCommand struct {
 	Name                *string `validate:"omitnil,min=3"`
 	Type                *string `validate:"omitnil,accommodationtype"`
 	MinOccupancy        *int    `validate:"omitnil,min=1"`
-	MaxOccupancy        *int    `validate:"omitnil"`
-	NullifyMaxOccupancy bool
+	MaxOccupancy        *int    `validate:"omitnil,min=1"`
 	Description         *string `validate:"omitnil,min=10"`
 }
 
@@ -74,38 +73,11 @@ func (svc *Service) Update(cmd UpdateVenueTemplateCommand) (*VenueTemplate, erro
 		vt.Type = common.AccommodationConfigType(*cmd.Type)
 	}
 
-	if cmd.NullifyMaxOccupancy {
-		vt.MaxOccupancy = nil
-	} else if cmd.MaxOccupancy != nil && cmd.MinOccupancy == nil && *cmd.MaxOccupancy < vt.MinOccupancy {
-		return nil, validation.ValidationError{
-			Errs: []validation.FieldError{
-				{
-					Key:    "MaxOccupancy",
-					Errors: []string{"must be greater than min occupancy"},
-				},
-			},
-		}
-	} else if cmd.MaxOccupancy != nil {
-		// Covers two scenarios:
-		// 1. The max and min occupancy are updated, so the validation will have
-		// ensured that the max is greater than the min
-		// 2. max is updated but min isn't, and max is greater than min
-		vt.MaxOccupancy = cmd.MaxOccupancy
+	if cmd.MaxOccupancy != nil {
+		vt.MaxOccupancy = *cmd.MaxOccupancy
 	}
 
-	// Note this happens after max occupancy is updated, so we don't need to check
-	// anything other than this being nil. If it's not nil we set it...I think
-	// Need to write some tests, cause i'm sure i've missed an edge case...
-	if cmd.MinOccupancy != nil && vt.MaxOccupancy != nil && *cmd.MinOccupancy > *vt.MaxOccupancy {
-		return nil, validation.ValidationError{
-			Errs: []validation.FieldError{
-				{
-					Key:    "MinOccupancy",
-					Errors: []string{"must be less than max occupancy"},
-				},
-			},
-		}
-	} else if cmd.MinOccupancy != nil {
+	if cmd.MinOccupancy != nil {
 		vt.MinOccupancy = *cmd.MinOccupancy
 	}
 

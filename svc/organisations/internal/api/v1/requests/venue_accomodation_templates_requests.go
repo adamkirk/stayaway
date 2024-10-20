@@ -62,7 +62,7 @@ type PostVenueAccommodationTemplateOccupancy struct {
 	// The maximum amount of people that must occupy the accommodation.
 	// If null or blank there will be no limit.
 	// If provided, it must be greater than the min occupancy.
-	Max *int `json:"max" validationmap:"MaxOccupancy" validate:"optional" minimum:"1" extensions:"x-nullable"`
+	Max *int `json:"max" validationmap:"MaxOccupancy" validate:"required" minimum:"1"`
 } // @name	V1.Request[Model].VenueAccommodationTemplateOccupancyCreate
 
 type PostVenueAccommodationTemplateRequest struct {
@@ -142,7 +142,6 @@ func (req PatchVenueAccommodationTemplateRequest) ToCommand() templates.UpdateVe
 		Description:         req.Description,
 		MinOccupancy:        req.Occupancy.Min,
 		MaxOccupancy:        req.Occupancy.Max,
-		NullifyMaxOccupancy: req.FieldWasPresent("occupancy.max") && req.Occupancy.Max == nil,
 	}
 }
 

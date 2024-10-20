@@ -27,12 +27,21 @@ type VenueTemplate struct {
 	common.AccommodationConfig `bson:"inline,template"`
 	ID       string `bson:"_id,omitempty"`
 	VenueID  string `bson:"venue_id"`
-	Name string `bson:"name"`
 }
 
 type Templates []common.AccommodationConfig
 
 type VenueTemplates []*VenueTemplate
+
+func (vts VenueTemplates) KeyByID() map[string]*VenueTemplate {
+	kv := map[string]*VenueTemplate{}
+
+	for _, vt := range vts {
+		kv[vt.ID] = vt
+	}
+
+	return kv
+}
 
 type Validator interface {
 	Validate(any) error

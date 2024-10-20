@@ -10,7 +10,7 @@ type VenueAccommodationTemplateOccupancy struct {
 
 	// The maximum occupancy for any templates using this template.
 	// Null means there is no maximum.
-	Max *int `json:"max"`
+	Max int `json:"max"`
 } // @name	V1.Response[Model].VenueAccommodationTemplateOccupancy
 
 type VenueAccommodationTemplate struct {

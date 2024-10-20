@@ -11,7 +11,7 @@ type VenueAccommodationOccupancy struct {
 
 	// The maximum occupancy for any templates using this template.
 	// Null means there is no maximum.
-	Max *int `json:"max"`
+	Max int `json:"max"`
 } // @name	V1.Response[Model].VenueAccommodationOccupancy
 
 type VenueAccommodationOccupancyOverrides struct {
@@ -28,6 +28,7 @@ type VenueAccommodationOccupancyOverrides struct {
 // merging any configuration from the template and the overrides of this 
 // accommodation. If there was no template, this is identical to the overrides.
 type VenueAccommodationConfig struct {
+	Name string `json:"name"`
 	Occupancy VenueAccommodationOccupancy `json:"occupancy"`
 	Description  string `json:"description"`
 	Type         string   `json:"type"`
@@ -36,6 +37,7 @@ type VenueAccommodationConfig struct {
 // The overrides that were supplied upon creation. These may all be set, or may
 // all be null. They may only be null if the accommodation uses a template.
 type VenueAccommodationOverrides struct {
+	Name *string `json:"name"`
 	Occupancy VenueAccommodationOccupancyOverrides `json:"occupancy"`
 	Description  *string `json:"description"`
 	Type         *string   `json:"type"`
@@ -55,7 +57,7 @@ type VenueAccommodation struct {
 	// all be null. They may only be null if the accommodation uses a template.
 	Overrides VenueAccommodationOverrides `json:"overrides"`
 
-	Name string `json:"name"`
+	Reference string `json:"reference"`
 
 
 	// The final configuration used by the accommodation. This is the result of 
@@ -75,8 +77,10 @@ func VenueAccommodationFromModel(a *accommodations.Accommodation) VenueAccommoda
 		ID:          a.ID,
 		VenueID:     a.VenueID,
 		VenueTemplateID:     a.VenueTemplateID,
-		Name: a.Name,
+		Reference: a.Reference,
+		
 		Config: VenueAccommodationConfig{
+			Name: a.Config.Name,
 			Description: a.Config.Description,
 			Type: string(a.Config.Type),
 			Occupancy: VenueAccommodationOccupancy{
@@ -85,6 +89,7 @@ func VenueAccommodationFromModel(a *accommodations.Accommodation) VenueAccommoda
 			},
 		},
 		Overrides: VenueAccommodationOverrides{
+			Name: a.Overrides.Name,
 			Description: a.Overrides.Description,
 			Type: overriddenType,
 			Occupancy: VenueAccommodationOccupancyOverrides{

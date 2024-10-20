@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"math"
 
 	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
 	"github.com/adamkirk-stayaway/organisations/internal/domain/venues/accommodations"
@@ -30,6 +31,95 @@ func (r *MongoDbVenueAccommodations) getCollection() (*mongo.Collection, error) 
 	coll := db.Collection(MongoDBCollections.VenueAccommodations)
 
 	return coll, nil
+}
+
+
+func (r *MongoDbVenueAccommodations) getSortColumn(sortBy accommodations.SortBy) (string, error) {
+	switch sortBy {
+	case accommodations.SortByReference:
+		return "reference", nil
+	default:
+		return "", common.ErrInvalidSortBy{
+			Chosen: string(sortBy),
+		}
+	}
+}
+
+func (r *MongoDbVenueAccommodations) filterToBsonD(search accommodations.SearchFilter) bson.D {
+	filters := []bson.D{}
+
+	if len(search.VenueID) > 0 {
+		// TODO: this field is just a string, it probably wants to be ObbjectID for quicker lookups
+		filters = append(filters, bson.D{{"venue_id", bson.D{{"$in", search.VenueID}}}})
+	}
+
+	if len(search.VenueTemplateID) > 0 {
+		// TODO: this field is just a string, it probably wants to be ObbjectID for quicker lookups
+		filters = append(filters, bson.D{{"venue_template_id", bson.D{{"$in", search.VenueTemplateID}}}})
+	}
+
+	if search.ReferencePrefix != nil {
+		pattern := fmt.Sprintf("^%s\\.*", *search.ReferencePrefix)
+		filters = append(filters, bson.D{{"reference", bson.D{{"$regex", pattern}, {"$options", "i"}}}})
+	}
+
+	if len(filters) == 0 {
+		return bson.D{{}}
+	}
+
+	return bson.D{{"$and", filters}}
+}
+
+func (r *MongoDbVenueAccommodations) Paginate(p accommodations.PaginationFilter, search accommodations.SearchFilter) (accommodations.Accommodations, common.PaginationResult, error) {
+	coll, err := r.getCollection()
+
+	if err != nil {
+		return nil, common.PaginationResult{}, err
+	}
+
+	sortColumn, err := r.getSortColumn(p.OrderBy)
+
+	if err != nil {
+		return nil, common.PaginationResult{}, err
+	}
+
+	sortDir, err := getSortDirection(p.OrderDir)
+
+	if err != nil {
+		return nil, common.PaginationResult{}, err
+	}
+
+	opts := options.Find().
+		SetLimit(int64(p.PerPage)).
+		SetSkip(int64((p.Page - 1)) * int64(p.PerPage)).
+		SetSort(bson.D{{sortColumn, sortDir}})
+
+	filter := r.filterToBsonD(search)
+
+	// Consider estimated count, prefer it to be accurate though and once we use
+	// filters this is no longer viable
+	total, err := coll.CountDocuments(context.TODO(), filter)
+
+	if err != nil {
+		return nil, common.PaginationResult{}, err
+	}
+
+	cursor, err := coll.Find(context.TODO(), filter, opts)
+
+	accs := &accommodations.Accommodations{}
+
+	if err := cursor.All(context.TODO(), accs); err != nil {
+		return nil, common.PaginationResult{}, err
+	}
+
+	totalPages := int(math.Ceil(float64(total) / float64(p.PerPage)))
+
+	return *accs, common.PaginationResult{
+		Page:       p.Page,
+		PerPage:    p.PerPage,
+		Total:      int(total),
+		TotalPages: totalPages,
+	}, nil
 }
 
 func (r *MongoDbVenueAccommodations) Get(id string, venueId string) (*accommodations.Accommodation, error) {
@@ -72,7 +162,7 @@ func (r *MongoDbVenueAccommodations) Get(id string, venueId string) (*accommodat
 	return a, err
 }
 
-func (r *MongoDbVenueAccommodations) ByNameAndVenueID(name string, venueId string) (*accommodations.Accommodation, error) {
+func (r *MongoDbVenueAccommodations) ByReferenceAndVenueID(reference string, venueId string) (*accommodations.Accommodation, error) {
 	coll, err := r.getCollection()
 
 	if err != nil {
@@ -83,7 +173,7 @@ func (r *MongoDbVenueAccommodations) ByNameAndVenueID(name string, venueId strin
 
 	filter := bson.D{{
 		"$and", bson.A{
-			bson.D{{"name", name}},
+			bson.D{{"reference", reference}},
 			bson.D{{"venue_id", venueId}},
 		},
 	}}
@@ -93,7 +183,7 @@ func (r *MongoDbVenueAccommodations) ByNameAndVenueID(name string, venueId strin
 	if res.Err() != nil && res.Err() == mongo.ErrNoDocuments {
 		return nil, common.ErrNotFound{
 			ResourceName: "venue_accommodation",
-			ID:           fmt.Sprintf("name:%s,venueid:%s", name, venueId),
+			ID:           fmt.Sprintf("name:%s,venueid:%s", reference, venueId),
 		}
 	}
 

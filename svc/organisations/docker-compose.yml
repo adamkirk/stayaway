@@ -25,9 +25,13 @@ services:
       AIR_DEBUG: ${ORGANISATIONS_AIR_DEBUG}
       STAYAWAY_DB_MONGODB_URI: ${STAYAWAY_MONGODB_INTERNAL_URI}
       STAYAWAY_REDIS_PASSWORD: ${STAYAWAY_REDIS_PASS}
+      # See: https://github.com/testcontainers/testcontainers-go/issues/2477#issuecomment-2417815745
+      TESTCONTAINERS_RYUK_DISABLED: true
     working_dir: /app
     volumes:
       - "${ORGANISATIONS_DIR}/:/app"
+      # So we can use testcontainers
+      - /var/run/docker.sock:/var/run/docker.sock
     labels:
       - "traefik.http.routers.organisations-api.rule=Host(`${ORGANISATIONS_HOST}`)"
       - "traefik.enable=true"

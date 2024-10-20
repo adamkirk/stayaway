@@ -181,6 +181,7 @@ services:
 
   mongo:
     <<: *network
+    # TODO: Need to pin this, whoops
     image: mongo
     restart: always
     environment:

@@ -49,7 +49,7 @@ var apiServeCmd = &cobra.Command{
 	Short: "Start the API server",
 	Long:  `Blah`,
 	Run: func(cmd *cobra.Command, args []string) {
-		apicmd.Handler(sharedOpts(appCfg), cmd, args)
+		apicmd.Handler(SharedOpts(appCfg), cmd, args)
 	},
 }
 
@@ -67,7 +67,7 @@ var municipalitiesSyncCmd = &cobra.Command{
 	Short: "Sync municipalities",
 	Long:  `Blah`,
 	Run: func(cmd *cobra.Command, args []string) {
-		municipalitiessync.Handler(sharedOpts(appCfg), cmd, args)
+		municipalitiessync.Handler(SharedOpts(appCfg), cmd, args)
 	},
 }
 
@@ -85,7 +85,7 @@ var dbInitCmd = &cobra.Command{
 	Short: "Ping the database",
 	Long:  `Blah`,
 	Run: func(cmd *cobra.Command, args []string) {
-		dbping.Handler(sharedOpts(appCfg), cmd, args)
+		dbping.Handler(SharedOpts(appCfg), cmd, args)
 	},
 }
 
@@ -94,7 +94,7 @@ var dbMigrateCmd = &cobra.Command{
 	Short: "Migrate the database",
 	Long:  `Blah`,
 	Run: func(cmd *cobra.Command, args []string) {
-		dbmigrate.Handler(sharedOpts(appCfg), cmd, args)
+		dbmigrate.Handler(SharedOpts(appCfg), cmd, args)
 	},
 }
 
@@ -102,7 +102,7 @@ func newFs() afero.Fs {
 	return afero.NewOsFs()
 }
 
-func sharedOpts(cfg *config.Config) []fx.Option {
+func SharedOpts(cfg *config.Config) []fx.Option {
 	opts := []fx.Option{
 		fx.Provide(buildConfig),
 		fx.Provide(

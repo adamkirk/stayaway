@@ -19,6 +19,9 @@ NO_COLOUR='\033[0;0m'
 
 BOLD='\033[0;1m'
 
+OS_DARWIN=darwin
+OS_LINUX=linux
+
 function __os_name() {
 	uname -s | tr '[:upper:]' '[:lower:]'
 }
@@ -127,7 +130,7 @@ function __tls_trust() {
       __tls_trust_linux
       ;;
 
-    darwin)
+    $OS_DARWIN)
       __tls_trust_darwin
       ;;
 
@@ -251,13 +254,96 @@ function __set_docker_profiles()
 	done < $DOCKER_PROFILES_FILE
 }
 
+# Nasty, but it works...we should only really have a few, mostly things are in 
+# docker. Mainly this is for things like playwright where we wanna run the ui
+# on the host.
+function __verify_deps() {
+	EXIT_CODE=0
+
+	OS_NAME=`__os_name`
+
+	case $OS_NAME in
+	$OS_DARWIN|linux)
+		;;
+	*)
+		__errlns "OS '$OS_NAME' is not really supported, sorry you'll have to figure this out on your own!"
+		;;
+	esac
+
+	if ! command -v node > /dev/null; then
+		__errlns "You need to install node!"
+		__errlns "\tRecommended: https://github.com/nvm-sh/nvm"
+		if [ "$OS_NAME" == "$OS_DARWIN" ]; then
+			__errlns "\tOSX (brew): https://formulae.brew.sh/formula/nvm"
+		fi
+		__newln
+		EXIT_CODE=1
+	else 
+		NODE_VERSION="$(node -v)"
+		MAJOR_NODE_VERSION="$(echo ${NODE_VERSION/v/} | cut -d '.' -f 1)"
+		
+		if [ "$MAJOR_NODE_VERSION" -lt 23 ]; then 
+			__errlns "Upgrade node to >= 23"
+			EXIT_CODE=1
+		else 
+			__successlns "Node up-to-date!"
+		fi
+	fi
+
+	if ! command -v yarn > /dev/null; then
+		__errlns "You need to install yarn!"
+		__errlns "\tSee: https://yarnpkg.com/getting-started/install"
+		EXIT_CODE=1
+	else 
+		MAJOR_YARN_VERSION="$(yarn -v | cut -d '.' -f 1)"
+		MINOR_YARN_VERSION="$(yarn -v | cut -d '.' -f 2)"
+		
+		if [ "$MAJOR_YARN_VERSION" -lt 1 ] || [ "$MINOR_YARN_VERSION" -lt 22 ]; then 
+			__errlns "Upgrade yarn to >= 1.22"
+			EXIT_CODE=1
+		else 
+			__successlns "Yarn up-to-date!"
+		fi
+	fi
+
+	return $EXIT_CODE
+}
+
+
+function __pw() {
+	COMMAND=$1
+	case $COMMAND in
+	deps)
+		(
+			cd $ROOTDIR/test/playwright
+			yarn install
+		)
+		return "$?"
+		;;
+	browsers)
+		(
+			cd $ROOTDIR/test/playwright
+			yarn playwright install
+		)
+		return "$?"
+		;;
+	*)
+		(
+			cd $ROOTDIR/test/playwright "${@}"
+			yarn playwright test
+		)
+		;;
+	esac
+}
+
 function main() {
 	__set_docker_profiles
 	COMMAND="$1"
 
 	case $COMMAND in
-	tls|hosts|up|down|restart|db)
-		TORUN="__$COMMAND"
+	tls|hosts|up|down|restart|db|verify-deps|pw)
+		# replace hyphen with underscores (cause they look prettier)
+		TORUN="__${COMMAND//-/_}"
 		;;
 	dc|exec)
 		__$COMMAND "${@:2}"

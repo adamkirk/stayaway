@@ -38,3 +38,12 @@ type ListResponseMeta struct {
 	PaginationResponseMeta  `json:"pagination"`
 	SortOptionsResponseMeta `json:"sorting"`
 } // @name	V1.Response[Meta].List
+
+type GenericResponseBody[M any, D any] struct {
+	Data D `json:"data"`
+	Meta M `json:"meta"`
+}
+
+type GenericResponse[M any, D any] struct {
+	Body GenericResponseBody[M, D]
+}

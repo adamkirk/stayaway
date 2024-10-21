@@ -398,12 +398,8 @@ definitions:
     type: object
   V1.Response.ListOrganisations:
     properties:
-      data:
-        items:
-          $ref: '#/definitions/V1.Response[Model].Organisation'
-        type: array
-      meta:
-        $ref: '#/definitions/V1.Response[Meta].List'
+      body:
+        $ref: '#/definitions/github_com_adamkirk-stayaway_organisations_internal_api_v1_responses.ListOrganisationsResponseBody'
     type: object
   V1.Response.ListVenueAccommodationTemplates:
     properties:
@@ -686,6 +682,15 @@ definitions:
       postcode:
         description: The postcode of the venue.
         type: string
+    type: object
+  github_com_adamkirk-stayaway_organisations_internal_api_v1_responses.ListOrganisationsResponseBody:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/V1.Response[Model].Organisation'
+        type: array
+      meta:
+        $ref: '#/definitions/V1.Response[Meta].List'
     type: object
 host: organisations.stayaway.test
 info:

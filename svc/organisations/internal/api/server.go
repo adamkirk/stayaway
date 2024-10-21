@@ -5,11 +5,10 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/danielgtaylor/huma/v2"
+	"github.com/danielgtaylor/huma/v2/adapters/humaecho"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-
-	_ "github.com/adamkirk-stayaway/organisations/internal/api/doc"
-	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
 type RouteHandler func(e echo.Context) error
@@ -24,7 +23,7 @@ type Route struct {
 type Routes []Route
 
 type Controller interface {
-	RegisterRoutes(g *echo.Group)
+	RegisterRoutes(g huma.API)
 }
 
 type ApiServerConfig interface {
@@ -63,6 +62,7 @@ func (s *Server) Shutdown(ctx context.Context) error {
 // @BasePath /api
 func NewServer(v1Api *V1Api, cfg ApiServerConfig) *Server {
 	e := echo.New()
+	
 	e.HideBanner = true
 	e.HidePort = true
 	e.Pre(middleware.RemoveTrailingSlash())
@@ -71,18 +71,24 @@ func NewServer(v1Api *V1Api, cfg ApiServerConfig) *Server {
 	if cfg.ApiServerAccessLogEnabled() {
 		e.Use(buildLoggingMiddleware(cfg.ApiServerAccessLogFormat()))
 	}
-
-	api := e.Group("/api")
-
-	v1 := api.Group(fmt.Sprintf("/%s", v1Api.Version()))
-
-	v1.Use(v1Api.Middleware(cfg)...)
-
+	
 	for _, c := range v1Api.Controllers() {
-		c.RegisterRoutes(v1)
+		apiBase := fmt.Sprintf("/api/%s", v1Api.Version())
+		api := e.Group(apiBase)
+		cfg := huma.DefaultConfig("Organisations", v1Api.Version())
+		// Needed to get the docs displaying properly.
+		cfg.OpenAPI.Servers = []*huma.Server{
+			{
+				URL: apiBase,
+			},
+		}
+
+		hg := humaecho.NewWithGroup(e, api, cfg)
+		// hg.Use(v1Api.Middleware(cfg)...)
+		c.RegisterRoutes(hg)
 	}
 
-	e.GET("/openapi/*", echoSwagger.WrapHandler)
+	// e.GET("/openapi/*", echoSwagger.WrapHandler)
 
 	srv := &Server{
 		cfg: cfg,

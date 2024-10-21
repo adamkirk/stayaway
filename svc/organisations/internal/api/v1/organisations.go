@@ -1,11 +1,15 @@
 package v1
 
 import (
+	"context"
+	"net/http"
+
 	"github.com/adamkirk-stayaway/organisations/internal/api/v1/requests"
 	"github.com/adamkirk-stayaway/organisations/internal/api/v1/responses"
 	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
 	"github.com/adamkirk-stayaway/organisations/internal/domain/organisations"
 	"github.com/adamkirk-stayaway/organisations/pkg/validation"
+	"github.com/danielgtaylor/huma/v2"
 	"github.com/labstack/echo/v4"
 )
 
@@ -25,14 +29,32 @@ type OrganisationsController struct {
 	validationMapper *validation.ValidationMapper
 }
 
-func (c *OrganisationsController) RegisterRoutes(api *echo.Group) {
-	g := api.Group("/organisations")
-	g.POST("", c.Create).Name = "v1.organisations.create"
-	g.DELETE("/:id", c.Delete).Name = "v1.organisations.delete"
-	g.GET("/:id", c.Get).Name = "v1.organisations.get"
-	g.PATCH("/:id", c.Patch).Name = "v1.organisations.patch"
-	g.GET("", c.List).Name = "v1.organisations.list"
+// func (c *OrganisationsController) RegisterRoutes(api *echo.Group) {
+// 	g := api.Group("/organisations")
+// 	g.POST("", c.Create).Name = "v1.organisations.create"
+// 	g.DELETE("/:id", c.Delete).Name = "v1.organisations.delete"
+// 	g.GET("/:id", c.Get).Name = "v1.organisations.get"
+// 	g.PATCH("/:id", c.Patch).Name = "v1.organisations.patch"
+// 	g.GET("", c.List).Name = "v1.organisations.list"
+// }
+
+func (c *OrganisationsController) RegisterRoutes(api huma.API) {
+	huma.Register[requests.ListOrganisationsRequest, responses.GenericResponse[responses.ListResponseMeta, responses.Organisations]](api, huma.Operation{
+		OperationID:  "v1.organisations.list",
+		Method:       http.MethodGet,
+		Path:         "/organisations",
+		Summary:      "List all organisations",
+		DefaultStatus: 200,
+	}, c.List)
+	// huma.Post(api, "/organisations", c.Create, )
+	// g := api.Group("/organisations")
+	// g.POST("", c.Create).Name = "v1.organisations.create"
+	// g.DELETE("/:id", c.Delete).Name = "v1.organisations.delete"
+	// g.GET("/:id", c.Get).Name = "v1.organisations.get"
+	// g.PATCH("/:id", c.Patch).Name = "v1.organisations.patch"
+	// g.GET("", c.List).Name = "v1.organisations.list"
 }
+
 
 func NewOrganisationsController(
 	cfg OrganisationsControllerConfig,
@@ -57,43 +79,37 @@ func NewOrganisationsController(
 // @Failure		500	{object}	responses.GenericErrorResponse
 // @Router			/v1/organisations [get]
 // @Param			request	query	requests.ListOrganisationsRequest	true "Query params"
-func (c *OrganisationsController) List(ctx echo.Context) error {
-	req := requests.ListOrganisationsRequest{}
-
-	if err := bindRequest(&req, ctx); err != nil {
-		return err
-	}
-
+func (c *OrganisationsController) List(ctx context.Context, req *requests.ListOrganisationsRequest) (*responses.GenericResponse[responses.ListResponseMeta, responses.Organisations], error) {
 	cmd := req.ToCommand()
 
 	results, pagination, err := c.svc.List(cmd)
 
 	if err != nil {
-		if err, ok := err.(validation.ValidationError); ok {
-			return c.validationMapper.Map(err, req)
-		}
-		return err
+		// if err, ok := err.(validation.ValidationError); ok {
+		// 	return nil, c.validationMapper.Map(err, req)
+		// }
+		return nil, err
 	}
 
-	resp := responses.ListOrganisationsResponse{
-		Meta: responses.ListResponseMeta{
-			SortOptionsResponseMeta: responses.SortOptionsResponseMeta{
-				OrderDirection: string(cmd.OrderDirection),
-				OrderBy:        string(cmd.OrderBy),
+	resp := &responses.GenericResponse[responses.ListResponseMeta, responses.Organisations]{
+		Body: responses.GenericResponseBody[responses.ListResponseMeta, responses.Organisations]{
+			Meta: responses.ListResponseMeta{
+				SortOptionsResponseMeta: responses.SortOptionsResponseMeta{
+					OrderDirection: string(cmd.OrderDirection),
+					OrderBy:        string(cmd.OrderBy),
+				},
+				PaginationResponseMeta: responses.PaginationResponseMeta{
+					Page:         pagination.Page,
+					PerPage:      pagination.PerPage,
+					TotalPages:   pagination.TotalPages,
+					TotalResults: pagination.Total,
+				},
 			},
-			PaginationResponseMeta: responses.PaginationResponseMeta{
-				Page:         pagination.Page,
-				PerPage:      pagination.PerPage,
-				TotalPages:   pagination.TotalPages,
-				TotalResults: pagination.Total,
-			},
+			Data: responses.OrganisationsFromModels(results),
 		},
-		Data: responses.OrganisationsFromModels(results),
 	}
 
-	ctx.JSON(200, resp)
-
-	return nil
+	return resp, nil
 }
 
 // @Summary		Create an organisation

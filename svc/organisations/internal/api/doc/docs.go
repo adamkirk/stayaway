@@ -2018,14 +2018,8 @@ const docTemplate = `{
         "V1.Response.ListOrganisations": {
             "type": "object",
             "properties": {
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/V1.Response[Model].Organisation"
-                    }
-                },
-                "meta": {
-                    "$ref": "#/definitions/V1.Response[Meta].List"
+                "body": {
+                    "$ref": "#/definitions/github_com_adamkirk-stayaway_organisations_internal_api_v1_responses.ListOrganisationsResponseBody"
                 }
             }
         },
@@ -2423,6 +2417,20 @@ const docTemplate = `{
                 "postcode": {
                     "description": "The postcode of the venue.",
                     "type": "string"
+                }
+            }
+        },
+        "github_com_adamkirk-stayaway_organisations_internal_api_v1_responses.ListOrganisationsResponseBody": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/V1.Response[Model].Organisation"
+                    }
+                },
+                "meta": {
+                    "$ref": "#/definitions/V1.Response[Meta].List"
                 }
             }
         }

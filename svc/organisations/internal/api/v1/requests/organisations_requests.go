@@ -6,37 +6,39 @@ import (
 )
 
 type ListOrganisationsRequest struct {
+
 	// The direction to order the results by.
-	OrderDirection *string `query:"order_dir" json:"order_dir" validationmap:"OrderDir" validate:"optional" enums:"asc,desc"`
+	OrderDirection string `query:"order_dir" json:"order_dir" validationmap:"OrderDir" validate:"optional" enums:"asc,desc"`
 
 	// The field by which to order the results.
-	OrderBy *string `query:"order_by" json:"order_by" validationmap:"OrderBy" validate:"optional" enums:"name,slug"`
+	OrderBy string `query:"order_by" json:"order_by" validationmap:"OrderBy" validate:"optional" enums:"name,slug"`
 
 	// The page to display.
 	// An empty list may be returned if going beyond the last page of results.
-	Page *int `query:"page" json:"page" validationmap:"Page" validate:"optional" minimum:"1"`
+	Page int `query:"page" json:"page" validationmap:"Page" validate:"optional" minimum:"1"`
 
 	// The amount of results to display per page.
-	PerPage *int `query:"per_page" json:"per_page" validationmap:"PerPage" validate:"optional" minimum:"1" maximum:"100"`
+	PerPage int `query:"per_page" json:"per_page" validationmap:"PerPage" validate:"optional" minimum:"1" maximum:"100"`
 }
 
-func (req ListOrganisationsRequest) ToCommand() organisations.ListCommand {
+func (req *ListOrganisationsRequest) ToCommand() organisations.ListCommand {
 	cmd := organisations.NewListCommand()
 
-	if req.OrderDirection != nil {
-		cmd.OrderDirection = common.SortDirection(*req.OrderDirection)
+	if req.OrderDirection != "" {
+		cmd.OrderDirection = common.SortDirection(req.OrderDirection)
 	}
 
-	if req.OrderBy != nil {
-		cmd.OrderBy = organisations.SortBy(*req.OrderBy)
+	if req.OrderBy != "" {
+		cmd.OrderBy = organisations.SortBy(req.OrderBy)
 	}
 
-	if req.Page != nil {
-		cmd.Page = *req.Page
+
+	if req.Page != 0 {
+		cmd.Page = req.Page
 	}
 
-	if req.PerPage != nil {
-		cmd.PerPage = *req.PerPage
+	if req.PerPage != 0 {
+		cmd.PerPage = req.PerPage
 	}
 
 	return cmd

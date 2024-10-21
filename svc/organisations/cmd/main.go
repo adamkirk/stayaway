@@ -130,41 +130,41 @@ func SharedOpts(cfg *config.Config) []fx.Option {
 				fx.ResultTags(`group:"api.v1.controllers"`),
 			),
 		),
-		fx.Provide(
-			fx.Annotate(
-				v1.NewVenuesController,
-				fx.As(new(api.Controller)),
-				fx.ResultTags(`group:"api.v1.controllers"`),
-			),
-		),
-		fx.Provide(
-			fx.Annotate(
-				v1.NewMunicipalitiesController,
-				fx.As(new(api.Controller)),
-				fx.ResultTags(`group:"api.v1.controllers"`),
-			),
-		),
-		fx.Provide(
-			fx.Annotate(
-				v1.NewVenueAccommodationTemplatesController,
-				fx.As(new(api.Controller)),
-				fx.ResultTags(`group:"api.v1.controllers"`),
-			),
-		),
-		fx.Provide(
-			fx.Annotate(
-				v1.NewVenueAccommodationsController,
-				fx.As(new(api.Controller)),
-				fx.ResultTags(`group:"api.v1.controllers"`),
-			),
-		),
-		fx.Provide(
-			fx.Annotate(
-				v1.NewProbesController,
-				fx.As(new(api.Controller)),
-				fx.ResultTags(`group:"api.v1.controllers"`),
-			),
-		),
+		// fx.Provide(
+		// 	fx.Annotate(
+		// 		v1.NewVenuesController,
+		// 		fx.As(new(api.Controller)),
+		// 		fx.ResultTags(`group:"api.v1.controllers"`),
+		// 	),
+		// ),
+		// fx.Provide(
+		// 	fx.Annotate(
+		// 		v1.NewMunicipalitiesController,
+		// 		fx.As(new(api.Controller)),
+		// 		fx.ResultTags(`group:"api.v1.controllers"`),
+		// 	),
+		// ),
+		// fx.Provide(
+		// 	fx.Annotate(
+		// 		v1.NewVenueAccommodationTemplatesController,
+		// 		fx.As(new(api.Controller)),
+		// 		fx.ResultTags(`group:"api.v1.controllers"`),
+		// 	),
+		// ),
+		// fx.Provide(
+		// 	fx.Annotate(
+		// 		v1.NewVenueAccommodationsController,
+		// 		fx.As(new(api.Controller)),
+		// 		fx.ResultTags(`group:"api.v1.controllers"`),
+		// 	),
+		// ),
+		// fx.Provide(
+		// 	fx.Annotate(
+		// 		v1.NewProbesController,
+		// 		fx.As(new(api.Controller)),
+		// 		fx.ResultTags(`group:"api.v1.controllers"`),
+		// 	),
+		// ),
 		fx.Provide(
 			fx.Annotate(
 				organisations.NewService,

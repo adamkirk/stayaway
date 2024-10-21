@@ -33,9 +33,13 @@ func OrganisationsFromModels(orgs organisations.Organisations) Organisations {
 	return v1Orgs
 }
 
-type ListOrganisationsResponse struct {
-	Data Organisations    `json:"data"`
+type ListOrganisationsResponseBody struct {
 	Meta ListResponseMeta `json:"meta"`
+	Data Organisations `json:"data"`
+}
+
+type ListOrganisationsResponse struct {
+	Body ListOrganisationsResponseBody
 } // @name	V1.Response.ListOrganisations
 
 type PostOrganisationResponse struct {

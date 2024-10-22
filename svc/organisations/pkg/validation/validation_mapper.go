@@ -142,6 +142,10 @@ func (vm *ValidationMapper) Map(err ValidationError, in any) ValidationError {
 
 	t := reflect.TypeOf(in)
 
+	if t.Kind() == reflect.Pointer {
+		t = t.Elem()
+	}
+
 	// TODO cache these results
 	meta := vm.getStructMap(t, true)
 

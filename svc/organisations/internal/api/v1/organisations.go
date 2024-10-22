@@ -2,15 +2,16 @@ package v1
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 
+	"github.com/adamkirk-stayaway/organisations/internal/api/operations"
 	"github.com/adamkirk-stayaway/organisations/internal/api/v1/requests"
 	"github.com/adamkirk-stayaway/organisations/internal/api/v1/responses"
 	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
 	"github.com/adamkirk-stayaway/organisations/internal/domain/organisations"
 	"github.com/adamkirk-stayaway/organisations/pkg/validation"
 	"github.com/danielgtaylor/huma/v2"
-	"github.com/labstack/echo/v4"
 )
 
 type OrganisationsService interface {
@@ -21,7 +22,9 @@ type OrganisationsService interface {
 	Update(cmd organisations.UpdateCommand) (*organisations.Organisation, error)
 }
 
-type OrganisationsControllerConfig interface{}
+type OrganisationsControllerConfig interface{
+	ApiServerDebugErrorsEnabled() bool 
+}
 
 type OrganisationsController struct {
 	cfg              OrganisationsControllerConfig
@@ -29,30 +32,49 @@ type OrganisationsController struct {
 	validationMapper *validation.ValidationMapper
 }
 
-// func (c *OrganisationsController) RegisterRoutes(api *echo.Group) {
-// 	g := api.Group("/organisations")
-// 	g.POST("", c.Create).Name = "v1.organisations.create"
-// 	g.DELETE("/:id", c.Delete).Name = "v1.organisations.delete"
-// 	g.GET("/:id", c.Get).Name = "v1.organisations.get"
-// 	g.PATCH("/:id", c.Patch).Name = "v1.organisations.patch"
-// 	g.GET("", c.List).Name = "v1.organisations.list"
-// }
-
 func (c *OrganisationsController) RegisterRoutes(api huma.API) {
-	huma.Register[requests.ListOrganisationsRequest, responses.GenericResponse[responses.ListResponseMeta, responses.Organisations]](api, huma.Operation{
+	huma.Register[requests.ListOrganisationsRequest, responses.ListOrganisationsResponse](api, huma.Operation{
 		OperationID:  "v1.organisations.list",
 		Method:       http.MethodGet,
 		Path:         "/organisations",
 		Summary:      "List all organisations",
-		DefaultStatus: 200,
-	}, c.List)
-	// huma.Post(api, "/organisations", c.Create, )
-	// g := api.Group("/organisations")
-	// g.POST("", c.Create).Name = "v1.organisations.create"
-	// g.DELETE("/:id", c.Delete).Name = "v1.organisations.delete"
-	// g.GET("/:id", c.Get).Name = "v1.organisations.get"
-	// g.PATCH("/:id", c.Patch).Name = "v1.organisations.patch"
-	// g.GET("", c.List).Name = "v1.organisations.list"
+		DefaultStatus: http.StatusOK,
+		Metadata: map[string]any{
+			operations.OptDisableNotFound: true,
+		},
+	}, ErrorHandler(c.cfg.ApiServerDebugErrorsEnabled(), c.validationMapper, c.List))
+
+	huma.Register[requests.PostOrganisationRequest, responses.OrganisationResponse](api, huma.Operation{
+		OperationID:  "v1.organisations.post",
+		Method:       http.MethodPost,
+		Path:         "/organisations",
+		Summary:      "Create an organisation.",
+		DefaultStatus: http.StatusCreated,
+	}, ErrorHandler(c.cfg.ApiServerDebugErrorsEnabled(), c.validationMapper, c.Post))
+
+	huma.Register[requests.PatchOrganisationRequest, responses.OrganisationResponse](api, huma.Operation{
+		OperationID:  "v1.organisations.patch",
+		Method:       http.MethodPatch,
+		Path:         "/organisations/{id}",
+		Summary:      "Patch an organisation.",
+		DefaultStatus: http.StatusOK,
+	}, ErrorHandler(c.cfg.ApiServerDebugErrorsEnabled(), c.validationMapper, c.Patch))
+
+	huma.Register[requests.DeleteOrganisationRequest, responses.NoContent](api, huma.Operation{
+		OperationID:  "v1.organisations.delete",
+		Method:       http.MethodDelete,
+		Path:         "/organisations/{id}",
+		Summary:      "Delete an organisation.",
+		DefaultStatus: http.StatusNoContent,
+	}, ErrorHandler(c.cfg.ApiServerDebugErrorsEnabled(), c.validationMapper, c.Delete))
+
+	huma.Register[requests.GetOrganisationRequest, responses.OrganisationResponse](api, huma.Operation{
+		OperationID:  "v1.organisations.get",
+		Method:       http.MethodGet,
+		Path:         "/organisations/{id}",
+		Summary:      "Get an organisation.",
+		DefaultStatus: http.StatusOK,
+	}, ErrorHandler(c.cfg.ApiServerDebugErrorsEnabled(), c.validationMapper, c.Get))
 }
 
 
@@ -68,31 +90,17 @@ func NewOrganisationsController(
 	}
 }
 
-// @Summary		List all organisations
-// @Tags			Organisations
-// @Accept			json
-// @Produce		json
-// @Success		200	{object}	responses.ListOrganisationsResponse
-// @Failure		422	{object}	responses.ValidationErrorResponse
-// @Failure		404	{object}	responses.GenericErrorResponse
-// @Failure		400	{object}	responses.GenericErrorResponse
-// @Failure		500	{object}	responses.GenericErrorResponse
-// @Router			/v1/organisations [get]
-// @Param			request	query	requests.ListOrganisationsRequest	true "Query params"
-func (c *OrganisationsController) List(ctx context.Context, req *requests.ListOrganisationsRequest) (*responses.GenericResponse[responses.ListResponseMeta, responses.Organisations], error) {
+func (c *OrganisationsController) List(ctx context.Context, req *requests.ListOrganisationsRequest) (*responses.ListOrganisationsResponse, error) {
 	cmd := req.ToCommand()
 
 	results, pagination, err := c.svc.List(cmd)
 
 	if err != nil {
-		// if err, ok := err.(validation.ValidationError); ok {
-		// 	return nil, c.validationMapper.Map(err, req)
-		// }
 		return nil, err
 	}
 
-	resp := &responses.GenericResponse[responses.ListResponseMeta, responses.Organisations]{
-		Body: responses.GenericResponseBody[responses.ListResponseMeta, responses.Organisations]{
+	resp := &responses.ListOrganisationsResponse{
+		Body: responses.OrganisationsListResponseBody{
 			Meta: responses.ListResponseMeta{
 				SortOptionsResponseMeta: responses.SortOptionsResponseMeta{
 					OrderDirection: string(cmd.OrderDirection),
@@ -112,138 +120,63 @@ func (c *OrganisationsController) List(ctx context.Context, req *requests.ListOr
 	return resp, nil
 }
 
-// @Summary		Create an organisation
-// @Tags			Organisations
-// @Accept			json
-// @Produce		json
-// @Success		201	{object}	responses.PostOrganisationResponse
-// @Failure		422	{object}	responses.ValidationErrorResponse
-// @Failure		404	{object}	responses.GenericErrorResponse
-// @Failure		400	{object}	responses.GenericErrorResponse
-// @Failure		500	{object}	responses.GenericErrorResponse
-// @Router			/v1/organisations [post]
-// @Param			Organisation	body		requests.PostOrganisationRequest	true	"Organisation definition"
-func (c *OrganisationsController) Create(ctx echo.Context) error {
-	req := requests.PostOrganisationRequest{}
-
-	if err := bindRequest(&req, ctx); err != nil {
-		return err
-	}
-
+func (c *OrganisationsController) Post(ctx context.Context, req *requests.PostOrganisationRequest) (*responses.OrganisationResponse, error) {
 	org, err := c.svc.Create(req.ToCommand())
 
 	if err != nil {
-		if err, ok := err.(validation.ValidationError); ok {
-			return c.validationMapper.Map(err, req)
-		}
-		return err
+		slog.Debug("err from command")
+		return nil, err
 	}
 
-	resp := responses.PostOrganisationResponse{
-		Data: responses.OrganisationFromModel(org),
+	resp := &responses.OrganisationResponse{
+		Body: responses.OrganisationResponseBody{
+			Data: responses.OrganisationFromModel(org),
+		},
 	}
 
-	ctx.JSON(201, resp)
-
-	return nil
+	return resp, nil
 }
 
-// @Summary		Get an organisation
-// @Tags			Organisations
-// @Accept			json
-// @Produce		json
-// @Success		200	{object}	responses.GetOrganisationResponse
-// @Failure		422	{object}	responses.ValidationErrorResponse
-// @Failure		404	{object}	responses.GenericErrorResponse
-// @Failure		400	{object}	responses.GenericErrorResponse
-// @Failure		500	{object}	responses.GenericErrorResponse
-// @Router			/v1/organisations/{id} [get]
-// @Param			id	path	string	true	"The Organisation ID"
-func (c *OrganisationsController) Get(ctx echo.Context) error {
-	req := requests.GetOrganisationRequest{}
-
-	if err := bindRequest(&req, ctx); err != nil {
-		return err
-	}
-
+func (c *OrganisationsController) Get(ctx context.Context, req *requests.GetOrganisationRequest) (*responses.OrganisationResponse, error) {
 	org, err := c.svc.Get(req.ToCommand())
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	resp := responses.GetOrganisationResponse{
-		Data: responses.OrganisationFromModel(org),
+	resp := &responses.OrganisationResponse{
+		Body: responses.OrganisationResponseBody{
+			Data: responses.OrganisationFromModel(org),
+		},
 	}
 
-	ctx.JSON(200, resp)
-
-	return nil
+	return resp, nil
 }
 
-// @Summary		Update an organisation
-// @Tags			Organisations
-// @Accept			json
-// @Produce		json
-// @Success		200	{object}	responses.PatchOrganisationResponse
-// @Failure		422	{object}	responses.ValidationErrorResponse
-// @Failure		404	{object}	responses.GenericErrorResponse
-// @Failure		400	{object}	responses.GenericErrorResponse
-// @Failure		500	{object}	responses.GenericErrorResponse
-// @Router			/v1/organisations/{id} [patch]
-// @Param			id	path	string	true	"The Organisation ID"
-// @Param			Changes	body		requests.PatchOrganisationRequest	true	"Organisation definition"
-func (c *OrganisationsController) Patch(ctx echo.Context) error {
-	req := requests.PatchOrganisationRequest{}
-
-	if err := bindRequest(&req, ctx); err != nil {
-		return err
-	}
-
+func (c *OrganisationsController) Patch(ctx context.Context, req *requests.PatchOrganisationRequest) (*responses.OrganisationResponse, error) {
 	org, err := c.svc.Update(req.ToCommand())
 
 	if err != nil {
-		if err, ok := err.(validation.ValidationError); ok {
-			return c.validationMapper.Map(err, req)
-		}
-
-		return err
+		return nil, err
 	}
 
-	resp := responses.PatchOrganisationResponse{
-		Data: responses.OrganisationFromModel(org),
+	resp := &responses.OrganisationResponse{
+		Body: responses.OrganisationResponseBody{
+			Data: responses.OrganisationFromModel(org),
+		},
 	}
 
-	ctx.JSON(200, resp)
-
-	return nil
+	return resp, nil
 }
 
-// @Summary		Delete an organisation
-// @Tags			Organisations
-// @Accept			json
-// @Produce		json
-// @Success		204
-// @Failure		422	{object}	responses.ValidationErrorResponse
-// @Failure		404	{object}	responses.GenericErrorResponse
-// @Failure		400	{object}	responses.GenericErrorResponse
-// @Failure		500	{object}	responses.GenericErrorResponse
-// @Router			/v1/organisations/{id} [delete]
-// @Param			id	path	string	true	"The Organisation ID"
-func (c *OrganisationsController) Delete(ctx echo.Context) error {
-	req := requests.DeleteOrganisationRequest{}
-
-	if err := bindRequest(&req, ctx); err != nil {
-		return err
-	}
-
+func (c *OrganisationsController) Delete(ctx context.Context, req *requests.DeleteOrganisationRequest) (*responses.NoContent, error) {
 	err := c.svc.Delete(req.ToCommand())
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	ctx.NoContent(204)
-
-	return nil
+	return &responses.NoContent{
+		Status: http.StatusNoContent,
+	}, nil
 }

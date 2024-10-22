@@ -4,7 +4,11 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"net/http"
+	"slices"
+	"strconv"
 
+	"github.com/adamkirk-stayaway/organisations/internal/api/operations"
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humaecho"
 	"github.com/labstack/echo/v4"
@@ -47,6 +51,81 @@ func (s *Server) Shutdown(ctx context.Context) error {
 	return s.e.Shutdown(ctx)
 }
 
+var opsWithoutBodies = []string{
+	http.MethodGet,
+	http.MethodHead,
+	http.MethodOptions,
+	http.MethodDelete,
+
+	// Probably don't need this one, but leaving for good measure
+	http.MethodTrace,
+}
+
+func ConfigureDefaultResponses(api *huma.OpenAPI, op *huma.Operation) {
+	validationStatus := strconv.Itoa(http.StatusUnprocessableEntity)
+
+	if slices.Contains(opsWithoutBodies, op.Method) {
+		validationStatus = strconv.Itoa(http.StatusBadRequest)
+	}
+
+	if _, ok := op.Responses["default"]; ok {
+		// Remove the default as it's an error, but has no status code
+		// Maybe there's another way to turn it off
+		op.Responses["default"] = nil
+	}
+
+	if _, ok := op.Responses[validationStatus]; !ok {
+		op.Responses[validationStatus] = &huma.Response{
+			Description: "validation error",
+			Content: map[string]*huma.MediaType{
+				"application/problem+json": {
+					Schema: &huma.Schema{
+						Ref: "#/components/schemas/ErrorModel",
+					},
+				},
+			},
+		}
+	}
+
+	internalError := strconv.Itoa(http.StatusInternalServerError)
+
+	if _, ok := op.Responses[internalError]; !ok {
+		op.Responses[internalError] = &huma.Response{
+			Description: "validation error",
+			Content: map[string]*huma.MediaType{
+				"application/problem+json": {
+					Schema: &huma.Schema{
+						Ref: "#/components/schemas/ErrorModel",
+					},
+				},
+			},
+		}
+	}
+
+	var notFoundEnabled = true
+
+	if v, ok := op.Metadata[operations.OptDisableNotFound]; ok {
+		if optAsBool, ok := v.(bool); ok {
+			notFoundEnabled = ! optAsBool
+		}
+	}
+
+	notFound := strconv.Itoa(http.StatusNotFound)
+
+	if _, ok := op.Responses[notFound]; !ok && notFoundEnabled {
+		op.Responses[notFound] = &huma.Response{
+			Description: "Resource Not Found",
+			Content: map[string]*huma.MediaType{
+				"application/problem+json": {
+					Schema: &huma.Schema{
+						Ref: "#/components/schemas/ErrorModel",
+					},
+				},
+			},
+		}
+	}
+}
+
 // @title Stayaway - Organisations
 // @version 1.0
 // @description This is an API for managing organisations in the stayaway ecosystem.
@@ -76,6 +155,7 @@ func NewServer(v1Api *V1Api, cfg ApiServerConfig) *Server {
 		apiBase := fmt.Sprintf("/api/%s", v1Api.Version())
 		api := e.Group(apiBase)
 		cfg := huma.DefaultConfig("Organisations", v1Api.Version())
+
 		// Needed to get the docs displaying properly.
 		cfg.OpenAPI.Servers = []*huma.Server{
 			{
@@ -84,11 +164,9 @@ func NewServer(v1Api *V1Api, cfg ApiServerConfig) *Server {
 		}
 
 		hg := humaecho.NewWithGroup(e, api, cfg)
-		// hg.Use(v1Api.Middleware(cfg)...)
+		hg.OpenAPI().OnAddOperation = append(hg.OpenAPI().OnAddOperation, ConfigureDefaultResponses)
 		c.RegisterRoutes(hg)
 	}
-
-	// e.GET("/openapi/*", echoSwagger.WrapHandler)
 
 	srv := &Server{
 		cfg: cfg,

@@ -1,7 +1,6 @@
 package api
 
 import (
-	v1 "github.com/adamkirk-stayaway/organisations/internal/api/v1"
 	"github.com/labstack/echo/v4"
 )
 
@@ -15,7 +14,7 @@ func (c *V1Api) Version() string {
 
 func (c *V1Api) Middleware(cfg ApiServerConfig) []echo.MiddlewareFunc {
 	return []echo.MiddlewareFunc{
-		v1.NewErrorHandler(cfg.ApiServerDebugErrorsEnabled()),
+		// v1.NewErrorHandler(cfg.ApiServerDebugErrorsEnabled()),
 	}
 }
 

@@ -6,19 +6,10 @@ import (
 )
 
 type ListOrganisationsRequest struct {
-
-	// The direction to order the results by.
-	OrderDirection string `query:"order_dir" json:"order_dir" validationmap:"OrderDir" validate:"optional" enums:"asc,desc"`
-
-	// The field by which to order the results.
-	OrderBy string `query:"order_by" json:"order_by" validationmap:"OrderBy" validate:"optional" enums:"name,slug"`
-
-	// The page to display.
-	// An empty list may be returned if going beyond the last page of results.
-	Page int `query:"page" json:"page" validationmap:"Page" validate:"optional" minimum:"1"`
-
-	// The amount of results to display per page.
-	PerPage int `query:"per_page" json:"per_page" validationmap:"PerPage" validate:"optional" minimum:"1" maximum:"100"`
+	OrderDirection string `query:"order_dir" json:"order_dir" validationmap:"OrderDir" validate:"optional" enums:"asc,desc" doc:"The direction to order the results by."`
+	OrderBy string `query:"order_by" json:"order_by" validationmap:"OrderBy" validate:"optional" enums:"name,slug" doc:"The field by which to order the results."`
+	Page int `query:"page" json:"page" validationmap:"Page" validate:"optional" minimum:"1" doc:"The page to display.<br />An empty list may be returned if going beyond the last page of results."`
+	PerPage int `query:"per_page" json:"per_page" validationmap:"PerPage" validate:"optional" minimum:"1" maximum:"100" doc:"The amount of results to display per page."`
 }
 
 func (req *ListOrganisationsRequest) ToCommand() organisations.ListCommand {
@@ -45,23 +36,24 @@ func (req *ListOrganisationsRequest) ToCommand() organisations.ListCommand {
 }
 
 type PostOrganisationRequest struct {
-	// The name of the organisation.
-	Name *string `json:"name" validationmap:"Name" validate:"required" minLength:"3"`
+	Body PostOrganisationRequestBody
+}
 
-	// A slug that will be used in URI's.
-	// Must only contain alphanumeric and hyphen characters
-	Slug *string `json:"slug" validationmap:"Slug" validate:"required" minLength:"3"`
-} // @name	V1.Request.CreateOrganisation
+type PostOrganisationRequestBody struct {
+	Name *string `json:"name,omitempty" required:"true" minLength:"3" example:"My Organisation" validationmap:"Name" doc:"The name of the organisation."`
 
-func (req PostOrganisationRequest) ToCommand() organisations.CreateCommand {
+	Slug *string `json:"slug,omitempty" required:"true" minLength:"3" pattern:"^[a-z0-9]{1}[a-z0-9\\-]*$" patternDescription:"alphanum + hyphen" validationmap:"Slug" example:"my-organisation" doc:"A slug that will be used in URI's. Must be unique across all other organisations."`
+}
+
+func (req *PostOrganisationRequest) ToCommand() organisations.CreateCommand {
 	return organisations.CreateCommand{
-		Name: req.Name,
-		Slug: req.Slug,
+		Name: req.Body.Name,
+		Slug: req.Body.Slug,
 	}
 }
 
 type DeleteOrganisationRequest struct {
-	ID string `param:"id"`
+	ID string `path:"id"`
 }
 
 func (req DeleteOrganisationRequest) ToCommand() organisations.DeleteCommand {
@@ -71,7 +63,7 @@ func (req DeleteOrganisationRequest) ToCommand() organisations.DeleteCommand {
 }
 
 type GetOrganisationRequest struct {
-	ID string `param:"id"`
+	ID string `path:"id"`
 }
 
 func (req GetOrganisationRequest) ToCommand() organisations.GetCommand {
@@ -81,21 +73,19 @@ func (req GetOrganisationRequest) ToCommand() organisations.GetCommand {
 }
 
 type PatchOrganisationRequest struct {
-	ID string `param:"id" swaggerignore:"true"`
+	ID string `path:"id"`
+	Body PatchOrganisationRequestBody
+}
 
-	// The name of the organisation.
-	Name *string `json:"name,omitempty" validationmap:"Name" validate:"optional" minLength:"3" extensions:"x-nullable"`
-
-	// A slug that will be used in URI's.
-	// Must only contain alphanumeric and hyphen characters.
-	// Must be unique across all other organisations.
-	Slug *string `json:"slug,omitempty" validationmap:"Slug" validate:"optional" minLength:"3" extensions:"x-nullable"`
-} // @name	V1.Request.UpdateOrganisation
+type PatchOrganisationRequestBody struct {
+	Name *string `json:"name,omitempty" required:"false" example:"My Organisation" validationmap:"Name" validate:"optional" minLength:"3" doc:"The name of the organisation."`
+	Slug *string `json:"slug,omitempty" required:"false" example:"my-organisation" validationmap:"Slug" pattern:"^[a-z0-9]{1}[a-z0-9\\-]*$" patternDescription:"alphanum + hyphen" minLength:"3" extensions:"x-nullable" doc:"A slug that will be used in URI's. Must be unique across all other organisations."`
+}
 
 func (req PatchOrganisationRequest) ToCommand() organisations.UpdateCommand {
 	return organisations.UpdateCommand{
 		ID:   req.ID,
-		Name: req.Name,
-		Slug: req.Slug,
+		Name: req.Body.Name,
+		Slug: req.Body.Slug,
 	}
 }

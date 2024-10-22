@@ -3,15 +3,10 @@ package responses
 import "github.com/adamkirk-stayaway/organisations/internal/domain/organisations"
 
 type Organisation struct {
-	// ID of the organisation.
-	ID string `json:"id"`
-
-	// The name of the organisation.
-	Name string `json:"name"`
-
-	// Unique slug used in URI's.
-	Slug string `json:"slug"`
-} // @name	V1.Response[Model].Organisation
+	ID string `json:"id" doc:"ID of the organisation."`
+	Name string `json:"name" doc:"The name of the organisation."`
+	Slug string `json:"slug" doc:"Unique slug used in URI's."`
+}
 
 func OrganisationFromModel(org *organisations.Organisation) Organisation {
 	return Organisation{
@@ -21,7 +16,7 @@ func OrganisationFromModel(org *organisations.Organisation) Organisation {
 	}
 }
 
-type Organisations []Organisation // @name	V1.Response[Model].Organisations
+type Organisations []Organisation
 
 func OrganisationsFromModels(orgs organisations.Organisations) Organisations {
 	v1Orgs := make(Organisations, len(orgs))
@@ -33,23 +28,19 @@ func OrganisationsFromModels(orgs organisations.Organisations) Organisations {
 	return v1Orgs
 }
 
-type ListOrganisationsResponseBody struct {
+type OrganisationsListResponseBody struct {
 	Meta ListResponseMeta `json:"meta"`
 	Data Organisations `json:"data"`
 }
 
 type ListOrganisationsResponse struct {
-	Body ListOrganisationsResponseBody
-} // @name	V1.Response.ListOrganisations
+	Body OrganisationsListResponseBody
+}
 
-type PostOrganisationResponse struct {
+type OrganisationResponseBody struct {
 	Data Organisation `json:"data"`
-} // @name	V1.Response.CreateOrganisation
+}
 
-type GetOrganisationResponse struct {
-	Data Organisation `json:"data"`
-} // @name	V1.Response.GetOrganisation
-
-type PatchOrganisationResponse struct {
-	Data Organisation `json:"data"`
-} // @name	V1.Response.PatchOrganisation
+type OrganisationResponse struct {
+	Body OrganisationResponseBody
+}

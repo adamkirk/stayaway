@@ -1,94 +1,56 @@
 package v1
 
 import (
-	"github.com/adamkirk-stayaway/organisations/internal/api/v1/responses"
+	"context"
+	"errors"
+	"log/slog"
+	"net/http"
+	"strings"
+
 	"github.com/adamkirk-stayaway/organisations/internal/domain/common"
 	"github.com/adamkirk-stayaway/organisations/pkg/validation"
-	"github.com/labstack/echo/v4"
+	"github.com/danielgtaylor/huma/v2"
 )
 
-func translateErrToHttpErr(err error) HttpError {
-	switch t := err.(type) {
-	default:
-		return nil
-	case common.ErrNotFound:
-		return ErrNotFound{
-			ResourceName: t.ResourceName,
+func ErrorHandler[Req any, Resp any](debugErrors bool, vm *validation.ValidationMapper, handler func(context.Context, *Req) (*Resp, error)) (func (ctx context.Context, req *Req) (*Resp, error)) {
+	return func (ctx context.Context, req *Req) (*Resp, error) {
+		resp, err :=  handler(ctx, req)
+
+		if err == nil {
+			return resp, nil
 		}
-	case common.ErrConflict:
-		return ErrConflict{
-			Message: t.Message,
+
+		if err, ok := err.(common.ErrNotFound); ok {
+			return nil, huma.Error404NotFound(err.Error())
 		}
-	}
-}
 
-func handleValidationError(ctx echo.Context, errs validation.ValidationError) {
-	respErrors := map[string][]string{}
+		validationError, ok := err.(validation.ValidationError)
 
-	for _, err := range errs.Errs {
-		respErrors[err.Key] = err.Errors
-	}
+		if ! ok {
+			slog.Error("unhandled error", "error", err)
 
-	respBody := responses.ValidationErrorResponse{
-		Errors: respErrors,
-	}
-
-	ctx.JSON(422, respBody)
-}
-
-func NewErrorHandler(debugErrorsEnabled bool) func(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(ctx echo.Context) error {
-			err := next(ctx)
-			if err == nil {
-				return nil
+			if debugErrors {
+				// This will automatically return the error message in the detail
+				return resp, err
 			}
+			return resp, errors.New("This is an error in our system, please contact us!")
+		}
 
-			if err, ok := err.(validation.ValidationError); ok {
-				handleValidationError(ctx, err)
-				return nil
-			}
+		validationError = vm.Map(validationError, req)
 
-			respBody := map[string]any{}
+		errors := []*huma.ErrorDetail{}
 
-			var httpErr HttpError
+		for _, err := range validationError.Errs {
+			errors = append(errors, &huma.ErrorDetail{
+				Message: strings.Join(err.Errors, "|"),
+				Location: err.Key,
+			})
+		}
 
-			if translated := translateErrToHttpErr(err); translated != nil {
-				httpErr = translated
-			} else {
-				translated, ok := err.(HttpError)
-
-				if ok {
-					httpErr = translated
-				}
-			}
-
-			if httpErr != nil {
-				respBody["message"] = err.Error()
-
-				debuggableErr, ok := err.(HttpDebuggableError)
-
-				if ok && debugErrorsEnabled {
-					respBody["debug"] = map[string]any{
-						"error": debuggableErr.DebugError(),
-					}
-				}
-
-				ctx.JSON(httpErr.HttpStatusCode(), respBody)
-
-				return nil
-			}
-
-			if debugErrorsEnabled {
-				respBody["debug"] = map[string]any{
-					"error": err.Error(),
-				}
-			}
-
-			respBody["message"] = "internal server error"
-			ctx.JSON(500, respBody)
-
-			return nil
+		return resp, &huma.ErrorModel{
+			Detail: "Validation failed",
+			Status: http.StatusBadRequest,
+			Errors: errors,
 		}
 	}
 }
